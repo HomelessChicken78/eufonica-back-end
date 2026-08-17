@@ -34,29 +34,55 @@ Per ogni _l:Listen_ e _s:Song_, tali _(s, l):song_listened_, deve essere vero ch
 
 ## Specifica delle Classi
 
-### Specifica della Classe X
-
+### Specifica della classe AppUser
 <p>
-operazione(esempio: Stringa): booleano<br>
-Pre: Nessuna<br>
-Post: ...
+recently_listened(sinceDate : Data): Song[0..*]<br>
+Pre: Deve essere vero che sinceDate < Oggi<br>
+Post: L'operazione non modifica i dati. Il risultato è così definito:
 </p>
 
-### Specifica della Classe Y
+- Sia _L_ l'iniseme di tutti i l:Listen tali che esiste il link (this, l):user_listens e per i quali sia vero che **sinceDate** < l.timestamp
+- result è l'iniseme di tutte le s:Song, tali che esiste il link (l, s):song_listened, per almeno un oggetto l appartenente all'insieme _L_
+
+### Specifica della classe Playlist
 
 <p>
-operazione(esempio: Stringa): booleano<br>
+tot_duration(): Intero > 0<br>
 Pre: Nessuna<br>
-Post: ...
+Post: L'operazione non modifica i dati. Il risultato è così definito:
 </p>
 
-### Specifica della Classe Z
+- Sia S l'insieme di tutte le _s:Song_, tali che esiste il link (this, s):playlist_contains
+- result è la somma di tutte le s.duration_sec in S, espresso in ore, minuti e secondi
+
+<p style="margin-top: 20px">
+amount_likes(): Intero > 0<br>
+Pre: Nessuna<br>
+Post: L'operazione non modifica i dati. Il risultato è così definito:
+</p>
+
+- Sia UserLikes l'insieme di tutti gli u:AppUser, tali che esiste il link (u, this):playlist_like
+- result = |UserLikes|
+
+### Specifica della classe Song
 
 <p>
-operazione(esempio: Stringa): booleano<br>
+amount_listens(): Intero > 0<br>
 Pre: Nessuna<br>
-Post: ...
+Post: L'operazione non modifica i dati. Il risultato è così definito:
 </p>
+
+- Sia L l'insieme di tutti i _l:Listen_, tali che esista il link (l, this):song_listened
+- result = |L|
+
+<p style="margin-top: 20px">
+amount_likes(): Intero > 0<br>
+Pre: Nessuna<br>
+Post: L'operazione non modifica i dati. Il risultato è così definito:
+</p>
+
+- Sia UserLikes l'insieme di tutti gli u:AppUser, tali che esiste il link (u, this):song_like
+- result = |UserLikes|
 
 ## Diagramma degli Use-Case
 
