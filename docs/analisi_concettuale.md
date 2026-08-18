@@ -123,7 +123,7 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 <!-- TOC --><a name="diagramma-degli-use-case"></a>
 ## Diagramma degli Use-Case
 
-_inserire il diagramma qui_
+![Use-Case diagram](/docs/Use_Case_Diagram.png)
 
 <!-- TOC --><a name="specifica-degli-use-case"></a>
 ## Specifica degli Use-Case
