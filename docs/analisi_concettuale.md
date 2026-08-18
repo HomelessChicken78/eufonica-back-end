@@ -9,6 +9,9 @@
       + [[V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato](#vsong_creditpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-una-canzone-se-non-è-stato-fondato)
       + [[V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone](#vlistendata_di_ascolto_valida-un-ascolto-deve-esser-fatto-dopo-la-registrazione-di-un-utente-e-dopo-la-pubblicazione-di-una-canzone)
       + [[V.Listen.non_ascolta_piu_della_durata] Un Utente non può Ascoltare per una durata superiore alla durata della Canzone stessa](#vlistennon_ascolta_piu_della_durata-un-utente-non-può-ascoltare-per-una-durata-superiore-alla-durata-della-canzone-stessa)
+      + [[V.ArtistRequest.tipo_richiesta_esclusivo] Una Richiesta deve indicare il nome per un nuovo Artista oppure riferirsi a un Artista già esistente, ma non entrambe o nessuna delle due.](#vartistrequesttipo_richiesta_esclusivo-una-richiesta-deve-indicare-il-nome-per-un-nuovo-artista-oppure-riferirsi-a-un-artista-già-esistente-ma-non-entrambe-o-nessuna-delle-due)
+      + [[V.ArtistRequest.richiesta_dopo_registrazione_ut] Un Utente non può Richiedere di diventare un Artista prima della sua registrazione](#vartistrequestrichiesta_dopo_registrazione_ut-un-utente-non-può-richiedere-di-diventare-un-artista-prima-della-sua-registrazione)
+      + [[V.ArtistRequest.richiesta_dopo_registrazione_art] Una Richiesta non può riguardare un Artista che si è registrato dopo la Richiesta stessa](#vartistrequestrichiesta_dopo_registrazione_art-una-richiesta-non-può-riguardare-un-artista-che-si-è-registrato-dopo-la-richiesta-stessa)
    * [Specifica delle Classi](#specifica-delle-classi)
       + [Specifica della classe AppUser](#specifica-della-classe-appuser)
       + [Specifica della classe Playlist](#specifica-della-classe-playlist)
@@ -63,6 +66,23 @@ Per ogni _u:AppUser_, _l:Listen_ e _s:Song_, tali che _(u, l):user_listens_ e ch
 ### [V.Listen.non_ascolta_piu_della_durata] Un Utente non può Ascoltare per una durata superiore alla durata della Canzone stessa
 
 Per ogni _l:Listen_ e _s:Song_, tali _(s, l):song_listened_, deve essere vero che l.sec_played <= s.duration_sec
+
+<!-- TOC --><a name="vartistrequesttipo_richiesta_esclusivo-una-richiesta-deve-indicare-il-nome-per-un-nuovo-artista-oppure-riferirsi-a-un-artista-già-esistente-ma-non-entrambe-o-nessuna-delle-due"></a>
+### [V.ArtistRequest.tipo_richiesta_esclusivo] Una Richiesta deve indicare il nome per un nuovo Artista oppure riferirsi a un Artista già esistente, ma non entrambe o nessuna delle due.
+
+Per ogni _r:ArtistRequest_, deve essere vera esattamente una e una sola (**xor**) delle due seguenti condizioni:
+- Esiste un valore per l'attributo r.req_name
+- Esiste un _a:Artist_, tale che esista il link _(r, a):req_art_
+
+<!-- TOC --><a name="vartistrequestrichiesta_dopo_registrazione_ut-un-utente-non-può-richiedere-di-diventare-un-artista-prima-della-sua-registrazione"></a>
+### [V.ArtistRequest.richiesta_dopo_registrazione_ut] Un Utente non può Richiedere di diventare un Artista prima della sua registrazione
+
+Per ogni _r:ArtistRequest_ e _u:AppUser_, tali che esista il link _(r, u):send_req_ deve essere vero che u.registration_timestamp < r.timestamp
+
+<!-- TOC --><a name="vartistrequestrichiesta_dopo_registrazione_art-una-richiesta-non-può-riguardare-un-artista-che-si-è-registrato-dopo-la-richiesta-stessa"></a>
+### [V.ArtistRequest.richiesta_dopo_registrazione_art] Una Richiesta non può riguardare un Artista che si è registrato dopo la Richiesta stessa
+
+Per ogni _r:ArtistRequest_ e _a:Artist, tali che esista il link _(r, a):req_art_ deve essere vero che a.registration_timestamp < r.timestamp
 
 <!-- TOC --><a name="specifica-delle-classi"></a>
 ## Specifica delle Classi
