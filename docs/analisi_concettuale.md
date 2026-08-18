@@ -149,10 +149,58 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 ## Specifica degli Use-Case
 
 <!-- TOC --><a name="use-case-x"></a>
-### Use-Case X
+### Use-Case Strumenti Richiesta Artista
+
+<p>
+invia_richiesta_nuovo_artista(ut: AppUser, req_name: Stringa) : ArtistRequest<br>
+Pre:
+</p>
+
+- Non deve esistere alcun _r:ArtistRequest_ tale che _(**ut**, r):send_req_ e che (r.status = 'pending' oppure r.status = 'accepted').
+- **req_name** non deve essere vuoto
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:ArtistRequest_, con valori res.status = 'pending', res.req_name = **req_name** e res.timestamp = Oggi in questo momento
+- Viene creato il link _(**ut**, res):send_req_
+
+<p style="margin-top: 20px">
+invia_richiesta_artista_esistente(ut: AppUser, art: Artist) : ArtistRequest<br>
+Pre:
+</p>
+
+- Non deve esistere alcun _r:ArtistRequest_ tale che _(**ut**, r):send_req_ e che (r.status = 'pending' oppure r.status = 'accepted').
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:ArtistRequest_, con valori res.status = 'pending', res.req_name = **req_name** e res.timestamp = Oggi in questo momento
+- Viene creato il link _(**ut**, res):send_req_
+- Viene creato il link _(res, **art**):req_art_
 
 <!-- TOC --><a name="use-case-y"></a>
-### Use-Case Y
+### Use-Case Strumenti di Moderazione
+
+<p>
+valuta_richiesta(req: ArtistRequest, accepted: Booleano)<br>
+Pre:
+</p>
+
+- Deve essere vero che **req**.status = 'pending'
+
+<p>
+Post:
+</p>
+
+- Se il valore di **accepted** è falso, allora **req**.status diventa uguale a 'rejected'
+- Se il valore di **accepted** è vero, allora **req**.status diventa uguale a 'accepted'. Inoltre:
+   - Sia _u:AppUser_, tale che esista il link _(u, **req**):send_req_
+   - Se esiste un _art:Artist_, tale che esista il link _(**req**, art):req_art, viene creato il link _(u, art):art_affiliation_
+   - Se non esiste alcun link dell'associazione req_art che coinvolga **req**
+      - Viene creato un nuovo oggetto _new_art:Artist_, con valori new_art.name = **req** e  new_art.registration_timestamp = Oggi in questo momento
 
 <!-- TOC --><a name="use-case-z"></a>
 ### Use-Case Z
