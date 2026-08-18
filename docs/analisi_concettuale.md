@@ -71,7 +71,7 @@ Per ogni _l:Listen_ e _s:Song_, tali _(s, l):song_listened_, deve essere vero ch
 ### [V.ArtistRequest.tipo_richiesta_esclusivo] Una Richiesta deve indicare il nome per un nuovo Artista oppure riferirsi a un Artista già esistente, ma non entrambe o nessuna delle due.
 
 Per ogni _r:ArtistRequest_, deve essere vera esattamente una e una sola (**xor**) delle due seguenti condizioni:
-- Esiste un valore per l'attributo r.req_name
+- Esiste un valore per l'attributo r.req_name e, contemporaneamente, un valore per l'attributo r.req_foundation_date
 - Esiste un _a:Artist_, tale che esista il link _(r, a):req_art_
 
 <!-- TOC --><a name="vartistrequestrichiesta_dopo_registrazione_ut-un-utente-non-può-richiedere-di-diventare-un-artista-prima-della-sua-registrazione"></a>
@@ -152,18 +152,19 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 ### Use-Case Strumenti Richiesta Artista
 
 <p>
-invia_richiesta_nuovo_artista(ut: AppUser, req_name: Stringa) : ArtistRequest<br>
+invia_richiesta_nuovo_artista(ut: AppUser, req_name: Stringa, req_foundation_date : Data) : ArtistRequest<br>
 Pre:
 </p>
 
 - Non deve esistere alcun _r:ArtistRequest_ tale che _(**ut**, r):send_req_ e che (r.status = 'pending' oppure r.status = 'accepted').
 - **req_name** non deve essere vuoto
+- Deve essere vero che **req_foundation_date** <= Oggi
 
 <p>
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:ArtistRequest_, con valori res.status = 'pending', res.req_name = **req_name** e res.timestamp = Oggi in questo momento
+- Viene creato e restituito un nuovo oggetto _res:ArtistRequest_, con valori res.status = 'pending', res.req_name = **req_name**, res.req_foundation_date = **req_foundation_date** e  res.timestamp = Oggi in questo momento
 - Viene creato il link _(**ut**, res):send_req_
 
 <p style="margin-top: 20px">
@@ -200,7 +201,7 @@ Post:
    - Sia _u:AppUser_, tale che esista il link _(u, **req**):send_req_
    - Se esiste un _art:Artist_, tale che esista il link _(**req**, art):req_art, viene creato il link _(u, art):art_affiliation_
    - Se non esiste alcun link dell'associazione req_art che coinvolga **req**
-      - Viene creato un nuovo oggetto _new_art:Artist_, con valori new_art.name = **req** e  new_art.registration_timestamp = Oggi in questo momento
+      - Viene creato un nuovo oggetto _new_art:Artist_, con valori new_art.name = **req**.req_name, new_art.foundation_date = **req**.req_foundation_date e new_art.registration_timestamp = Oggi in questo momento
 
 <!-- TOC --><a name="use-case-z"></a>
 ### Use-Case Z
