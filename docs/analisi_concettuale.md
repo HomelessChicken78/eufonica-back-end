@@ -30,7 +30,7 @@
 <!-- TOC --><a name="diagramma-delle-classi-class-diagram"></a>
 ## Diagramma delle Classi (Class Diagram)
 
-![Class diagram](/docs/Class_Diagram.png)
+![Class diagram](./Class_Diagram.png)
 
 <!-- TOC --><a name="specifica-dei-tipi-di-dato"></a>
 ## Specifica dei tipi di dato
@@ -143,7 +143,7 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 <!-- TOC --><a name="diagramma-degli-use-case"></a>
 ## Diagramma degli Use-Case
 
-![Use-Case diagram](/docs/Use_Case_Diagram.png)
+![Use-Case diagram](./Use_Case_Diagram.png)
 
 <!-- TOC --><a name="specifica-degli-use-case"></a>
 ## Specifica degli Use-Case
