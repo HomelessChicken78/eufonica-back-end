@@ -62,6 +62,18 @@ Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve esser
 
 Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
 
+### [V.Album.rilascio_originale_prima_di_pubblicazione] Un ALbum può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
+
+Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
+
+### [V.art_album.artista_fondato_prima_rilascio_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
+
+Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.pub_date
+
+### [V.art_album.artista_registrato_prima_pubblicazione_album] La pubblicazione di un Album può avvenire solo da Artisti registrati prima della data di pubblicazione dell'Album stesso
+
+Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.registration_timestamp < al.pub_date
+
 <!-- TOC --><a name="vlistendata_di_ascolto_valida-un-ascolto-deve-esser-fatto-dopo-la-registrazione-di-un-utente-e-dopo-la-pubblicazione-di-una-canzone"></a>
 ### [V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone
 
@@ -270,17 +282,19 @@ Post:
    - Tra questi, il link _(**art_owner**, res)_ viene specializzato come istanza anche dell'associazione _song_ownership_
 
 <p style="margin-top: 20px">
-pubblica_album(artists: Artist[1..*], songs: Song[0..*], alb_name: Stringa): Album<br>
+pubblica_album(artists: Artist[1..*], songs: Song[0..*], alb_name: Stringa, orig_rel_date: Data): Album<br>
 Pre:
 </p>
 
 - **alb_name** non deve essere vuoto
+- **orig_rel_date** <= Oggi
+- Per ogni _art:Artist_ in **artists**, deve essere vero che art.foundation_date <= **orig_rel_date**
 
 <p>
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:Album_, con valori res.name = **alb_name** e res.pub_date = Oggi
+- Viene creato e restituito un nuovo oggetto _res:Album_, con valori res.name = **alb_name**, res.original_release_date = **orig_rel_date** e res.pub_date = Oggi
 - Per ogni _art:Artist_ in **artists**, vengono creati i link _(art, res):art_album_
 - Per ogni _s:Song_ in **songs**, vengono creati i link _(res, s):album_contains_
 
