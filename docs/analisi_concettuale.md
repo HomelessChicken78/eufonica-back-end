@@ -361,6 +361,48 @@ Post:
 
 _Inserisci il diagramma ristrutturato qui_
 
+## Specifica dei tipi di dato (Ristrutturata)
+- Tipo `IntGZ`<br>
+````java
+@Positive
+@Column(nullable = false)
+private Integer nomeAttributo;
+````
+
+- Tipo `IntGEZ`<br>
+````java
+@PositiveOrZero
+@Column(nullable = false)
+private Integer nomeAttributo;
+````
+
+- Tipo `RequestStatus`<br>
+````java
+public enum RequestStatus {
+   PENDING,
+   ACCEPTED,
+   REJECTED
+}
+````
+
+- Tipo `VisibilityType`<br>
+````java
+public enum VisibilityType {
+   PUBLIC,
+   PRIVATE,
+   UNLISTED
+}
+````
+
+- Tipo `Url`
+````java
+@Pattern(
+    regexp = "https?:\\\\/\\\\/(www\\\\.)?[-a-zA-Z0-9@:%._\\\\+~#=]{1,256}\\\\.[a-zA-Z0-9()]{1,6}\\\\b([-a-zA-Z0-9()@:%_\\\\+.~#?&//=]*)"
+)
+private String url;
+````
+
+
 <!-- TOC --><a name="vincoli-ristrutturati"></a>
 ## Vincoli Ristrutturati
 
