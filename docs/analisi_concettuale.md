@@ -198,6 +198,46 @@ Post:
 
 ### Strumenti di Interazione
 
+<p>
+registra_ascolto(ut: AppUser, s: Song, sec: Intero)<br>
+Pre:
+</p>
+
+- Deve essere vero che **sec** >= 0 e **sec** <= **s**.duration_sec
+
+<p>
+Post:
+</p>
+
+- Viene creato un nuovo oggetto _l:Listen_, con valori l.timestamp = Oggi in questo momento e l.sec_played = **sec**
+- Viene creato il link _(**ut**, l):user_listens_
+- Viene creato il link _(**s**, l):song_listened_
+
+<p style="margin-top: 20px">
+like_canzone(ut: AppUser, s: Song)<br>
+Pre:
+</p>
+
+- Non deve esistere il link _(**ut**, **s**):song_like_
+
+<p>
+Post:
+</p>
+
+- Viene creato il link _(**ut**, **s**):song_like_
+
+<p style="margin-top: 20px">
+like_playlist(ut: AppUser, pl: Playlist)<br>
+Pre:
+</p>
+
+- Non deve esistere il link _(**ut**, **pl**):playlist_like_
+
+<p>
+Post:
+</p>
+
+- Viene creato il link _(**ut**, **pl**):playlist_like_
 
 <!-- TOC --><a name="use-case-x"></a>
 ### Use-Case Strumenti Richiesta Artista
