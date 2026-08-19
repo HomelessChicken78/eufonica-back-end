@@ -53,7 +53,7 @@ Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve esser
 <!-- TOC --><a name="vsong_creditpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-una-canzone-se-non-è-stato-fondato"></a>
 ### [V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato
 
-Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date < s.pub_date
+Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
 
 <!-- TOC --><a name="vlistendata_di_ascolto_valida-un-ascolto-deve-esser-fatto-dopo-la-registrazione-di-un-utente-e-dopo-la-pubblicazione-di-una-canzone"></a>
 ### [V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone
@@ -238,6 +238,40 @@ Post:
 </p>
 
 - Viene creato il link _(**ut**, **pl**):playlist_like_
+
+### Use-Case Strumenti Gestione Catalogo Musicale
+
+<p>
+pubblica_canzone(art_owner: Artist, art_credits: Artist[1..*], song_name: Stringa, duration: Intero >= 0, audio_url: Url): Song<br>
+Pre:
+</p>
+
+- **art_owner** deve essere incluso nell'insieme degli artisti **art_credits**
+- Per ogni _art:Artist_ in **art_credits**, deve essere vero che art.foundation_date <= Oggi
+- **song_name** non deve essere vuoto
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.name = **song_name**, res.duration_sec = **duration**, res.url = **audio_url** e res.pub_date = Oggi
+- Per ogni _art:Artist_ in **art_credits**, vengono creati i link _(art, res):song_credit_
+   - Tra questi, il link _(**art_owner**, res)_ viene specializzato come istanza anche dell'associazione _song_ownership_
+
+<p style="margin-top: 20px">
+pubblica_album(artists: Artist[1..*], songs: Song[0..*], alb_name: Stringa): Album<br>
+Pre:
+</p>
+
+- **alb_name** non deve essere vuoto
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:Album_, con valori res.name = **alb_name** e res.pub_date = Oggi
+- Per ogni _art:Artist_ in **artists**, vengono creati i link _(art, res):art_album_
+- Per ogni _s:Song_ in **songs**, vengono creati i link _(res, s):album_contains_
 
 <!-- TOC --><a name="use-case-x"></a>
 ### Use-Case Strumenti Richiesta Artista
