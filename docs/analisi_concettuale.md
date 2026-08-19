@@ -18,9 +18,16 @@
       + [Specifica della classe Song](#specifica-della-classe-song)
    * [Diagramma degli Use-Case](#diagramma-degli-use-case)
    * [Specifica degli Use-Case](#specifica-degli-use-case)
-      + [Use-Case X](#use-case-x)
-      + [Use-Case Y](#use-case-y)
-      + [Use-Case Z](#use-case-z)
+      + [Strumenti di Autenticazione e Autorizzazione](#strumenti-di-autenticazione-e-autorizzazione)
+      + [Strumenti di Utilizzo Playlist e Musiche](#strumenti-di-utilizzo-playlist-e-musiche)
+      + [Strumenti di Interazione](#strumenti-di-interazione)
+      + [Use-Case Strumenti Gestione Catalogo Musicale](#use-case-strumenti-gestione-catalogo-musicale)
+      + [Use-Case Strumenti Richiesta Artista](#use-case-strumenti-richiesta-artista)
+      + [Use-Case Strumenti di Moderazione](#use-case-strumenti-di-moderazione)
+- [Ristrutturazione](#ristrutturazione)
+   * [Diagramma delle Classi Ristrutturato](#diagramma-delle-classi-ristrutturato)
+   * [Vincoli Ristrutturati](#vincoli-ristrutturati)
+   * [Specifica delle Classi](#specifica-delle-classi-1)
 
 <!-- TOC end -->
 
@@ -148,6 +155,7 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 <!-- TOC --><a name="specifica-degli-use-case"></a>
 ## Specifica degli Use-Case
 
+<!-- TOC --><a name="strumenti-di-autenticazione-e-autorizzazione"></a>
 ### Strumenti di Autenticazione e Autorizzazione
 
 <p>
@@ -165,6 +173,7 @@ Post:
 
 - Viene creato e restituito un nuovo oggetto _res:AppUser_, con valori res.email = **email**, res.display_name = **disp_name**, res.first_name = **f_name**, res.middle_name = **m_name**, res.last_name = **l_name** e res.registration_timestamp = Oggi in questo momento
 
+<!-- TOC --><a name="strumenti-di-utilizzo-playlist-e-musiche"></a>
 ### Strumenti di Utilizzo Playlist e Musiche
 
 <p>
@@ -196,6 +205,7 @@ Post:
 
 - Viene creato il link _(**pl**, **s**):playlist_contains_
 
+<!-- TOC --><a name="strumenti-di-interazione"></a>
 ### Strumenti di Interazione
 
 <p>
@@ -239,6 +249,7 @@ Post:
 
 - Viene creato il link _(**ut**, **pl**):playlist_like_
 
+<!-- TOC --><a name="use-case-strumenti-gestione-catalogo-musicale"></a>
 ### Use-Case Strumenti Gestione Catalogo Musicale
 
 <p>
@@ -273,7 +284,7 @@ Post:
 - Per ogni _art:Artist_ in **artists**, vengono creati i link _(art, res):art_album_
 - Per ogni _s:Song_ in **songs**, vengono creati i link _(res, s):album_contains_
 
-<!-- TOC --><a name="use-case-x"></a>
+<!-- TOC --><a name="use-case-strumenti-richiesta-artista"></a>
 ### Use-Case Strumenti Richiesta Artista
 
 <p>
@@ -307,7 +318,7 @@ Post:
 - Viene creato il link _(**ut**, res):send_req_
 - Viene creato il link _(res, **art**):req_art_
 
-<!-- TOC --><a name="use-case-y"></a>
+<!-- TOC --><a name="use-case-strumenti-di-moderazione"></a>
 ### Use-Case Strumenti di Moderazione
 
 <p>
@@ -328,16 +339,20 @@ Post:
    - Se non esiste alcun link dell'associazione req_art che coinvolga **req**
       - Viene creato un nuovo oggetto _new_art:Artist_, con valori new_art.name = **req**.req_name, new_art.foundation_date = **req**.req_foundation_date e new_art.registration_timestamp = Oggi in questo momento
 
+<!-- TOC --><a name="ristrutturazione"></a>
 # Ristrutturazione
 
+<!-- TOC --><a name="diagramma-delle-classi-ristrutturato"></a>
 ## Diagramma delle Classi Ristrutturato
 
 _Inserisci il diagramma ristrutturato qui_
 
+<!-- TOC --><a name="vincoli-ristrutturati"></a>
 ## Vincoli Ristrutturati
 
 _NB: Solo i nuovi vincoli o quelli che sono cambiati rispetto all'analisi verranno riportati qui. Se un vincolo non è riportato, la sua logica non è cambiata_
 
+<!-- TOC --><a name="specifica-delle-classi-1"></a>
 ## Specifica delle Classi
 
 _NB: Solo le nuove specifiche o quelle che sono cambiati rispetto all'analisi verranno riportati qui. Se una specifica non è riportata, la sua logica non è cambiata_
