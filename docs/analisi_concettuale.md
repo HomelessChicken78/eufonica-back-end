@@ -148,6 +148,57 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 <!-- TOC --><a name="specifica-degli-use-case"></a>
 ## Specifica degli Use-Case
 
+### Strumenti di Autenticazione e Autorizzazione
+
+<p>
+registra(email: Stringa, disp_name: Stringa, f_name: Stringa[0..1], m_name: Stringa[0..1], l_name: Stringa[0..1]) : AppUser<br>
+Pre:
+</p>
+
+- Non deve esistere alcun _u:AppUser_ tale che u.email = **email**
+- Non deve esistere alcun _u:AppUser_ tale che u.display_name = **disp_name**
+- **email** e **disp_name** non devono essere vuoti
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:AppUser_, con valori res.email = **email**, res.display_name = **disp_name**, res.first_name = **f_name**, res.middle_name = **m_name**, res.last_name = **l_name** e res.registration_timestamp = Oggi in questo momento
+
+### Strumenti di Utilizzo Playlist e Musiche
+
+<p>
+crea_playlist(ut: AppUser, name: Stringa, vis: Stringa) : Playlist<br>
+Pre:
+</p>
+
+- Il valore di **vis** deve appartenere all'insieme {public, private, unlisted}
+- **name** non deve essere vuoto
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:Playlist_, con valori res.name = **name**, res.creation_date = Oggi e res.visibility = **vis**
+- Viene creato il link _(**ut**, res):playlist_creator_
+
+<p style="margin-top: 20px">
+aggiungi_brano_a_playlist(ut: AppUser, pl: Playlist, s: Song)<br>
+Pre:
+</p>
+
+- Deve esistere il link _(**ut**, **pl**):playlist_creator_
+- Non deve esistere il link _(**pl**, **s**):playlist_contains_
+
+<p>
+Post:
+</p>
+
+- Viene creato il link _(**pl**, **s**):playlist_contains_
+
+### Strumenti di Interazione
+
+
 <!-- TOC --><a name="use-case-x"></a>
 ### Use-Case Strumenti Richiesta Artista
 
@@ -203,5 +254,17 @@ Post:
    - Se non esiste alcun link dell'associazione req_art che coinvolga **req**
       - Viene creato un nuovo oggetto _new_art:Artist_, con valori new_art.name = **req**.req_name, new_art.foundation_date = **req**.req_foundation_date e new_art.registration_timestamp = Oggi in questo momento
 
-<!-- TOC --><a name="use-case-z"></a>
-### Use-Case Z
+# Ristrutturazione
+
+## Diagramma delle Classi Ristrutturato
+
+_Inserisci il diagramma ristrutturato qui_
+
+## Vincoli Ristrutturati
+
+_NB: Solo i nuovi vincoli o quelli che sono cambiati rispetto all'analisi verranno riportati qui. Se un vincolo non è riportato, la sua logica non è cambiata_
+
+## Specifica delle Classi
+
+_NB: Solo le nuove specifiche o quelle che sono cambiati rispetto all'analisi verranno riportati qui. Se una specifica non è riportata, la sua logica non è cambiata_
+
