@@ -360,7 +360,7 @@ Post:
 <!-- TOC --><a name="diagramma-delle-classi-ristrutturato"></a>
 ## Diagramma delle Classi Ristrutturato
 
-_Inserisci il diagramma ristrutturato qui_
+![Class diagram (Restructured)](./Class_Diagram_Ristrutturato.png)
 
 ## Specifica dei tipi di dato (Ristrutturata)
 - Tipo `IntGZ`<br>
@@ -402,7 +402,6 @@ public enum VisibilityType {
 )
 private String url;
 ````
-
 
 <!-- TOC --><a name="vincoli-ristrutturati"></a>
 ## Vincoli Ristrutturati
