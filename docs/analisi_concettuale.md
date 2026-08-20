@@ -108,6 +108,7 @@ Per ogni _r:ArtistRequest_ e _a:Artist, tali che esista il link _(r, a):req_art_
 
 <!-- TOC --><a name="specifica-della-classe-appuser"></a>
 ### Specifica della classe AppUser
+
 <p>
 recently_listened(sinceDate : Data): Song[0..*]<br>
 Pre: Deve essere vero che sinceDate < Oggi<br>
@@ -407,6 +408,10 @@ private String url;
 ## Vincoli Ristrutturati
 
 _NB: Solo i nuovi vincoli o quelli che sono cambiati rispetto all'analisi verranno riportati qui. Se un vincolo non è riportato, la sua logica non è cambiata_
+
+### [V.song_owner.IS_A_song_credit] Un proprietario del brano deve anche essere un artista accreditato
+
+Per ogni _art:Artist_ e _s:Song_, tali che _(art, s):song_ownership_, deve esistere anche il link _(art, s):song_credit_
 
 <!-- TOC --><a name="specifica-delle-classi-1"></a>
 ## Specifica delle Classi
