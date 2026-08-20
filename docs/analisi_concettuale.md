@@ -7,6 +7,9 @@
       + [[V.Artist.registrato_dopo_fondazione] Un Artista può registrarsi solo dopo la sua data di fondazione](#vartistregistrato_dopo_fondazione-un-artista-può-registrarsi-solo-dopo-la-sua-data-di-fondazione)
       + [[V.art_album.pubblicazione_dopo_fondazione] Un Artista non può pubblicare un Album se non è stato fondato](#vart_albumpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-un-album-se-non-è-stato-fondato)
       + [[V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato](#vsong_creditpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-una-canzone-se-non-è-stato-fondato)
+      + [[V.Album.rilascio_originale_prima_di_pubblicazione] Un ALbum può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio](#valbumrilascio_originale_prima_di_pubblicazione-un-album-può-essere-pubblicato-sulla-piattaforma-solo-durante-o-dopo-il-suo-rilascio)
+      + [[V.art_album.artista_fondato_prima_rilascio_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti](#vart_albumartista_fondato_prima_rilascio_album-il-rilascio-ufficiale-di-un-album-deve-avvenire-dopo-la-fondazione-dei-suoi-artisti)
+      + [[V.art_album.artista_registrato_prima_pubblicazione_album] La pubblicazione di un Album può avvenire solo da Artisti registrati prima della data di pubblicazione dell'Album stesso](#vart_albumartista_registrato_prima_pubblicazione_album-la-pubblicazione-di-un-album-può-avvenire-solo-da-artisti-registrati-prima-della-data-di-pubblicazione-dellalbum-stesso)
       + [[V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone](#vlistendata_di_ascolto_valida-un-ascolto-deve-esser-fatto-dopo-la-registrazione-di-un-utente-e-dopo-la-pubblicazione-di-una-canzone)
       + [[V.Listen.non_ascolta_piu_della_durata] Un Utente non può Ascoltare per una durata superiore alla durata della Canzone stessa](#vlistennon_ascolta_piu_della_durata-un-utente-non-può-ascoltare-per-una-durata-superiore-alla-durata-della-canzone-stessa)
       + [[V.ArtistRequest.tipo_richiesta_esclusivo] Una Richiesta deve indicare il nome per un nuovo Artista oppure riferirsi a un Artista già esistente, ma non entrambe o nessuna delle due.](#vartistrequesttipo_richiesta_esclusivo-una-richiesta-deve-indicare-il-nome-per-un-nuovo-artista-oppure-riferirsi-a-un-artista-già-esistente-ma-non-entrambe-o-nessuna-delle-due)
@@ -26,7 +29,9 @@
       + [Use-Case Strumenti di Moderazione](#use-case-strumenti-di-moderazione)
 - [Ristrutturazione](#ristrutturazione)
    * [Diagramma delle Classi Ristrutturato](#diagramma-delle-classi-ristrutturato)
+   * [Specifica dei tipi di dato (Ristrutturata)](#specifica-dei-tipi-di-dato-ristrutturata)
    * [Vincoli Ristrutturati](#vincoli-ristrutturati)
+      + [[V.song_owner.IS_A_song_credit] Un proprietario del brano deve anche essere un artista accreditato](#vsong_owneris_a_song_credit-un-proprietario-del-brano-deve-anche-essere-un-artista-accreditato)
    * [Specifica delle Classi](#specifica-delle-classi-1)
 
 <!-- TOC end -->
@@ -62,14 +67,17 @@ Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve esser
 
 Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
 
+<!-- TOC --><a name="valbumrilascio_originale_prima_di_pubblicazione-un-album-può-essere-pubblicato-sulla-piattaforma-solo-durante-o-dopo-il-suo-rilascio"></a>
 ### [V.Album.rilascio_originale_prima_di_pubblicazione] Un ALbum può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
 
 Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
 
+<!-- TOC --><a name="vart_albumartista_fondato_prima_rilascio_album-il-rilascio-ufficiale-di-un-album-deve-avvenire-dopo-la-fondazione-dei-suoi-artisti"></a>
 ### [V.art_album.artista_fondato_prima_rilascio_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
 
 Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.pub_date
 
+<!-- TOC --><a name="vart_albumartista_registrato_prima_pubblicazione_album-la-pubblicazione-di-un-album-può-avvenire-solo-da-artisti-registrati-prima-della-data-di-pubblicazione-dellalbum-stesso"></a>
 ### [V.art_album.artista_registrato_prima_pubblicazione_album] La pubblicazione di un Album può avvenire solo da Artisti registrati prima della data di pubblicazione dell'Album stesso
 
 Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.registration_timestamp < al.pub_date
@@ -362,6 +370,7 @@ Post:
 
 ![Class diagram (Restructured)](./Class_Diagram_Ristrutturato.png)
 
+<!-- TOC --><a name="specifica-dei-tipi-di-dato-ristrutturata"></a>
 ## Specifica dei tipi di dato (Ristrutturata)
 - Tipo `IntGZ`<br>
 ````java
@@ -408,6 +417,7 @@ private String url;
 
 _NB: Solo i nuovi vincoli o quelli che sono cambiati rispetto all'analisi verranno riportati qui. Se un vincolo non è riportato, la sua logica non è cambiata_
 
+<!-- TOC --><a name="vsong_owneris_a_song_credit-un-proprietario-del-brano-deve-anche-essere-un-artista-accreditato"></a>
 ### [V.song_owner.IS_A_song_credit] Un proprietario del brano deve anche essere un artista accreditato
 
 Per ogni _art:Artist_ e _s:Song_, tali che _(art, s):song_ownership_, deve esistere anche il link _(art, s):song_credit_
