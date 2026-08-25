@@ -1,20 +1,21 @@
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+# Indice
 
 - [Analisi Concettuale dei Requisiti](#analisi-concettuale-dei-requisiti)
    * [Diagramma delle Classi (Class Diagram)](#diagramma-delle-classi-class-diagram)
    * [Specifica dei tipi di dato](#specifica-dei-tipi-di-dato)
    * [Vincoli Esterni](#vincoli-esterni)
-      + [[V.Artist.registrato_dopo_fondazione]](#vartistregistrato_dopo_fondazione-un-artista-può-registrarsi-solo-dopo-la-sua-data-di-fondazione)
-      + [[V.art_album.pubblicazione_dopo_fondazione]](#vart_albumpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-un-album-se-non-è-stato-fondato)
-      + [[V.song_credit.pubblicazione_dopo_fondazione]](#vsong_creditpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-una-canzone-se-non-è-stato-fondato)
-      + [[V.Album.rilascio_originale_prima_di_pubblicazione]](#valbumrilascio_originale_prima_di_pubblicazione-un-album-può-essere-pubblicato-sulla-piattaforma-solo-durante-o-dopo-il-suo-rilascio)
-      + [[V.art_album.artista_fondato_prima_rilascio_album]](#vart_albumartista_fondato_prima_rilascio_album-il-rilascio-ufficiale-di-un-album-deve-avvenire-dopo-la-fondazione-dei-suoi-artisti)
-      + [[V.art_album.artista_registrato_prima_pubblicazione_album]](#vart_albumartista_registrato_prima_pubblicazione_album-la-pubblicazione-di-un-album-può-avvenire-solo-da-artisti-registrati-prima-della-data-di-pubblicazione-dellalbum-stesso)
-      + [[V.Listen.data_di_ascolto_valida]](#vlistendata_di_ascolto_valida-un-ascolto-deve-esser-fatto-dopo-la-registrazione-di-un-utente-e-dopo-la-pubblicazione-di-una-canzone)
-      + [[V.Listen.non_ascolta_piu_della_durata]](#vlistennon_ascolta_piu_della_durata-un-utente-non-può-ascoltare-per-una-durata-superiore-alla-durata-della-canzone-stessa)
-      + [[V.ArtistRequest.tipo_richiesta_esclusivo]](#vartistrequesttipo_richiesta_esclusivo-una-richiesta-deve-indicare-il-nome-per-un-nuovo-artista-oppure-riferirsi-a-un-artista-già-esistente-ma-non-entrambe-o-nessuna-delle-due)
-      + [[V.ArtistRequest.richiesta_dopo_registrazione_ut]](#vartistrequestrichiesta_dopo_registrazione_ut-un-utente-non-può-richiedere-di-diventare-un-artista-prima-della-sua-registrazione)
-      + [[V.ArtistRequest.richiesta_dopo_registrazione_art]](#vartistrequestrichiesta_dopo_registrazione_art-una-richiesta-non-può-riguardare-un-artista-che-si-è-registrato-dopo-la-richiesta-stessa)
+      + [[V.Artist.registrato_dopo_fondazione]](#artistregistrato_dopo_fondazione)
+      + [[V.art_album.pubblicazione_dopo_fondazione]](#art_albumpubblicazione_dopo_fondazione)
+      + [[V.song_credit.pubblicazione_dopo_fondazione]](#song_creditpubblicazione_dopo_fondazione)
+      + [[V.Album.rilascio_originale_prima_di_pubblicazione]](#albumrilascio_originale_prima_di_pubblicazione)
+      + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_album)
+      + [[V.art_album.artista_registrato_prima_pubblicazione_album]](#art_albumartista_registrato_prima_pubblicazione_album)
+      + [[V.Listen.data_di_ascolto_valida]](#listendata_di_ascolto_valida)
+      + [[V.Listen.non_ascolta_piu_della_durata]](#listennon_ascolta_piu_della_durata)
+      + [[V.ArtistRequest.tipo_richiesta_esclusivo]](#artistrequesttipo_richiesta_esclusivo)
+      + [[V.ArtistRequest.richiesta_dopo_registrazione_ut]](#artistrequestrichiesta_dopo_registrazione_ut)
+      + [[V.ArtistRequest.richiesta_dopo_registrazione_art]](#artistrequestrichiesta_dopo_registrazione_art)
    * [Specifica delle Classi](#specifica-delle-classi)
       + [Specifica della classe AppUser](#specifica-della-classe-appuser)
       + [Specifica della classe Playlist](#specifica-della-classe-playlist)
@@ -31,7 +32,7 @@
    * [Diagramma delle Classi Ristrutturato](#diagramma-delle-classi-ristrutturato)
    * [Specifica dei tipi di dato (Ristrutturata)](#specifica-dei-tipi-di-dato-ristrutturata)
    * [Vincoli Ristrutturati](#vincoli-ristrutturati)
-      + [[V.song_owner.IS_A_song_credit]](#vsong_owneris_a_song_credit-un-proprietario-del-brano-deve-anche-essere-un-artista-accreditato)
+      + [[V.song_owner.IS_A_song_credit]](#song_owneris_a_song_credit)
    * [Specifica delle Classi](#specifica-delle-classi-1)
       + [Specifica della classe Song](#specifica-della-classe-song-1)
       + [Specifica della classe Playlist](#specifica-della-classe-playlist-1)
@@ -55,61 +56,61 @@
 <!-- TOC --><a name="vincoli-esterni"></a>
 ## Vincoli Esterni
 
-<!-- TOC --><a name="vartistregistrato_dopo_fondazione-un-artista-può-registrarsi-solo-dopo-la-sua-data-di-fondazione"></a>
+<!-- TOC --><a id="artistregistrato_dopo_fondazione"></a>
 ### [V.Artist.registrato_dopo_fondazione] Un Artista può registrarsi solo dopo la sua data di fondazione
 
 Per ogni _a:Artist_ deve essere vero che a.foundation_date < a.registration_timestamp
 
-<!-- TOC --><a name="vart_albumpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-un-album-se-non-è-stato-fondato"></a>
+<!-- TOC --><a id="art_albumpubblicazione_dopo_fondazione"></a>
 ### [V.art_album.pubblicazione_dopo_fondazione] Un Artista non può pubblicare un Album se non è stato fondato
 
 Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve essere vero che art.foundation_date < alb.pub_date
 
-<!-- TOC --><a name="vsong_creditpubblicazione_dopo_fondazione-un-artista-non-può-pubblicare-una-canzone-se-non-è-stato-fondato"></a>
+<!-- TOC --><a id="song_creditpubblicazione_dopo_fondazione"></a>
 ### [V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato
 
 Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
 
-<!-- TOC --><a name="valbumrilascio_originale_prima_di_pubblicazione-un-album-può-essere-pubblicato-sulla-piattaforma-solo-durante-o-dopo-il-suo-rilascio"></a>
+<!-- TOC --><a id="albumrilascio_originale_prima_di_pubblicazione"></a>
 ### [V.Album.rilascio_originale_prima_di_pubblicazione] Un ALbum può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
 
 Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
 
-<!-- TOC --><a name="vart_albumartista_fondato_prima_rilascio_album-il-rilascio-ufficiale-di-un-album-deve-avvenire-dopo-la-fondazione-dei-suoi-artisti"></a>
+<!-- TOC --><a id="art_albumartista_fondato_prima_rilascio_album"></a>
 ### [V.art_album.artista_fondato_prima_rilascio_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
 
 Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.pub_date
 
-<!-- TOC --><a name="vart_albumartista_registrato_prima_pubblicazione_album-la-pubblicazione-di-un-album-può-avvenire-solo-da-artisti-registrati-prima-della-data-di-pubblicazione-dellalbum-stesso"></a>
+<!-- TOC --><a id="art_albumartista_registrato_prima_pubblicazione_album"></a>
 ### [V.art_album.artista_registrato_prima_pubblicazione_album] La pubblicazione di un Album può avvenire solo da Artisti registrati prima della data di pubblicazione dell'Album stesso
 
 Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.registration_timestamp < al.pub_date
 
-<!-- TOC --><a name="vlistendata_di_ascolto_valida-un-ascolto-deve-esser-fatto-dopo-la-registrazione-di-un-utente-e-dopo-la-pubblicazione-di-una-canzone"></a>
+<!-- TOC --><a id="listendata_di_ascolto_valida"></a>
 ### [V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone
 
 Per ogni _u:AppUser_, _l:Listen_ e _s:Song_, tali che _(u, l):user_listens_ e che _(s, l):song_listened_, devono essere vere entrambe le condizioni:
 - s.pub_date <= l.timestamp
 - u.registration_timestamp <= l.timestamp
 
-<!-- TOC --><a name="vlistennon_ascolta_piu_della_durata-un-utente-non-può-ascoltare-per-una-durata-superiore-alla-durata-della-canzone-stessa"></a>
+<!-- TOC --><a id="listennon_ascolta_piu_della_durata"></a>
 ### [V.Listen.non_ascolta_piu_della_durata] Un Utente non può Ascoltare per una durata superiore alla durata della Canzone stessa
 
 Per ogni _l:Listen_ e _s:Song_, tali _(s, l):song_listened_, deve essere vero che l.sec_played <= s.duration_sec
 
-<!-- TOC --><a name="vartistrequesttipo_richiesta_esclusivo-una-richiesta-deve-indicare-il-nome-per-un-nuovo-artista-oppure-riferirsi-a-un-artista-già-esistente-ma-non-entrambe-o-nessuna-delle-due"></a>
+<!-- TOC --><a id="artistrequesttipo_richiesta_esclusivo"></a>
 ### [V.ArtistRequest.tipo_richiesta_esclusivo] Una Richiesta deve indicare il nome per un nuovo Artista oppure riferirsi a un Artista già esistente, ma non entrambe o nessuna delle due.
 
 Per ogni _r:ArtistRequest_, deve essere vera esattamente una e una sola (**xor**) delle due seguenti condizioni:
 - Esiste un valore per l'attributo r.req_name e, contemporaneamente, un valore per l'attributo r.req_foundation_date
 - Esiste un _a:Artist_, tale che esista il link _(r, a):req_art_
 
-<!-- TOC --><a name="vartistrequestrichiesta_dopo_registrazione_ut-un-utente-non-può-richiedere-di-diventare-un-artista-prima-della-sua-registrazione"></a>
+<!-- TOC --><a id="artistrequestrichiesta_dopo_registrazione_ut"></a>
 ### [V.ArtistRequest.richiesta_dopo_registrazione_ut] Un Utente non può Richiedere di diventare un Artista prima della sua registrazione
 
 Per ogni _r:ArtistRequest_ e _u:AppUser_, tali che esista il link _(r, u):send_req_ deve essere vero che u.registration_timestamp < r.timestamp
 
-<!-- TOC --><a name="vartistrequestrichiesta_dopo_registrazione_art-una-richiesta-non-può-riguardare-un-artista-che-si-è-registrato-dopo-la-richiesta-stessa"></a>
+<!-- TOC --><a id="artistrequestrichiesta_dopo_registrazione_art"></a>
 ### [V.ArtistRequest.richiesta_dopo_registrazione_art] Una Richiesta non può riguardare un Artista che si è registrato dopo la Richiesta stessa
 
 Per ogni _r:ArtistRequest_ e _a:Artist, tali che esista il link _(r, a):req_art_ deve essere vero che a.registration_timestamp < r.timestamp
@@ -420,7 +421,7 @@ private String url;
 
 _NB: Solo i nuovi vincoli o quelli che sono cambiati rispetto all'analisi verranno riportati qui. Se un vincolo non è riportato, la sua logica non è cambiata_
 
-<!-- TOC --><a name="vsong_owneris_a_song_credit-un-proprietario-del-brano-deve-anche-essere-un-artista-accreditato"></a>
+<!-- TOC --><a id="song_owneris_a_song_credit"></a>
 ### [V.song_owner.IS_A_song_credit] Un proprietario del brano deve anche essere un artista accreditato
 
 Per ogni _art:Artist_ e _s:Song_, tali che _(art, s):song_ownership_, deve esistere anche il link _(art, s):song_credit_
