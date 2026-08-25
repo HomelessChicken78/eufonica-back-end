@@ -33,6 +33,9 @@
    * [Vincoli Ristrutturati](#vincoli-ristrutturati)
       + [[V.song_owner.IS_A_song_credit] Un proprietario del brano deve anche essere un artista accreditato](#vsong_owneris_a_song_credit-un-proprietario-del-brano-deve-anche-essere-un-artista-accreditato)
    * [Specifica delle Classi](#specifica-delle-classi-1)
+      + [Specifica della classe Song](#specifica-della-classe-song-1)
+      + [Specifica della classe Playlist](#specifica-della-classe-playlist-1)
+      + [Implementazione dei Vincoli](#implementazione-dei-vincoli)
 
 <!-- TOC end -->
 
@@ -427,18 +430,21 @@ Per ogni _art:Artist_ e _s:Song_, tali che _(art, s):song_ownership_, deve esist
 
 _NB: Solo le nuove specifiche o quelle che sono cambiati rispetto all'analisi verranno riportati qui. Se una specifica non è riportata, la sua logica non è cambiata_
 
+<!-- TOC --><a name="specifica-della-classe-song-1"></a>
 ### Specifica della classe Song
 
 Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregato sono state sostituite da attributi a ridondanza controllata per ottimizzare le prestazioni in lettura del database:
 
 **Song.amount_listens** e **Song.amount_likes**: Sostituiscono le operazioni correlate dell'analisi concettuale. Questi campi verranno aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione delle entità/relazioni `Listen` e `song_like`.
 
+<!-- TOC --><a name="specifica-della-classe-playlist-1"></a>
 ### Specifica della classe Playlist
 
 Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregato sono state sostituite da attributi a ridondanza controllata per ottimizzare le prestazioni in lettura del database:
 
 **Playlist.amount_likes**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della relazione `playlist_like`
 
+<!-- TOC --><a name="implementazione-dei-vincoli"></a>
 ### Implementazione dei Vincoli
 Nel passaggio al design con Spring JPA e database relazionale, l'integrità del modello sarà garantita su più livelli:
 
