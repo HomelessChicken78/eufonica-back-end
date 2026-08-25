@@ -439,3 +439,9 @@ Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregat
 
 **Playlist.amount_likes**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della relazione `playlist_like`
 
+### Implementazione dei Vincoli
+Nel passaggio al design con Spring JPA e database relazionale, l'integrità del modello sarà garantita su più livelli:
+
+* Vincoli di dominio: saranno controllati nell'applicazione usando le annotazioni di Bean Validation (es. @Positive, @Pattern) nelle classi @Entity.
+* Vincoli strutturali: saranno controllati dal database tramite Foreign Key e vincoli UNIQUE.
+* Vincoli complessi inter-classe e temporali: saranno controllati con regole più complesse, tramite la logica dei metodi dello strato @Service prima di salvare i dati nel database.
