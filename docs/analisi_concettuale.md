@@ -427,3 +427,15 @@ Per ogni _art:Artist_ e _s:Song_, tali che _(art, s):song_ownership_, deve esist
 
 _NB: Solo le nuove specifiche o quelle che sono cambiati rispetto all'analisi verranno riportati qui. Se una specifica non è riportata, la sua logica non è cambiata_
 
+### Specifica della classe Song
+
+Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregato sono state sostituite da attributi a ridondanza controllata per ottimizzare le prestazioni in lettura del database:
+
+**Song.amount_listens** e **Song.amount_likes**: Sostituiscono le operazioni correlate dell'analisi concettuale. Questi campi verranno aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione delle entità/relazioni `Listen` e `song_like`.
+
+### Specifica della classe Playlist
+
+Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregato sono state sostituite da attributi a ridondanza controllata per ottimizzare le prestazioni in lettura del database:
+
+**Playlist.amount_likes**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della relazione `playlist_like`
+
