@@ -1,0 +1,15 @@
+spring:
+  application:
+    name: catalog-command-service
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:none}
+
+server:
+  servlet:
+    context-path: ${CONTEXT_PATH:/api}
