@@ -6,21 +6,24 @@ import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
-import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
 @Entity
+@Table(
+        name = "song",
+        uniqueConstraints = {
+                @UniqueConstraint(columnNames = {"name", "artist_owner_id"})
+        }
+)
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Song {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    // TODO {id2}
     @Column(nullable = false)
     private String name;
 
@@ -38,17 +41,22 @@ public class Song {
 
     @PositiveOrZero
     @Column(nullable = false)
-    private Integer amountListens;
+    private Integer amountListens = 0;
 
     @PositiveOrZero
     @Column(nullable = false)
-    private Integer amountLikes;
+    private Integer amountLikes = 0;
 
-    // TODO {id2}
-    @ManyToOne
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "artist_owner_id", nullable = false)
     private Artist artistOwner;
 
     @ManyToMany
+    @JoinTable(
+            name = "song_credit",
+            joinColumns = @JoinColumn(name = "song_id"),
+            inverseJoinColumns = @JoinColumn(name = "artist_id")
+    )
     @NotEmpty
     private Set<Artist> creditedArtists;
 }
