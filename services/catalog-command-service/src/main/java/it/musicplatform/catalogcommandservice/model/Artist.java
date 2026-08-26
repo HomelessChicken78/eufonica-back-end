@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -25,5 +26,9 @@ public class Artist {
     @Column(nullable = false)
     private LocalDate foundationDate;
 
-    // TODO Song
+    @OneToMany(mappedBy = "artistOwner")
+    private List<Song> ownedSongs;
+
+    @ManyToMany(mappedBy = "creditedArtists")
+    private List<Song> creditedSongs;
 }
