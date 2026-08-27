@@ -59,7 +59,7 @@
 <!-- TOC --><a id="artistregistrato_dopo_fondazione"></a>
 ### [V.Artist.registrato_dopo_fondazione] Un Artista può registrarsi solo dopo la sua data di fondazione
 
-Per ogni _a:Artist_ deve essere vero che a.foundation_date < a.registration_timestamp
+Per ogni _a:Artist_ deve essere vero che a.foundation_date <= a.registration_timestamp
 
 <!-- TOC --><a id="art_albumpubblicazione_dopo_fondazione"></a>
 ### [V.art_album.pubblicazione_dopo_fondazione] Un Artista non può pubblicare un Album se non è stato fondato
@@ -72,7 +72,7 @@ Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve esser
 Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
 
 <!-- TOC --><a id="albumrilascio_originale_prima_di_pubblicazione"></a>
-### [V.Album.rilascio_originale_prima_di_pubblicazione] Un ALbum può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
+### [V.Album.rilascio_originale_prima_di_pubblicazione] Un Album può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
 
 Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
 
