@@ -8,6 +8,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
 
@@ -58,5 +59,5 @@ public class Song {
             inverseJoinColumns = @JoinColumn(name = "artist_id")
     )
     @NotEmpty
-    private Set<Artist> creditedArtists;
+    private Set<Artist> creditedArtists = new HashSet<>();
 }

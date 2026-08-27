@@ -6,6 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -27,8 +28,8 @@ public class Artist {
     private LocalDate foundationDate;
 
     @OneToMany(mappedBy = "artistOwner")
-    private List<Song> ownedSongs;
+    private List<Song> ownedSongs = new ArrayList<>();
 
     @ManyToMany(mappedBy = "creditedArtists")
-    private List<Song> creditedSongs;
+    private List<Song> creditedSongs = new ArrayList<>();
 }

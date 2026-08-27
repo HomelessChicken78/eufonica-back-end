@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +40,7 @@ public class Album {
             inverseJoinColumns = @JoinColumn(name = "artist_id")
     )
     @NotEmpty(message = "An Album should have at least one Artist.")
-    private List<Artist> artists;
+    private List<Artist> artists =  new ArrayList<>();
 
     @ManyToMany
     @JoinTable(
@@ -47,5 +48,5 @@ public class Album {
             joinColumns = @JoinColumn(name = "album_id"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
-    private List<Song> songs;
+    private List<Song> songs = new ArrayList<>();
 }
