@@ -38,12 +38,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     public Artist findByIdOrThrow(UUID id) {
        return artistRepository.findById(id)
-                .orElseThrow(
-                        () -> {
-                            log.warn("Artist with id {} not found.", id);
-                            return new NotFoundException("Artist not found with id: " + id + ".");
-                        }
-                );
+                .orElseThrow(() -> new NotFoundException("Artist not found with id: " + id + "."));
     }
 
     @Override
