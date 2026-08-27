@@ -47,10 +47,11 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
 
+        Artist savedArtist = artistRepository.save(artist);
+
         // TODO: Pubblicare l'evento "ArtistCreatedEvent" sul message broker (es. Kafka/RabbitMQ)
         // eventPublisher.publishArtistCreated(savedArtist.getId(), savedArtist.getName());
 
-        Artist savedArtist = artistRepository.save(artist);
         return artistMapper.toSummaryResponse(savedArtist);
     }
 
