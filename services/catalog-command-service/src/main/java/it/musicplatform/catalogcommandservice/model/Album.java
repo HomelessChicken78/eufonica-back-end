@@ -10,6 +10,13 @@ import java.util.List;
 import java.util.UUID;
 
 @Entity
+@Table(
+        name = "album",
+        check = @CheckConstraint(
+                name = "chk_album_release_before_pub",
+                constraint = "original_release_date <= pub_date"
+        )
+)
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Album {
