@@ -32,22 +32,16 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
      * or if the artist's name is already in use
      */
     private void validateArtistRequest(ArtistCreationRequestDTO creationRequestDTO) {
-        if (creationRequestDTO.getFoundationDate() == null) {
-            log.warn("Creating artist with missing foundation date.");
+        if (creationRequestDTO.getFoundationDate() == null)
             throw new BadRequestException("Foundation date is null.");
-        }
 
         // Constraint [V.Artist.registrato_dopo_fondazione]
-        if (creationRequestDTO.getFoundationDate().isAfter(LocalDate.now())) {
-            log.warn("Artist foundation date is in the future.");
+        if (creationRequestDTO.getFoundationDate().isAfter(LocalDate.now()))
             throw new BadRequestException("Foundation date should be before registration date.");
-        }
 
         // Check that the name doesn't already exist (unique)
-        if (artistRepository.existsByName(creationRequestDTO.getName())) {
-            log.warn("Artist with name {} already exists.", creationRequestDTO.getName());
+        if (artistRepository.existsByName(creationRequestDTO.getName()))
             throw new BadRequestException("Artist with name " + creationRequestDTO.getName() + " already exists.");
-        }
     }
 
     /**
