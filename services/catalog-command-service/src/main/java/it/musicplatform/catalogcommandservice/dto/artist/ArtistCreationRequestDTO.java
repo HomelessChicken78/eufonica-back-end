@@ -11,8 +11,9 @@ import java.time.LocalDate;
 public class ArtistCreationRequestDTO {
     @NotBlank(message = "Artist's name can't be empty")
     @Pattern(
-            regexp = "^[A-Za-z0-9_]{3,20}$",
-            message = "Name must be 3–20 characters long and contain only letters, numbers, or underscores"
+            regexp = "^[A-Za-z0-9_][A-Za-z0-9_ ]{1,18}[A-Za-z0-9_]$",
+            message = "Name must be 3–20 characters long, cannot start or end with a space, " +
+                    "and may contain only letters, numbers, underscores, or spaces."
     )
     private String name;
 
