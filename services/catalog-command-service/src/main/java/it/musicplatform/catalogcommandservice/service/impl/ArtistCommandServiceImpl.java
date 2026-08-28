@@ -14,6 +14,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service @Transactional
@@ -28,6 +29,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
      *
      * @param creationRequestDTO the artist creation/update request to validate
      * @throws BadRequestException if the foundation date is missing or is in the future
+     * or if the artist's name is already in use
      */
     private void validateArtistRequest(ArtistCreationRequestDTO creationRequestDTO) {
         if (creationRequestDTO.getFoundationDate() == null) {
@@ -39,6 +41,12 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         if (creationRequestDTO.getFoundationDate().isAfter(LocalDate.now())) {
             log.warn("Artist foundation date is in the future.");
             throw new BadRequestException("Foundation date should be before registration date.");
+        }
+
+        // Check that the name doesn't already exist (unique)
+        if (artistRepository.existsByName(creationRequestDTO.getName())) {
+            log.warn("Artist with name {} already exists.", creationRequestDTO.getName());
+            throw new BadRequestException("Artist with name " + creationRequestDTO.getName() + " already exists.");
         }
     }
 
@@ -59,6 +67,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         validateArtistRequest(creationRequestDTO);
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
+        artist.setRegistrationDate(LocalDateTime.now());
 
         Artist savedArtist = artistRepository.save(artist);
 
