@@ -58,6 +58,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     @Override
     public ArtistSummaryResponseDTO createArtist(ArtistCreationRequestDTO creationRequestDTO) {
+        log.info("Creating artist with name {}.", creationRequestDTO.getName());
         validateArtistRequest(creationRequestDTO);
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
@@ -73,6 +74,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     @Override
     public ArtistSummaryResponseDTO updateArtist(UUID artistId, ArtistCreationRequestDTO creationRequestDTO) {
+        log.info("Updating artist with id {}.", artistId);
         validateArtistRequest(creationRequestDTO);
 
         Artist artist = findByIdOrThrow(artistId);
