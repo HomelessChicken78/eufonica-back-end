@@ -23,6 +23,12 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
     private final ArtistMapper artistMapper;
     // private final EventPublisher eventPublisher; // TODO
 
+    /**
+     * Validates the artist creation/update request.
+     *
+     * @param creationRequestDTO the artist creation/update request to validate
+     * @throws BadRequestException if the foundation date is missing or is in the future
+     */
     private void validateArtistRequest(ArtistCreationRequestDTO creationRequestDTO) {
         if (creationRequestDTO.getFoundationDate() == null) {
             log.warn("Creating artist with missing foundation date.");
@@ -36,6 +42,13 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         }
     }
 
+    /**
+     * Finds an artist by its id.
+     *
+     * @param id the unique id of the artist
+     * @return the artist associated with the given id
+     * @throws NotFoundException if no artist exists with the given id
+     */
     public Artist findByIdOrThrow(UUID id) {
        return artistRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Artist not found with id: " + id + "."));
