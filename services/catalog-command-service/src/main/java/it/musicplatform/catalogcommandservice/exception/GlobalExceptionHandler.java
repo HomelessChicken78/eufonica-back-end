@@ -10,6 +10,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 
+import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RestControllerAdvice @Slf4j
@@ -81,23 +83,27 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ValidationErrorResponseDTO> errorValidationHandler(
             MethodArgumentNotValidException exceptionRaised) {
 
-        log.warn("Request validation failed: {} validation errors",
-                exceptionRaised.getFieldErrorCount());
+        var errors = exceptionRaised.getFieldErrors();
 
-        ValidationErrorResponseDTO responseDTO = new ValidationErrorResponseDTO(
-                exceptionRaised.getFieldErrors()
-                        .stream()
-                        .collect(Collectors.toMap(
-                                FieldError::getField,
-                                err -> err.getDefaultMessage() != null
-                                        ? err.getDefaultMessage()
-                                        : "missing error message",
-                                (existing, replacement) -> existing
-                        ))
+        // Convert the single field errors into a map to use for the error response and the logging
+        Map<String, String> validationErrors = errors.stream()
+                .collect(Collectors.toMap(
+                        FieldError::getField,
+                        error -> Optional.ofNullable(error.getDefaultMessage())
+                                .orElse("missing error message"),
+                        (existing, replacement) -> existing
+                ));
+
+        // Log the single errors
+        log.warn("Request validation failed ({} error(s)):\n{}",
+                validationErrors.size(),
+                validationErrors.entrySet().stream() // Maps can't be .stream, so we take the entry set
+                        .map(entry -> "  - %s: %s".formatted(entry.getKey(), entry.getValue()))
+                        .collect(Collectors.joining("\n"))
         );
 
         return ResponseEntity
                 .badRequest()
-                .body(responseDTO);
+                .body(new ValidationErrorResponseDTO(validationErrors));
     }
 }
