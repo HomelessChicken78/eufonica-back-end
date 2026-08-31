@@ -295,19 +295,19 @@ Post:
 ### Use-Case Strumenti Gestione Catalogo Musicale
 
 <p>
-pubblica_canzone(art_owner: Artist, art_credits: Artist[1..*], song_name: Stringa, duration: Intero >= 0, audio_url: Url): Song<br>
+pubblica_canzone(art_owner: Artist, art_credits: Artist[1..*], song_title: Stringa, duration: Intero >= 0, audio_url: Url): Song<br>
 Pre:
 </p>
 
 - **art_owner** deve essere incluso nell'insieme degli artisti **art_credits**
 - Per ogni _art:Artist_ in **art_credits**, deve essere vero che art.foundation_date <= Oggi
-- **song_name** non deve essere vuoto
+- **song_title** non deve essere vuoto
 
 <p>
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.name = **song_name**, res.duration_sec = **duration**, res.url = **audio_url** e res.pub_date = Oggi
+- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.title = **song_title**, res.duration_sec = **duration**, res.url = **audio_url** e res.pub_date = Oggi
 - Per ogni _art:Artist_ in **art_credits**, vengono creati i link _(art, res):song_credit_
    - Tra questi, il link _(**art_owner**, res)_ viene specializzato come istanza anche dell'associazione _song_ownership_
 
