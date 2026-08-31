@@ -6,6 +6,8 @@ import it.musicplatform.catalogcommandservice.model.Artist;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.Set;
+
 @Mapper(componentModel = "spring")
 public interface ArtistMapper {
     @Mapping(target = "registrationDate", ignore = true)
@@ -15,4 +17,11 @@ public interface ArtistMapper {
     Artist toEntity(ArtistCreationRequestDTO creationRequestDTO);
 
     ArtistSummaryResponseDTO toSummaryResponse(Artist savedArtist);
+
+    Set<String> toName(Set<Artist> artists);
+
+    default String toName(Artist artist) {
+        if (artist == null) return null;
+        return artist.getName();
+    }
 }
