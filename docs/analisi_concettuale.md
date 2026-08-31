@@ -184,19 +184,36 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 ### Strumenti di Autenticazione e Autorizzazione
 
 <p>
-registra(email: Stringa, disp_name: Stringa, f_name: Stringa[0..1], m_name: Stringa[0..1], l_name: Stringa[0..1]) : AppUser<br>
+registra(email: Stringa, disp_name: Stringa, f_name: Stringa[0..1], m_name: Stringa[0..1], l_name: Stringa[0..1], provider_name : Stringa, provider_user_id : Intero) : AppUser<br>
 Pre:
 </p>
 
 - Non deve esistere alcun _u:AppUser_ tale che u.email = **email**
 - Non deve esistere alcun _u:AppUser_ tale che u.display_name = **disp_name**
 - **email** e **disp_name** non devono essere vuoti
+- Non deve esistere alcun _am:AccessMethod_ tale che am.provider_name = **provider_name** e am.provider_user_id = **provider_user_id**.
 
 <p>
 Post:
 </p>
 
+- Viene creato un nuovo oggetto _am:AccessMethod_, con valori am.provider_name = **provider_name** e am.provider_user_id = **provider_user_id**
 - Viene creato e restituito un nuovo oggetto _res:AppUser_, con valori res.email = **email**, res.display_name = **disp_name**, res.first_name = **f_name**, res.middle_name = **m_name**, res.last_name = **l_name** e res.registration_timestamp = Oggi in questo momento
+- Viene creato il link _(am, res):ut_acc_
+
+<p style="margin-top: 20px">
+associa_metodo_accesso(ut: AppUser, provider_name: Stringa, provider_user_id: Intero) : AccessMethod<br>
+Pre:
+</p>
+
+- Non deve esistere alcun _am:AccessMethod_ tale che am.provider_name = **provider_name** e am.provider_user_id = **provider_user_id**.
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:AccessMethod_, con valori res.provider_name = **provider_name** e res.provider_user_id = **provider_user_id**
+- Viene creato il link _(res, **ut**):ut_acc_
 
 <!-- TOC --><a name="strumenti-di-utilizzo-playlist-e-musiche"></a>
 ### Strumenti di Utilizzo Playlist e Musiche
