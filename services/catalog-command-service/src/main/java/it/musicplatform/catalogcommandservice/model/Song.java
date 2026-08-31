@@ -26,7 +26,7 @@ public class Song {
     private UUID id;
 
     @Column(nullable = false)
-    private String name;
+    private String title;
 
     @Positive(message = "Value for \"durationSec\" must be strictly positive.")
     @Column(nullable = false)
