@@ -16,6 +16,7 @@ import org.apache.tika.Tika;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
@@ -31,6 +32,9 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Value("#{'${MUSIC_FORMATS:audio/mpeg,audio/wav}'.split(',')}")
     private List<String> musicFormats;
+
+    @Value("${MAX_AUDIO_SIZE}")
+    private DataSize maxAudioSize;
 
     /**
      * Finds a song by its id.
