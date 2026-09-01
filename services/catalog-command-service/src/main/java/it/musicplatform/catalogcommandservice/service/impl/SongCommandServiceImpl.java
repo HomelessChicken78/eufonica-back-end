@@ -1,9 +1,7 @@
 package it.musicplatform.catalogcommandservice.service.impl;
 
-import it.musicplatform.catalogcommandservice.dto.song.PublishSongRequestDTO;
-import it.musicplatform.catalogcommandservice.dto.song.SongResponseDTO;
-import it.musicplatform.catalogcommandservice.exception.ConflictException;
-import it.musicplatform.catalogcommandservice.exception.NotFoundException;
+import it.musicplatform.catalogcommandservice.dto.song.*;
+import it.musicplatform.catalogcommandservice.exception.*;
 import it.musicplatform.catalogcommandservice.mapper.SongMapper;
 import it.musicplatform.catalogcommandservice.model.Artist;
 import it.musicplatform.catalogcommandservice.model.Song;
@@ -60,8 +58,35 @@ public class SongCommandServiceImpl implements SongCommandService {
         artist.getCreditedSongs().add(song);
     }
 
+    /**
+     * Validates the metadata of the audio file:
+     *
+     * <p>Check that the file is present and not empty, and that its size does not exceed the configured
+     * maximum audio file size.</p>
+     *
+     * @param file the audio file to validate
+     * @throws BadRequestException() if the file is null or empty
+     * @throws ContentTooLargeException if the file exceeds the configured maximum file size
+     */
+    private void validateFileMetadata(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            log.warn("File is empty.");
+            throw new BadRequestException("Audio file must not be empty.");
+        }
+
+        if (file.getSize() > maxAudioSize.toBytes()) {
+            log.warn("File is too large. fileSize={} maxAllowedSize={}", file.getSize(),  maxAudioSize.toBytes());
+            throw new ContentTooLargeException(
+                    String.format("File size exceeds maximum limit of %s.", maxAudioSize.toString())
+            );
+        }
+    }
+
     @Override
     public SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile) {
+        // Check if the audio file is not empty and is not too large
+        validateFileMetadata(audioFile);
+
         Song song = mapper.toEntity(request);
 
         // Add the Artist owner
