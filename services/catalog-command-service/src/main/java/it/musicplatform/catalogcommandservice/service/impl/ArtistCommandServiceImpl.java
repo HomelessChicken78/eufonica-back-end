@@ -44,13 +44,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
             throw new BadRequestException("Artist with name " + creationRequestDTO.getName() + " already exists.");
     }
 
-    /**
-     * Finds an artist by its id.
-     *
-     * @param id the unique id of the artist
-     * @return the artist associated with the given id
-     * @throws NotFoundException if no artist exists with the given id
-     */
+    @Override
     public Artist findByIdOrThrow(UUID id) {
        return artistRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Artist not found with id: " + id + "."));
