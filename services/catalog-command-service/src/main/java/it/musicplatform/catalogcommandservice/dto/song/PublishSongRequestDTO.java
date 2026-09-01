@@ -1,5 +1,6 @@
 package it.musicplatform.catalogcommandservice.dto.song;
 
+import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
@@ -9,9 +10,16 @@ import java.util.UUID;
 @AllArgsConstructor @NoArgsConstructor
 @Data
 public class PublishSongRequestDTO {
+    @Pattern(
+            regexp = "^\\S(?:.*\\S)?$",
+            message = "Title cannot start or end with whitespace."
+    )
+    @Size(min = 3, max = 50, message = "Title must be 3–50 characters long.")
     private String title;
 
+    @PastOrPresent(message = "Published date cannot be in the future.")
     private LocalDate publishedDate;
 
+    @NotEmpty(message = "At least one credited artist is required.")
     private Set<UUID> creditedArtists;
 }
