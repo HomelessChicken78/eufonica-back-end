@@ -34,6 +34,9 @@ public class SongCommandServiceImpl implements SongCommandService {
     @Value("${MAX_AUDIO_SIZE}")
     private DataSize maxAudioSize;
 
+    @Value("${STORAGE_PATH:/tmp/music-platform/audio}")
+    private String storagePathString;
+
     /**
      * Finds a song by its id.
      *
