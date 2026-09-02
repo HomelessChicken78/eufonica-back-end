@@ -1,4 +1,4 @@
-package it.musicplatform.catalogcommandservice.exception.http.server;
+package it.musicplatform.catalogcommandservice.exception.server;
 
 public class InternalServerErrorException extends HttpServerErrorException {
     public InternalServerErrorException(String message) {

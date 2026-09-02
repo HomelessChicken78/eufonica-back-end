@@ -1,4 +1,4 @@
-package it.musicplatform.catalogcommandservice.exception;
+package it.musicplatform.catalogcommandservice.exception.client;
 
 public class BadRequestException extends HttpClientErrorException {
     public BadRequestException() {

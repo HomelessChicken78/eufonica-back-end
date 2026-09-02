@@ -1,4 +1,4 @@
-package it.musicplatform.catalogcommandservice.exception;
+package it.musicplatform.catalogcommandservice.exception.client;
 
 public class ContentTooLargeException extends HttpClientErrorException {
     public ContentTooLargeException(String message) {

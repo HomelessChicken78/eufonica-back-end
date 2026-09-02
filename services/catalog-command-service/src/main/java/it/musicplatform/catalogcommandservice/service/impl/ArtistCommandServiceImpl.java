@@ -2,8 +2,8 @@ package it.musicplatform.catalogcommandservice.service.impl;
 
 import it.musicplatform.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.musicplatform.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
-import it.musicplatform.catalogcommandservice.exception.BadRequestException;
-import it.musicplatform.catalogcommandservice.exception.NotFoundException;
+import it.musicplatform.catalogcommandservice.exception.client.BadRequestException;
+import it.musicplatform.catalogcommandservice.exception.client.NotFoundException;
 import it.musicplatform.catalogcommandservice.mapper.ArtistMapper;
 import it.musicplatform.catalogcommandservice.model.Artist;
 import it.musicplatform.catalogcommandservice.repository.ArtistRepository;

@@ -1,8 +1,8 @@
 package it.musicplatform.catalogcommandservice.service.impl;
 
 import it.musicplatform.catalogcommandservice.dto.song.*;
-import it.musicplatform.catalogcommandservice.exception.*;
-import it.musicplatform.catalogcommandservice.exception.http.server.InternalServerErrorException;
+import it.musicplatform.catalogcommandservice.exception.server.InternalServerErrorException;
+import it.musicplatform.catalogcommandservice.exception.client.*;
 import it.musicplatform.catalogcommandservice.mapper.SongMapper;
 import it.musicplatform.catalogcommandservice.model.Artist;
 import it.musicplatform.catalogcommandservice.model.Song;

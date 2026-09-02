@@ -1,7 +1,7 @@
 package it.musicplatform.catalogcommandservice.service;
 
 import it.musicplatform.catalogcommandservice.dto.artist.*;
-import it.musicplatform.catalogcommandservice.exception.NotFoundException;
+import it.musicplatform.catalogcommandservice.exception.client.NotFoundException;
 import it.musicplatform.catalogcommandservice.model.Artist;
 
 import java.util.UUID;

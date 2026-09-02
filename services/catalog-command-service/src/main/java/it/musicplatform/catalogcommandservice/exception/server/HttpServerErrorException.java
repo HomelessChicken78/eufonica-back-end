@@ -1,4 +1,4 @@
-package it.musicplatform.catalogcommandservice.exception.http.server;
+package it.musicplatform.catalogcommandservice.exception.server;
 
 import it.musicplatform.catalogcommandservice.exception.HttpException;
 

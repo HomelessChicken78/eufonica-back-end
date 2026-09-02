@@ -1,4 +1,6 @@
-package it.musicplatform.catalogcommandservice.exception;
+package it.musicplatform.catalogcommandservice.exception.client;
+
+import it.musicplatform.catalogcommandservice.exception.HttpException;
 
 public class HttpClientErrorException extends HttpException {
     public HttpClientErrorException(String message) {

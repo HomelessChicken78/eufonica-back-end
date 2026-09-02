@@ -1,8 +1,9 @@
-package it.musicplatform.catalogcommandservice.exception;
+package it.musicplatform.catalogcommandservice.exception.handler;
 
+import it.musicplatform.catalogcommandservice.exception.server.InternalServerErrorException;
+import it.musicplatform.catalogcommandservice.exception.client.*;
 import it.musicplatform.catalogcommandservice.exception.dto.GeneralErrorResponseDTO;
 import it.musicplatform.catalogcommandservice.exception.dto.ValidationErrorResponseDTO;
-import it.musicplatform.catalogcommandservice.exception.http.server.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

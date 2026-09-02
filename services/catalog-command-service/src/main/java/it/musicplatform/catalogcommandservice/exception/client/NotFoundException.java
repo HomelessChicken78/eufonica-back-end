@@ -1,4 +1,4 @@
-package it.musicplatform.catalogcommandservice.exception;
+package it.musicplatform.catalogcommandservice.exception.client;
 
 public class NotFoundException extends HttpClientErrorException {
     public NotFoundException() {
