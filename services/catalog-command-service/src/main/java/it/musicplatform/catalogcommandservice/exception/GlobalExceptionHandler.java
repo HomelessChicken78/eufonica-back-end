@@ -2,6 +2,7 @@ package it.musicplatform.catalogcommandservice.exception;
 
 import it.musicplatform.catalogcommandservice.exception.dto.GeneralErrorResponseDTO;
 import it.musicplatform.catalogcommandservice.exception.dto.ValidationErrorResponseDTO;
+import it.musicplatform.catalogcommandservice.exception.http.server.InternalServerErrorException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -105,5 +106,17 @@ public class GlobalExceptionHandler {
         return ResponseEntity
                 .badRequest()
                 .body(new ValidationErrorResponseDTO(validationErrors));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<GeneralErrorResponseDTO> error500(InternalServerErrorException err500) {
+        log.error("Unexpected error while processing request", err500);
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new GeneralErrorResponseDTO(
+                        "An unexpected error occurred",
+                        500
+                ));
     }
 }
