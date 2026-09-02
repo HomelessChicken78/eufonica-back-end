@@ -2,6 +2,7 @@ package it.musicplatform.catalogcommandservice.service.impl;
 
 import it.musicplatform.catalogcommandservice.dto.song.*;
 import it.musicplatform.catalogcommandservice.exception.*;
+import it.musicplatform.catalogcommandservice.exception.http.server.InternalServerErrorException;
 import it.musicplatform.catalogcommandservice.mapper.SongMapper;
 import it.musicplatform.catalogcommandservice.model.Artist;
 import it.musicplatform.catalogcommandservice.model.Song;
@@ -11,12 +12,19 @@ import it.musicplatform.catalogcommandservice.service.SongCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
+import org.apache.tika.mime.MimeType;
+import org.apache.tika.mime.MimeTypeException;
+import org.apache.tika.mime.MimeTypes;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.UUID;
 
@@ -85,6 +93,56 @@ public class SongCommandServiceImpl implements SongCommandService {
         }
     }
 
+    /**
+     * Saves the audio file locally and returns the relative path.
+     *
+     * @param file the Multipart file to save
+     * @return a string containing the file path
+     */
+    private String saveAudioFileLocally(MultipartFile file, String extension) {
+        try {
+            Path storagePath = Paths.get(storagePathString);
+
+            // Create the directory if it does not exist yet
+            if (!Files.exists(storagePath)) {
+                Files.createDirectories(storagePath);
+            }
+
+            // Create a unique filename and resolve the path
+            String filename = UUID.randomUUID() + extension;
+            Path targetLocation = storagePath.resolve(filename);
+
+            // Create a file from that path and put the content of the multipart there
+            file.transferTo(targetLocation.toFile());
+
+            // Return the path
+            return targetLocation.toString();
+
+        } catch (IOException e) {
+            throw new InternalServerErrorException("Could not store the audio file.");
+        }
+    }
+
+    /**
+     * Validates that the given MIME type is included in the list of allowed MIME types.
+     *
+     * @param mimeType the MIME type to validate
+     * @param allowedExtensions the list of allowed MIME types, for example
+     *                          {@code ["audio/mpeg", "audio/wav"]}
+     * @throws BadRequestException if the MIME type is not allowed
+     */
+    private void validateMimeType(MimeType mimeType, List<String> allowedExtensions) {
+        if (mimeType == null || allowedExtensions == null)
+            throw new BadRequestException("MIME type and allowed MIME types must not be null");
+
+        if (!allowedExtensions.contains(mimeType.toString())) {
+            throw new BadRequestException(
+                    "MIME type '" + mimeType + "' is not allowed. Allowed MIME types: "
+                            + allowedExtensions);
+        }
+    }
+
+
     @Override
     public SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile) {
         // Check if the audio file is not empty and is not too large
@@ -117,6 +175,25 @@ public class SongCommandServiceImpl implements SongCommandService {
                         String.format("Credited Artist %s foundation date must be before or equal to Song published date.", creditedArtist.getId())
                 );
             }
+
+            // Get the file extension with tika
+            String extension;
+            try {
+                String mimeTypeString = tika.detect(audioFile.getInputStream());
+
+                MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
+                MimeType mimeType = allTypes.forName(mimeTypeString);
+
+                // Validate the Mime type
+                validateMimeType(mimeType, musicFormats);
+
+                extension = mimeType.getExtension();
+            } catch (IOException | MimeTypeException e) {
+                throw new InternalServerErrorException("Failed to process audio file format.");
+            }
+
+            // Save the file locally. This avoids overheading the RAM. The application will read from a local stored file
+            String savedFilePath = saveAudioFileLocally(audioFile, extension);
         }
 
         // TODO url, durationSec
