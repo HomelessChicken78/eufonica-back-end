@@ -7,6 +7,7 @@ import it.musicplatform.catalogcommandservice.model.Artist;
 import it.musicplatform.catalogcommandservice.model.Song;
 import it.musicplatform.catalogcommandservice.repository.SongRepository;
 import it.musicplatform.catalogcommandservice.service.ArtistCommandService;
+import it.musicplatform.catalogcommandservice.service.AudioMetadataService;
 import it.musicplatform.catalogcommandservice.service.AudioStorageService;
 import it.musicplatform.catalogcommandservice.service.SongCommandService;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +23,7 @@ import java.util.UUID;
 public class SongCommandServiceImpl implements SongCommandService {
     private final ArtistCommandService artistService;
     private final SongMapper mapper;
+    private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
     private final SongRepository songRepository;
 
@@ -81,6 +83,10 @@ public class SongCommandServiceImpl implements SongCommandService {
         }
 
         // TODO durationSec
+        // Validate the audio file
+        audioMetadataService.validate(audioFile);
+        int audioDurationSec = audioMetadataService.getDurationSec(audioFile);
+
         // Send the request to the other service
         String audioUrl = audioStorageService.store(audioFile);
         song.setUrl(audioUrl);
