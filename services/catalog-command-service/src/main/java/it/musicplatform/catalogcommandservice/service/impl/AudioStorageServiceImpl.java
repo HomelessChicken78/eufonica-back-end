@@ -72,26 +72,40 @@ public class AudioStorageServiceImpl implements AudioStorageService {
         }
     }
 
-    @Override
-    public String store(MultipartFile file) {
-        // Check if the audio file is not empty and is not too large
-        validateFileMetadata(file);
-
-        // Get the file extension with tika
-        String extension;
+    /**
+     * Detects and validates the MIME type of the given audio file and returns
+     * the corresponding file extension.
+     *
+     * @param file the audio file whose MIME type is to be detected and validated
+     * @return the file extension corresponding to the detected MIME type
+     * @throws BadRequestException if the detected MIME type is not allowed
+     * @throws InternalServerErrorException if the file cannot be read or the
+     *         detected MIME type cannot be processed
+     */
+    private String detectAndValidateExtension(MultipartFile file) {
         try {
             String mimeTypeString = tika.detect(file.getInputStream());
 
             MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
             MimeType mimeType = allTypes.forName(mimeTypeString);
 
-            // Validate the Mime type
             validateMimeType(mimeType, musicFormats);
 
-            extension = mimeType.getExtension();
+            return mimeType.getExtension();
         } catch (IOException | MimeTypeException e) {
-            throw new InternalServerErrorException("Failed to process audio file format.");
+            throw new InternalServerErrorException(
+                    "Failed to process audio file format."
+            );
         }
+    }
+
+    @Override
+    public String store(MultipartFile file) {
+        // Check if the audio file is not empty and is not too large
+        validateFileMetadata(file);
+
+        // Get the file extension with tika
+        String extension = detectAndValidateExtension(file);
 
         // TODO send to S3
 
