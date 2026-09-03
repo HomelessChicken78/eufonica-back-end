@@ -129,6 +129,15 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
             return audioFile.getAudioHeader().getTrackLength();
         } catch (IOException | CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
             throw new InternalServerErrorException("Failed to process audio file.", e);
+        } finally {
+            // Remove the temporary file that has been just created
+            if (tempFile != null) {
+                try {
+                    Files.deleteIfExists(tempFile);
+                } catch (IOException e) {
+                    log.warn("Failed to delete temporary audio file: {}", tempFile, e);
+                }
+            }
         }
     }
 }
