@@ -10,6 +10,12 @@ import org.apache.tika.Tika;
 import org.apache.tika.mime.MimeType;
 import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
+import org.jaudiotagger.audio.AudioFile;
+import org.jaudiotagger.audio.AudioFileIO;
+import org.jaudiotagger.audio.exceptions.CannotReadException;
+import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
+import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.tag.TagException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,6 +23,8 @@ import org.springframework.util.unit.DataSize;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.List;
 
 @Service @Transactional
@@ -29,6 +37,9 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
     @Value("${MAX_AUDIO_SIZE}")
     private DataSize maxAudioSize;
+
+    @Value("${TEMP_FILE_PATH:/tmp/audio_}")
+    private String tempFilePath;
 
     /**
      * Validates that the given MIME type is included in the list of allowed MIME types.
@@ -69,7 +80,7 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
             // Check if the MIME type is allowed
             validateMimeType(mimeType, musicFormats);
         } catch (IOException | MimeTypeException e) {
-            throw new InternalServerErrorException("Failed to process audio file format.");
+            throw new InternalServerErrorException("Failed to process audio file format.", e);
         }
     }
 
@@ -105,6 +116,19 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
     @Override
     public int getDurationSec(MultipartFile file) {
-        return 0;
+        Path tempFile = null;
+        try {
+            // Create a temporary file to allow JAudio tagger to work
+            tempFile = Files.createTempFile(tempFilePath, ".tmp");
+
+            // Copy multipart file to the new temporary file
+            file.transferTo(tempFile);
+
+            // Find the duration
+            AudioFile audioFile = AudioFileIO.read(tempFile.toFile());
+            return audioFile.getAudioHeader().getTrackLength();
+        } catch (IOException | CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
+            throw new InternalServerErrorException("Failed to process audio file.", e);
+        }
     }
 }
