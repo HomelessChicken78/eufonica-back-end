@@ -72,7 +72,7 @@ public class SongCommandServiceImpl implements SongCommandService {
             addCreditedArtist(song, creditedArtist);
 
             // [V.song_credit.pubblicazione_dopo_fondazione]
-            if (creditedArtist.getFoundationDate().isAfter(request.getPublishedDate())) {
+            if (request.getPublishedDate() != null && creditedArtist.getFoundationDate().isAfter(request.getPublishedDate())) {
                 log.warn(
                         "Invalid song credit: artist foundation date (artistId={}, foundationDate={}) is after song published date ({}).",
                         artistId,
