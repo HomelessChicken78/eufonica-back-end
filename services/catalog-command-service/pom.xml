@@ -57,6 +57,7 @@
         </dependency>
 
         <!-- == Utilities == -->
+        <!-- ==== Code Generation / Mapping ==== -->
         <dependency>
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok</artifactId>
@@ -72,14 +73,25 @@
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>0.2.0</version>
         </dependency>
+
+        <!-- ==== Persistence / Auditing ==== -->
         <dependency>
             <groupId>org.hibernate.orm</groupId>
             <artifactId>hibernate-envers</artifactId>
         </dependency>
+
+        <!-- ==== File / Content Analysis ==== -->
         <dependency>
             <groupId>org.apache.tika</groupId>
             <artifactId>tika-core</artifactId>
             <version>3.2.3</version>
+        </dependency>
+
+        <!-- ==== Audio / Metadata ==== -->
+        <dependency>
+            <groupId>net.jthink</groupId>
+            <artifactId>jaudiotagger</artifactId>
+            <version>3.0.1</version>
         </dependency>
 
         <!-- == Testing == -->
