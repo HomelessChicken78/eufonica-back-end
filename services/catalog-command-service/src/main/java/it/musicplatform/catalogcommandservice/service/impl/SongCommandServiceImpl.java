@@ -65,6 +65,10 @@ public class SongCommandServiceImpl implements SongCommandService {
         // Add credited artists
         for (UUID artistId : request.getCreditedArtists()) {
             Artist creditedArtist = artistService.findByIdOrThrow(artistId);
+            log.debug("Adding credited artist. id={}, name={}, foundationDate={}",
+                    creditedArtist.getId(),
+                    creditedArtist.getName(),
+                    creditedArtist.getFoundationDate());
             addCreditedArtist(song, creditedArtist);
 
             // [V.song_credit.pubblicazione_dopo_fondazione]
