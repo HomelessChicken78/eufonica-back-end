@@ -25,6 +25,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service @Transactional
@@ -38,8 +39,11 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
     @Value("${MAX_AUDIO_SIZE}")
     private DataSize maxAudioSize;
 
-    @Value("${TEMP_FILE_PATH:/tmp/audio_}")
-    private String tempFilePath;
+    @Value("${TEMP_DIR:/tmp}")
+    private String tempDir;
+
+    @Value("${TEMP_FILE_PREFIX:audio_}")
+    private String tempFilePrefix;
 
     /**
      * Validates that the given MIME type is included in the list of allowed MIME types.
@@ -116,15 +120,25 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
     @Override
     public int getDurationSec(MultipartFile file) {
+        log.debug("Starting audio duration extraction. Filename: {}, size: {} bytes, contentType: {}",
+                file.getOriginalFilename(),
+                file.getSize(),
+                file.getContentType());
+
         Path tempFile = null;
         try {
+            Path dir = Paths.get(tempDir);
+
             // Create a temporary file to allow JAudio tagger to work
-            tempFile = Files.createTempFile(tempFilePath, ".tmp");
+            log.debug("Creating temporary audio file in path: {}", tempDir);
+            tempFile = Files.createTempFile(dir, tempFilePrefix, tika.detect(file.getInputStream()));
 
             // Copy multipart file to the new temporary file
+            log.debug("Transferring uploaded file to temporary file: {}.", tempFile);
             file.transferTo(tempFile);
 
             // Find the duration
+            log.debug("Reading audio metadata from temporary file: {}.", tempFile);
             AudioFile audioFile = AudioFileIO.read(tempFile.toFile());
             return audioFile.getAudioHeader().getTrackLength();
         } catch (IOException | CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
