@@ -16,7 +16,7 @@ import java.util.UUID;
 @Table(
         name = "song",
         uniqueConstraints = {
-                @UniqueConstraint(columnNames = {"name", "artist_owner_id"})
+                @UniqueConstraint(columnNames = {"title", "artist_owner_id"})
         }
 )
 @AllArgsConstructor @NoArgsConstructor
