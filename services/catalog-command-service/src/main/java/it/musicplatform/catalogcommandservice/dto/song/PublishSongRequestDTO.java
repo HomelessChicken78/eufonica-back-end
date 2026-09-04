@@ -22,5 +22,5 @@ public class PublishSongRequestDTO {
     private LocalDate publishedDate;
 
     @NotEmpty(message = "At least one credited artist is required.")
-    private Set<UUID> creditedArtists;
+    private Set<@NotNull(message = "Artist ID cannot be null.") UUID> creditedArtists;
 }
