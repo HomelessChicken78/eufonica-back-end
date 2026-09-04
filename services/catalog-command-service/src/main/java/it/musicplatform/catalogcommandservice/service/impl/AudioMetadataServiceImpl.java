@@ -137,7 +137,7 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
             // Create a temporary file to allow JAudio tagger to work
             log.debug("Creating temporary audio file in path: {}", tempDir);
-            tempFile = Files.createTempFile(dir, tempFilePrefix, tika.detect(file.getInputStream()));
+            tempFile = Files.createTempFile(dir, tempFilePrefix, mimeType.getExtension());
 
             // Copy multipart file to the new temporary file
             log.debug("Transferring uploaded file to temporary file: {}.", tempFile);
