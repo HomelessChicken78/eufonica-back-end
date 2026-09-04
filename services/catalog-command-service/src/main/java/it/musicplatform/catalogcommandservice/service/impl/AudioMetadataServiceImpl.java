@@ -62,6 +62,8 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
                     "MIME type '" + mimeType + "' is not allowed. Allowed MIME types: "
                             + allowedExtensions);
         }
+
+        log.debug("MIME type validation successful. mimeType={}", mimeType);
     }
 
     /**
@@ -79,6 +81,7 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
         try {
             // Detect the file MIME type
             String mimeTypeString = tika.detect(file.getInputStream());
+            log.debug("Detected audio file MIME type: {}", mimeTypeString);
 
             MimeTypes allTypes = MimeTypes.getDefaultMimeTypes();
             MimeType mimeType = allTypes.forName(mimeTypeString);
@@ -114,6 +117,8 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
                     String.format("File size exceeds maximum limit of %s.", maxAudioSize.toString())
             );
         }
+        log.debug("Audio file validation successful. fileSize={} maxAllowedSize={}",
+                file.getSize(), maxAudioSize.toBytes());
     }
 
     @Override
