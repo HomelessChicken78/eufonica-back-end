@@ -72,8 +72,10 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
      * @throws BadRequestException if the detected MIME type is not allowed
      * @throws InternalServerErrorException if the file cannot be read or the
      *         detected MIME type cannot be processed
+     *
+     * @return the file detected mime type
      */
-    private void detectAndValidateExtension(MultipartFile file) {
+    private MimeType detectAndValidateExtension(MultipartFile file) {
         try {
             // Detect the file MIME type
             String mimeTypeString = tika.detect(file.getInputStream());
@@ -83,6 +85,8 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
             // Check if the MIME type is allowed
             validateMimeType(mimeType, musicFormats);
+
+            return mimeType;
         } catch (IOException | MimeTypeException e) {
             throw new InternalServerErrorException("Failed to process audio file format.", e);
         }
@@ -113,13 +117,15 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
     }
 
     @Override
-    public void validate(MultipartFile file) {
-        detectAndValidateExtension(file);
+    public MimeType validate(MultipartFile file) {
+        MimeType extension = detectAndValidateExtension(file);
         validateFileMetadata(file);
+
+        return extension;
     }
 
     @Override
-    public int getDurationSec(MultipartFile file) {
+    public int getDurationSec(MultipartFile file, MimeType mimeType) {
         log.debug("Starting audio duration extraction. Filename: {}, size: {} bytes, contentType: {}",
                 file.getOriginalFilename(),
                 file.getSize(),

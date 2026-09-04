@@ -2,6 +2,7 @@ package it.musicplatform.catalogcommandservice.service;
 
 import it.musicplatform.catalogcommandservice.exception.client.BadRequestException;
 import it.musicplatform.catalogcommandservice.exception.client.ContentTooLargeException;
+import org.apache.tika.mime.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AudioMetadataService {
@@ -14,13 +15,16 @@ public interface AudioMetadataService {
      * @param file the audio file to validate
      * @throws BadRequestException if the file is null, empty, or the mime type is not allowed
      * @throws ContentTooLargeException if the file exceeds the configured maximum file size
+     *
+     * @return the file detected mime type
      */
-    void validate(MultipartFile file);
+    MimeType validate(MultipartFile file);
 
     /**
      * Get the duration in seconds of the audio.
      *
      * @param file the audio file to get the duration of
+     * @param mimeType the file true mime type
      */
-    int getDurationSec(MultipartFile file);
+    int getDurationSec(MultipartFile file, MimeType mimeType);
 }
