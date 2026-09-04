@@ -14,6 +14,6 @@ public class AudioStorageServiceImpl implements AudioStorageService {
     public String store(MultipartFile file) {
         // TODO send to S3
 
-        return "";
+        return "https://docs.spring.io";
     }
 }
