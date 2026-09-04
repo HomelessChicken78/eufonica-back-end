@@ -123,10 +123,8 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
     @Override
     public MimeType validate(MultipartFile file) {
-        MimeType extension = detectAndValidateExtension(file);
         validateFileMetadata(file);
-
-        return extension;
+        return detectAndValidateExtension(file);
     }
 
     @Override
