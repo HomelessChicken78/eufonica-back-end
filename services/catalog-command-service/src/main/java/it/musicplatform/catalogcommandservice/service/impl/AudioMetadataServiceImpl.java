@@ -27,6 +27,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -44,6 +45,12 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
     @Value("${TEMP_FILE_PREFIX:audio_}")
     private String tempFilePrefix;
+
+    private static final Map<String, String> AUDIO_EXTENSIONS = Map.of(
+            "audio/mpeg", ".mp3",
+            "audio/mpga", ".mp3",
+            "audio/wav", ".wav"
+    );
 
     /**
      * Validates that the given MIME type is included in the list of allowed MIME types.
@@ -121,6 +128,26 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
                 file.getSize(), maxAudioSize.toBytes());
     }
 
+    /**
+     * Resolves an audio MIME type to its corresponding file extension.
+     * Uses an explicit mapping for formats that require a JAudioTagger-compatible
+     * extension, and falls back to the extension provided by the MIME type.
+     *
+     * @param mimeType the audio MIME type
+     * @return the corresponding file extension, including the leading dot
+     */
+    private String getAudioExtension(MimeType mimeType) {
+        String extension = AUDIO_EXTENSIONS.get(mimeType.toString());
+
+        if (extension == null) {
+            log.warn("Unsupported audio MIME type: {}. Returning {} instead.", mimeType, mimeType.getExtension());
+            return mimeType.getExtension();
+        }
+
+        log.debug("Resolved audio MIME type {} to extension {}", mimeType, extension);
+        return extension;
+    }
+
     @Override
     public MimeType validate(MultipartFile file) {
         validateFileMetadata(file);
@@ -140,7 +167,7 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
             // Create a temporary file to allow JAudio tagger to work
             log.debug("Creating temporary audio file in path: {}", tempDir);
-            tempFile = Files.createTempFile(dir, tempFilePrefix, mimeType.getExtension());
+            tempFile = Files.createTempFile(dir, tempFilePrefix, getAudioExtension(mimeType));
 
             // Copy multipart file to the new temporary file
             log.debug("Transferring uploaded file to temporary file: {}.", tempFile);
@@ -149,7 +176,10 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
             // Find the duration
             log.debug("Reading audio metadata from temporary file: {}.", tempFile);
             AudioFile audioFile = AudioFileIO.read(tempFile.toFile());
-            return audioFile.getAudioHeader().getTrackLength();
+
+            int audioDuration = audioFile.getAudioHeader().getTrackLength();
+            log.debug("Duration found: {}s", audioDuration);
+            return audioDuration;
         } catch (IOException | CannotReadException | TagException | ReadOnlyFileException | InvalidAudioFrameException e) {
             throw new InternalServerErrorException("Failed to process audio file.", e);
         } finally {
