@@ -8,11 +8,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
 
 import java.io.IOException;
+import java.util.UUID;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -29,14 +31,23 @@ public class AudioStorageServiceImpl implements AudioStorageService {
     private boolean s3UploadEnabled;
 
     @Override
-    public String store(MultipartFile file, AudioMetadataDTO audioMetadata) {
+    public String store(MultipartFile file, String prefix, String fileName, AudioMetadataDTO audioMetadata) {
+        if (!prefix.endsWith("/"))
+            throw new IllegalArgumentException("Prefix must end with '/'");
+
         try {
             log.info("Storing audio file: originalFilename={}, extension={}, size={}",
                     file.getOriginalFilename(), audioMetadata.getExtension(), file.getSize());
 
             byte[] fileBytes = file.getBytes();
 
-            final String s3ObjectKey = audioPrefix + file.getOriginalFilename() + audioMetadata.getExtension();
+            // Use a UUID to ensure unique S3 object keys, as different filenames such as "a/b"
+            // and "a b" may be normalized to the same key and otherwise overwrite each other.
+            // cleanPath() normalizes the filename/path before storing it in S3
+            final String s3ObjectKey = audioPrefix + prefix
+                    + UUID.randomUUID() + "_"
+                    + StringUtils.cleanPath(fileName)
+                    + audioMetadata.getExtension();
             log.debug("Uploading audio file to S3: bucket={}, key={}", bucketS3, s3ObjectKey);
 
             if (s3UploadEnabled) {
