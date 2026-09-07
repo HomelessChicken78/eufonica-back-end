@@ -1,5 +1,6 @@
 package it.eufonica.catalogcommandservice.service;
 
+import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
 import it.eufonica.catalogcommandservice.exception.client.ContentTooLargeException;
 import org.apache.tika.mime.MimeType;
@@ -16,15 +17,15 @@ public interface AudioMetadataService {
      * @throws BadRequestException if the file is null, empty, or the mime type is not allowed
      * @throws ContentTooLargeException if the file exceeds the configured maximum file size
      *
-     * @return the file detected mime type
+     * @return AudioMetadataDTO containing the detected mime type and the extension name
      */
-    MimeType validate(MultipartFile file);
+    AudioMetadataDTO validate(MultipartFile file);
 
     /**
      * Get the duration in seconds of the audio.
      *
      * @param file the audio file to get the duration of
-     * @param mimeType the file true mime type
+     * @param audioExtension the file's extension
      */
-    int getDurationSec(MultipartFile file, MimeType mimeType);
+    int getDurationSec(MultipartFile file, String audioExtension);
 }

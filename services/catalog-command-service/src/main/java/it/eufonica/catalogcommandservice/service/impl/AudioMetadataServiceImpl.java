@@ -1,5 +1,6 @@
 package it.eufonica.catalogcommandservice.service.impl;
 
+import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
 import it.eufonica.catalogcommandservice.exception.client.ContentTooLargeException;
 import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
@@ -12,9 +13,7 @@ import org.apache.tika.mime.MimeTypeException;
 import org.apache.tika.mime.MimeTypes;
 import org.jaudiotagger.audio.AudioFile;
 import org.jaudiotagger.audio.AudioFileIO;
-import org.jaudiotagger.audio.exceptions.CannotReadException;
-import org.jaudiotagger.audio.exceptions.InvalidAudioFrameException;
-import org.jaudiotagger.audio.exceptions.ReadOnlyFileException;
+import org.jaudiotagger.audio.exceptions.*;
 import org.jaudiotagger.tag.TagException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -149,13 +148,14 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
     }
 
     @Override
-    public MimeType validate(MultipartFile file) {
+    public AudioMetadataDTO validate(MultipartFile file) {
         validateFileMetadata(file);
-        return detectAndValidateExtension(file);
+        MimeType mimeType = detectAndValidateExtension(file);
+        return new AudioMetadataDTO(mimeType, getAudioExtension(mimeType));
     }
 
     @Override
-    public int getDurationSec(MultipartFile file, MimeType mimeType) {
+    public int getDurationSec(MultipartFile file, String audioExtension) {
         log.debug("Starting audio duration extraction. Filename: {}, size: {} bytes, contentType: {}",
                 file.getOriginalFilename(),
                 file.getSize(),
@@ -167,7 +167,7 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
             // Create a temporary file to allow JAudio tagger to work
             log.debug("Creating temporary audio file in path: {}", tempDir);
-            tempFile = Files.createTempFile(dir, tempFilePrefix, getAudioExtension(mimeType));
+            tempFile = Files.createTempFile(dir, tempFilePrefix, audioExtension);
 
             // Copy multipart file to the new temporary file
             log.debug("Transferring uploaded file to temporary file: {}.", tempFile);

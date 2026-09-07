@@ -99,10 +99,10 @@ public class SongCommandServiceImpl implements SongCommandService {
         }
 
         // Validate the audio file
-        MimeType extension = audioMetadataService.validate(audioFile);
+        AudioMetadataDTO audioMetadata = audioMetadataService.validate(audioFile);
 
         // Find the duration
-        int audioDurationSec = audioMetadataService.getDurationSec(audioFile, extension);
+        int audioDurationSec = audioMetadataService.getDurationSec(audioFile, audioMetadata.getExtension());
         song.setDurationSec(audioDurationSec);
 
         // Send the request to the other service
