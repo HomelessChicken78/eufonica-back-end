@@ -25,6 +25,9 @@ public class AudioStorageServiceImpl implements AudioStorageService {
     @Value("${S3_AUDIO_PREFIX:audio/}")
     private String audioPrefix;
 
+    @Value("${S3_UPLOAD_ENABLED:false}")
+    private boolean s3UploadEnabled;
+
     @Override
     public String store(MultipartFile file, AudioMetadataDTO audioMetadata) {
         try {
@@ -34,18 +37,19 @@ public class AudioStorageServiceImpl implements AudioStorageService {
             byte[] fileBytes = file.getBytes();
 
             final String s3ObjectKey = audioPrefix + file.getOriginalFilename() + audioMetadata.getExtension();
-            log.debug("Uploading audio file to S3: bucket={}, key={}",
-                    bucketS3, s3ObjectKey);
+            log.debug("Uploading audio file to S3: bucket={}, key={}", bucketS3, s3ObjectKey);
 
-            s3Client.putObject(
-                    b -> b.bucket(bucketS3)
-                            .key(s3ObjectKey)
-                            .contentType(audioMetadata.getMimeType().toString())
-                            .build(),
-                    AsyncRequestBody.fromBytes(fileBytes)
-            ).join();
+            if (s3UploadEnabled) {
+                s3Client.putObject(
+                        b -> b.bucket(bucketS3)
+                                .key(s3ObjectKey)
+                                .contentType(audioMetadata.getMimeType().toString())
+                                .build(),
+                        AsyncRequestBody.fromBytes(fileBytes)
+                ).join();
 
-            log.info("Successfully stored audio file: key={}", s3ObjectKey);
+                log.info("Successfully stored audio file: key={}", s3ObjectKey);
+            } else log.warn("S3 Upload is disabled.");
 
             return s3ObjectKey;
         } catch (IOException e) {
