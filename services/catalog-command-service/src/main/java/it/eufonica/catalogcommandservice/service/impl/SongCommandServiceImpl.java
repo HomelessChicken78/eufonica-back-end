@@ -16,7 +16,6 @@ import it.eufonica.catalogcommandservice.service.AudioStorageService;
 import it.eufonica.catalogcommandservice.service.SongCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tika.mime.MimeType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -106,7 +105,7 @@ public class SongCommandServiceImpl implements SongCommandService {
         song.setDurationSec(audioDurationSec);
 
         // Send the request to the other service
-        String audioObjectKeys = audioStorageService.store(audioFile);
+        String audioObjectKeys = audioStorageService.store(audioFile, audioMetadata);
         song.setAudio(audioObjectKeys);
 
         Song savedSong = songRepository.save(song);
