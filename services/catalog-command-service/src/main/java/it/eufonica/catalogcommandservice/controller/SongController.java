@@ -6,6 +6,7 @@ import it.eufonica.catalogcommandservice.service.SongCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -22,6 +23,7 @@ public class SongController {
     @PostMapping(path = "/{artistId}",
             consumes = MULTIPART_FORM_DATA_VALUE,
             produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public SongResponseDTO publishSong(
             @RequestPart("creationRequest") @Valid PublishSongRequestDTO creationRequestDTO,
             @PathVariable UUID artistId,
