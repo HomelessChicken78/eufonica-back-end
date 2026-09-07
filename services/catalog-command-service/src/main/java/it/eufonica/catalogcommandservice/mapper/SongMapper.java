@@ -8,7 +8,7 @@
 
     @Mapper(componentModel = "spring", uses = ArtistMapper.class)
     public interface SongMapper {
-        @Mapping(target = "url", ignore = true)
+        @Mapping(target = "audio", ignore = true)
         @Mapping(target = "id", ignore = true)
         @Mapping(target = "durationSec", ignore = true)
         @Mapping(target = "artistOwner", ignore = true)

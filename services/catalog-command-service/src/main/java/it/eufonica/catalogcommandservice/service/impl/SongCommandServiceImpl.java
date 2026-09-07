@@ -106,8 +106,8 @@ public class SongCommandServiceImpl implements SongCommandService {
         song.setDurationSec(audioDurationSec);
 
         // Send the request to the other service
-        String audioUrl = audioStorageService.store(audioFile);
-        song.setUrl(audioUrl);
+        String audioObjectKeys = audioStorageService.store(audioFile);
+        song.setAudio(audioObjectKeys);
 
         Song savedSong = songRepository.save(song);
         return mapper.toResponse(savedSong);

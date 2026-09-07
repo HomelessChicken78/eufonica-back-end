@@ -17,7 +17,7 @@ public class SongResponseDTO {
     private Integer durationSec;
 
     @ToString.Exclude
-    private String url;
+    private String audio;
 
     private LocalDate publishedDate;
 
