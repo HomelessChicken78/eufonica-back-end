@@ -33,7 +33,7 @@ public class Song {
     private Integer durationSec;
 
     @Pattern(
-            regexp = "^[a-zA-Z0-9!_.*'()/-]+$",
+            regexp = "^[a-zA-Z0-9!_.*'()/ -]+$",
             message = "Invalid Object Keys."
     )
     private String audio;
