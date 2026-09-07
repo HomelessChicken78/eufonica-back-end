@@ -307,7 +307,7 @@ Pre:
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.title = **song_title**, res.duration_sec = **duration**, res.url = **audio_url** e res.pub_date = Oggi
+- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.title = **song_title**, res.duration_sec = **duration**, res.audio = **audio_url** e res.pub_date = Oggi
 - Per ogni _art:Artist_ in **art_credits**, vengono creati i link _(art, res):song_credit_
    - Tra questi, il link _(**art_owner**, res)_ viene specializzato come istanza anche dell'associazione _song_ownership_
 
@@ -425,12 +425,12 @@ public enum VisibilityType {
 }
 ````
 
-- Tipo `Url`
+- Tipo `ObjectKey`
 ````java
 @Pattern(
-    regexp = "https?:\\\\/\\\\/(www\\\\.)?[-a-zA-Z0-9@:%._\\\\+~#=]{1,256}\\\\.[a-zA-Z0-9()]{1,6}\\\\b([-a-zA-Z0-9()@:%_\\\\+.~#?&//=]*)"
+    regexp = "^[a-zA-Z0-9!_.*'()/-]+$"
 )
-private String url;
+private String objectKey;
 ````
 
 <!-- TOC --><a name="vincoli-ristrutturati"></a>
