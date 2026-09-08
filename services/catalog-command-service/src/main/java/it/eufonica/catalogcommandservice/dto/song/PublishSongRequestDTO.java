@@ -21,6 +21,5 @@ public class PublishSongRequestDTO {
     @PastOrPresent(message = "Published date cannot be in the future.")
     private LocalDate publishedDate;
 
-    @NotEmpty(message = "At least one credited artist is required.")
     private Set<@NotNull(message = "Artist ID cannot be null.") UUID> creditedArtists;
 }
