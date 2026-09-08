@@ -1,14 +1,20 @@
 package it.eufonica.catalogcommandservice.service;
 
-import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
-import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.dto.album.*;
+import it.eufonica.catalogcommandservice.model.Album;
 
 import java.util.UUID;
 
 public interface AlbumCommandService {
+
+
     AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request);
 
-    void addSongToAlbum(UUID albumId, UUID songId);
+    AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumCreationRequestDTO request);
 
-    void removeSongFromAlbum(UUID albumId, UUID songId);
+    void deleteAlbum(UUID albumId);
+
+    AlbumSummaryResponseDTO addSongToAlbum(UUID albumId, UUID songId);
+
+    AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId);
 }
