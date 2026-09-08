@@ -72,6 +72,19 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         log.debug("Correctly validated the relation between artist and album.");
     }
 
+    /**
+     * Associates the specific artists with the album.
+     *
+     * <p>Each artist is retrieved through the artist command service and validated
+     * against the album's temporal constraints before being added to the album.
+     *
+     * @param artistIds the ids of the artists to associate with the album
+     * @param album the album to which the artists are added
+     * @param pubDate the publication date used for temporal validation
+     *
+     * @throws NotFoundException if an artist with one of the given ids does not exist
+     * @throws ConflictException if an artist violates the temporal constraints
+     */
     private void mapArtistsToAlbum(List<UUID> artistIds, Album album, LocalDateTime pubDate) {
         for (UUID artId : artistIds) {
             Artist artist = artistCommandService.findByIdOrThrow(artId);
@@ -82,6 +95,16 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         }
     }
 
+    /**
+     * Associates the specific song with the album.
+     *
+     * <p>Each song is retrieved through the song command service.
+     *
+     * @param songIds the ids of the songs to associate with the album
+     * @param album the album to which the songs are added
+     *
+     * @throws NotFoundException if an artist with one of the given ids does not exist
+     */
     private void mapSongsToAlbum(List<UUID> songIds, Album album) {
         for (UUID songId : songIds) {
             Song song = songCommandService.findByIdOrElseThrow(songId);
