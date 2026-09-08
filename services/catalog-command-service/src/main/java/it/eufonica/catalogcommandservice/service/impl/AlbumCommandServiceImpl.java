@@ -93,13 +93,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             album.getSongs().add(song);
         }
 
-        // TODO [V.art_album.artista_fondato_prima_rilascio_album]
-        // Per ogni al:Album e art:Artist, tali che (al, art):art_album, deve essere vero che art.foundation_date <=
-        //al.pub_date
-        // TODO [V.art_album.artista_registrato_prima_pubblicazione_album]
-        // Per ogni al:Album e art:Artist, tali che (al, art):art_album, deve essere vero che art.registration_timestamp <
-        // al.pub_date
-        return null;
+        Album savedAlbum = albumRepository.save(album);
+        return mapper.toSummaryResponse(savedAlbum);
     }
 
     @Override
