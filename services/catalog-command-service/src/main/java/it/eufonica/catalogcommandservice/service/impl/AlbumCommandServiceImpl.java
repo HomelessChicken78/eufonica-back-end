@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.UUID;
 
 @Service @Transactional
@@ -71,27 +72,31 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         log.debug("Correctly validated the relation between artist and album.");
     }
 
+    private void mapArtistsToAlbum(List<UUID> artistIds, String albumName, Album album) {
+        for (UUID artId : artistIds) {
+            Artist artist = artistCommandService.findByIdOrThrow(artId);
+            validateArtistAlbumTemporalConstraints(artist, album, LocalDateTime.now());
+
+            log.info("Added artist with id {} to the album {}", artId, albumName);
+            album.getArtists().add(artist);
+        }
+    }
+
+    private void mapSongsToAlbum(List<UUID> songIds, String albumName, Album album) {
+        for (UUID songId : songIds) {
+            Song song = songCommandService.findByIdOrElseThrow(songId);
+
+            log.info("Added song with id {} to the album {}", songId, albumName);
+            album.getSongs().add(song);
+        }
+    }
+
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
         Album album = mapper.toEntity(request);
 
-        // Map the Artists to the Album
-        for (UUID artId : request.getArtists()) {
-            Artist artist = artistCommandService.findByIdOrThrow(artId);
-
-            validateArtistAlbumTemporalConstraints(artist, album, LocalDateTime.now());
-
-            log.info("Added artist with id {} to the album {}", artId, request.getName());
-            album.getArtists().add(artist);
-        }
-
-        // Map the Songs to the Album
-        for (UUID songId : request.getSongs()) {
-            Song song = songCommandService.findByIdOrElseThrow(songId);
-
-            log.info("Added song with id {} to the album {}", songId, request.getName());
-            album.getSongs().add(song);
-        }
+        mapArtistsToAlbum(request.getArtists(), request.getName(), album);
+        mapSongsToAlbum(request.getSongs(), request.getName(), album);
 
         Album savedAlbum = albumRepository.save(album);
         return mapper.toSummaryResponse(savedAlbum);
