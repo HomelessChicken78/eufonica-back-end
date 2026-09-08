@@ -38,10 +38,6 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         // Constraint [V.Artist.registrato_dopo_fondazione]
         if (creationRequestDTO.getFoundationDate().isAfter(LocalDate.now()))
             throw new BadRequestException("Foundation date should be before registration date.");
-
-        // Check that the name doesn't already exist (unique)
-        if (artistRepository.existsByName(creationRequestDTO.getName()))
-            throw new BadRequestException("Artist with name " + creationRequestDTO.getName() + " already exists.");
     }
 
     @Override
@@ -54,6 +50,10 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
     public ArtistSummaryResponseDTO createArtist(ArtistCreationRequestDTO creationRequestDTO) {
         log.info("Creating artist with name {}.", creationRequestDTO.getName());
         validateArtistRequest(creationRequestDTO);
+
+        // Check that the name doesn't already exist (unique)
+        if (artistRepository.existsByName(creationRequestDTO.getName()))
+            throw new BadRequestException("Artist with name " + creationRequestDTO.getName() + " already exists.");
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
         artist.setRegistrationDate(LocalDateTime.now());
