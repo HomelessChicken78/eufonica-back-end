@@ -1,0 +1,113 @@
+package it.eufonica.catalogcommandservice.service.impl;
+
+import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
+import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.exception.client.ConflictException;
+import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
+import it.eufonica.catalogcommandservice.model.Album;
+import it.eufonica.catalogcommandservice.model.Artist;
+import it.eufonica.catalogcommandservice.model.Song;
+import it.eufonica.catalogcommandservice.repository.AlbumRepository;
+import it.eufonica.catalogcommandservice.service.AlbumCommandService;
+import it.eufonica.catalogcommandservice.service.ArtistCommandService;
+import it.eufonica.catalogcommandservice.service.SongCommandService;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
+
+@Service @Transactional
+@RequiredArgsConstructor @Slf4j
+public class AlbumCommandServiceImpl implements AlbumCommandService {
+    private final AlbumRepository albumRepository;
+    private final SongCommandService songCommandService;
+    private final ArtistCommandService artistCommandService;
+    private final AlbumMapper mapper;
+
+    @Override
+    public Album findByIdOrThrow(UUID id) {
+        return albumRepository.findById(id)
+                .orElseThrow(
+                        () -> new NotFoundException("Album with id " + id + " not found.")
+                );
+    }
+
+    private void validateArtistAlbumTemporalConstraints(Artist artist, Album album, LocalDateTime pubDate) {
+        // [V.art_album.artista_fondato_prima_rilascio_ufficiale_album]
+        // artist.foundation_date <= album.original_release_date
+        if (artist.getFoundationDate().isAfter(album.getOriginalReleaseDate()))
+            throw new ConflictException("Artist's foundation date must be before or equal to the Album's original release date.");
+
+        // [V.art_album.artista_registrato_prima_pubblicazione_album]
+        // artist.registration_timestamp < album.pub_date
+        if (!artist.getRegistrationDate().isBefore(pubDate))
+            throw new ConflictException("Artist's registration timestamp must be before the Album's publication date.");
+
+        // [V.art_album.artista_fondato_prima_pubblicazione_album]
+        // artist.foundation_date < album.pub_date
+        if (!artist.getFoundationDate().isBefore(pubDate.toLocalDate()))
+            throw new ConflictException("Artist's foundation date must be before the Album's publication date.");
+
+        log.debug("Correctly validated the relation between artist and album.");
+    }
+
+    @Override
+    public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
+        Album album = mapper.toEntity(request);
+
+        // Map the Artists to the Album
+        for (UUID artId : request.getArtists()) {
+            Artist artist = artistCommandService.findByIdOrThrow(artId);
+
+            validateArtistAlbumTemporalConstraints(artist, album, LocalDateTime.now());
+
+            log.info("Added artist with id {} to the album {}", artId, request.getName());
+            album.getArtists().add(artist);
+        }
+
+        // Map the Songs to the Album
+        for (UUID songId : request.getSongs()) {
+            Song song = songCommandService.findByIdOrElseThrow(songId);
+
+            log.info("Added song with id {} to the album {}", songId, request.getName());
+            album.getSongs().add(song);
+        }
+
+        // TODO [V.art_album.artista_fondato_prima_rilascio_album]
+        // Per ogni al:Album e art:Artist, tali che (al, art):art_album, deve essere vero che art.foundation_date <=
+        //al.pub_date
+        // TODO [V.art_album.artista_registrato_prima_pubblicazione_album]
+        // Per ogni al:Album e art:Artist, tali che (al, art):art_album, deve essere vero che art.registration_timestamp <
+        // al.pub_date
+        return null;
+    }
+
+    @Override
+    public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumCreationRequestDTO request) {
+        Album album = findByIdOrThrow(albumId);
+
+        // [V.Album.rilascio_originale_prima_di_pubblicazione]
+        // album.original_release_date <= album.pub_date
+        if (request.getOriginalReleaseDate().isAfter(album.getPubDate().toLocalDate()))
+            throw new ConflictException("Album's original release date must be before or equal to its publication date.");
+        return null;
+    }
+
+    @Override
+    public void deleteAlbum(UUID albumId) {
+    }
+
+    @Override
+    public AlbumSummaryResponseDTO addSongToAlbum(UUID albumId, UUID songId) {
+        return null;
+    }
+
+    @Override
+    public AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId) {
+        return null;
+    }
+}
