@@ -8,7 +8,7 @@
       + [[V.Artist.registrato_dopo_fondazione]](#artistregistrato_dopo_fondazione)
       + [[V.song_credit.pubblicazione_dopo_fondazione]](#song_creditpubblicazione_dopo_fondazione)
       + [[V.Album.rilascio_originale_prima_di_pubblicazione]](#albumrilascio_originale_prima_di_pubblicazione)
-      + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_album)
+      + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_ufficiale_album)
       + [[V.art_album.artista_registrato_prima_pubblicazione_album]](#art_albumartista_registrato_prima_pubblicazione_album)
       + [[V.Listen.data_di_ascolto_valida]](#listendata_di_ascolto_valida)
       + [[V.Listen.non_ascolta_piu_della_durata]](#listennon_ascolta_piu_della_durata)
@@ -70,15 +70,20 @@ Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero 
 
 Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
 
-<!-- TOC --><a id="art_albumartista_fondato_prima_rilascio_album"></a>
-### [V.art_album.artista_fondato_prima_rilascio_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
+<!-- TOC --><a id="art_albumartista_fondato_prima_rilascio_ufficiale_album"></a>
+### [V.art_album.artista_fondato_prima_rilascio_ufficiale_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
 
-Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.pub_date
+Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.original_release_date
 
 <!-- TOC --><a id="art_albumartista_registrato_prima_pubblicazione_album"></a>
 ### [V.art_album.artista_registrato_prima_pubblicazione_album] La pubblicazione di un Album può avvenire solo da Artisti registrati prima della data di pubblicazione dell'Album stesso
 
 Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.registration_timestamp < al.pub_date
+
+<!-- TOC --><a id="art_albumartista_fondato_prima_pubblicazione_album"></a>
+### [V.art_album.artista_fondato_prima_pubblicazione_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
+
+Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date < al.pub_date
 
 <!-- TOC --><a id="listendata_di_ascolto_valida"></a>
 ### [V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone
