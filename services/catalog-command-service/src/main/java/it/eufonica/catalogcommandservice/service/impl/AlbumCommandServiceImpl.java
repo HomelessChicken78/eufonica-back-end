@@ -106,11 +106,19 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumCreationRequestDTO request) {
         Album album = findByIdOrThrow(albumId);
 
+        album.getSongs().clear();
+        album.getArtists().clear();
+
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
         if (request.getOriginalReleaseDate().isAfter(album.getPubDate().toLocalDate()))
             throw new ConflictException("Album's original release date must be before or equal to its publication date.");
-        return null;
+
+        mapArtistsToAlbum(request.getArtists(), album, album.getPubDate());
+        mapSongsToAlbum(request.getSongs(), album);
+
+        Album savedAlbum = albumRepository.save(album);
+        return mapper.toSummaryResponse(savedAlbum);
     }
 
     @Override
