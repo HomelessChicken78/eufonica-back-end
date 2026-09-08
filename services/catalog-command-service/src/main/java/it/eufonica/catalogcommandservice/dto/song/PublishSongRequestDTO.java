@@ -12,8 +12,8 @@ import java.util.UUID;
 public class PublishSongRequestDTO {
     @NotBlank(message = "Title is mandatory.")
     @Pattern(
-            regexp = "^$|^\\S(?:.*\\S)?$",
-            message = "Title cannot start or end with whitespace."
+            regexp = "^$|^(?!.*[\\\\{}^`\\[\\]<>|])\\S(?:.*\\S)?$",
+            message = "Title cannot start or end with whitespace or contain \\, {, }, ^, `, [, ], <, >, or |."
     )
     @Size(min = 3, max = 50, message = "Title must be 3–50 characters long.")
     private String title;
