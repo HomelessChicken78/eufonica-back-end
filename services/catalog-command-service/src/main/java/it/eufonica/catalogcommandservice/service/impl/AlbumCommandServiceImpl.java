@@ -72,21 +72,21 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         log.debug("Correctly validated the relation between artist and album.");
     }
 
-    private void mapArtistsToAlbum(List<UUID> artistIds, String albumName, Album album) {
+    private void mapArtistsToAlbum(List<UUID> artistIds, Album album, LocalDateTime pubDate) {
         for (UUID artId : artistIds) {
             Artist artist = artistCommandService.findByIdOrThrow(artId);
-            validateArtistAlbumTemporalConstraints(artist, album, LocalDateTime.now());
+            validateArtistAlbumTemporalConstraints(artist, album, pubDate);
 
-            log.info("Added artist with id {} to the album {}", artId, albumName);
+            log.info("Added artist with id {} to the album {}", artId, album.getName());
             album.getArtists().add(artist);
         }
     }
 
-    private void mapSongsToAlbum(List<UUID> songIds, String albumName, Album album) {
+    private void mapSongsToAlbum(List<UUID> songIds, Album album) {
         for (UUID songId : songIds) {
             Song song = songCommandService.findByIdOrElseThrow(songId);
 
-            log.info("Added song with id {} to the album {}", songId, albumName);
+            log.info("Added song with id {} to the album {}", songId, album.getName());
             album.getSongs().add(song);
         }
     }
@@ -95,8 +95,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
         Album album = mapper.toEntity(request);
 
-        mapArtistsToAlbum(request.getArtists(), request.getName(), album);
-        mapSongsToAlbum(request.getSongs(), request.getName(), album);
+        mapArtistsToAlbum(request.getArtists(), album, LocalDateTime.now());
+        mapSongsToAlbum(request.getSongs(), album);
 
         Album savedAlbum = albumRepository.save(album);
         return mapper.toSummaryResponse(savedAlbum);
