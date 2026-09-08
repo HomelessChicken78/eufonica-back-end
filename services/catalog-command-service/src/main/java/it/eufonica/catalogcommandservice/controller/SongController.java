@@ -43,4 +43,14 @@ public class SongController {
         log.info("Added credited artist {} to song {}.", idArtist, idSong);
         return response;
     }
+
+    @DeleteMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
+    public SongResponseDTO removeCreditedArtist(
+            @PathVariable UUID idSong,
+            @PathVariable UUID idArtist
+    ) {
+        SongResponseDTO response = songCommandService.removeCreditedArtist(idSong, idArtist);
+        log.info("Removed credited artist {} from song {}.", idArtist, idSong);
+        return response;
+    }
 }

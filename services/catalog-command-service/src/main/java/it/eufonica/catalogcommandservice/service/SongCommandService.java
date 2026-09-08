@@ -11,4 +11,6 @@ public interface SongCommandService {
     SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile);
 
     SongResponseDTO addCreditedArtist(UUID idSong, UUID idArtist);
+
+    SongResponseDTO removeCreditedArtist(UUID idSong, UUID idArtist);
 }

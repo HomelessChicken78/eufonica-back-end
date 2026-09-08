@@ -5,7 +5,6 @@ import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.dto.song.*;
-import it.eufonica.catalogcommandservice.exception.client.*;
 import it.eufonica.catalogcommandservice.mapper.SongMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
@@ -53,6 +52,18 @@ public class SongCommandServiceImpl implements SongCommandService {
     private void addCreditedArtist(Song song, Artist artist) {
         song.getCreditedArtists().add(artist);
         artist.getCreditedSongs().add(song);
+    }
+
+    /**
+     * Removes an artist from the credited artists of the given song.
+     * Updates both sides of the bidirectional relationship.
+     *
+     * @param song the song from which the artist is removed
+     * @param artist the artist to remove from the song's credits
+     */
+    private void removeCreditedArtist(Song song, Artist artist) {
+        song.getCreditedArtists().remove(artist);
+        artist.getCreditedSongs().remove(song);
     }
 
     @Override
@@ -116,6 +127,22 @@ public class SongCommandServiceImpl implements SongCommandService {
         Artist creditedArtist = artistService.findByIdOrThrow(idArtist);
 
         addCreditedArtist(song, creditedArtist);
+
+        Song savedSong = songRepository.save(song);
+
+        return mapper.toResponse(savedSong);
+    }
+
+    @Override
+    public SongResponseDTO removeCreditedArtist(UUID idSong, UUID idArtist) {
+        Song song = findByIdOrElseThrow(idSong);
+        Artist creditedArtist = artistService.findByIdOrThrow(idArtist);
+
+        // Guarantee [V.song_owner.IS_A_song_credit]
+        if (song.getArtistOwner().getId().equals(idArtist))
+            throw new ConflictException("Cannot remove the primary owner from the song's credited artists.");
+
+        removeCreditedArtist(song, creditedArtist);
 
         Song savedSong = songRepository.save(song);
 
