@@ -33,4 +33,14 @@ public class SongController {
         log.info("Song published: {}.", song);
         return song;
     }
+
+    @PutMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
+    public SongResponseDTO addCreditedArtist(
+            @PathVariable UUID idSong,
+            @PathVariable UUID idArtist
+    ) {
+        SongResponseDTO response = songCommandService.addCreditedArtist(idSong, idArtist);
+        log.info("Added credited artist {} to song {}.", idArtist, idSong);
+        return response;
+    }
 }
