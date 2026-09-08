@@ -2,11 +2,22 @@ package it.eufonica.catalogcommandservice.service;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
+import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.model.Song;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.UUID;
 
 public interface SongCommandService {
+    /**
+     * Finds a song by its id.
+     *
+     * @param id the unique id of the song
+     * @return the song associated with the given id
+     * @throws NotFoundException if no song exists with the given id
+     */
+    Song findByIdOrElseThrow(UUID id);
+
     // TODO ownerId should be taken from the jwt.
     /**
      * Publishes a new song for the artist present in the jwt.

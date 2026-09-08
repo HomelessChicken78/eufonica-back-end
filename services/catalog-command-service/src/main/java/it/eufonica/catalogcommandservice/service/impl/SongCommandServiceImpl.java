@@ -30,14 +30,8 @@ public class SongCommandServiceImpl implements SongCommandService {
     private final AudioStorageService audioStorageService;
     private final SongRepository songRepository;
 
-    /**
-     * Finds a song by its id.
-     *
-     * @param id the unique id of the song
-     * @return the song associated with the given id
-     * @throws NotFoundException if no song exists with the given id
-     */
-    private Song findByIdOrElseThrow(UUID id) {
+    @Override
+    public Song findByIdOrElseThrow(UUID id) {
         return songRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Song not found with id " + id + "."));
     }
