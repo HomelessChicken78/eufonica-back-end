@@ -36,6 +36,22 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
                 );
     }
 
+    /**
+     * Validates the temporal constraints between an artist and an album.
+     *
+     * <p>The following constraints are enforced:
+     * <ul>
+     *     <li>The artist must have been founded on or before the album's original release date.</li>
+     *     <li>The artist must have been registered strictly before the album's publication date.</li>
+     *     <li>The artist must have been founded strictly before the album's publication date.</li>
+     * </ul>
+     *
+     * @param artist the artist associated with the album
+     * @param album the album associated with the artist
+     * @param pubDate the publication date of the album
+     *
+     * @throws ConflictException if any of the temporal constraints is violated
+     */
     private void validateArtistAlbumTemporalConstraints(Artist artist, Album album, LocalDateTime pubDate) {
         // [V.art_album.artista_fondato_prima_rilascio_ufficiale_album]
         // artist.foundation_date <= album.original_release_date
