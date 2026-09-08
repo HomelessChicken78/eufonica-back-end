@@ -6,6 +6,7 @@ import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -29,7 +30,7 @@ public class Album {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDate pubDate;
+    private LocalDateTime pubDate;
 
     private LocalDate originalReleaseDate;
 
