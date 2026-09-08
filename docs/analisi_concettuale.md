@@ -6,7 +6,6 @@
    * [Specifica dei tipi di dato](#specifica-dei-tipi-di-dato)
    * [Vincoli Esterni](#vincoli-esterni)
       + [[V.Artist.registrato_dopo_fondazione]](#artistregistrato_dopo_fondazione)
-      + [[V.art_album.pubblicazione_dopo_fondazione]](#art_albumpubblicazione_dopo_fondazione)
       + [[V.song_credit.pubblicazione_dopo_fondazione]](#song_creditpubblicazione_dopo_fondazione)
       + [[V.Album.rilascio_originale_prima_di_pubblicazione]](#albumrilascio_originale_prima_di_pubblicazione)
       + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_album)
@@ -60,11 +59,6 @@
 ### [V.Artist.registrato_dopo_fondazione] Un Artista può registrarsi solo dopo la sua data di fondazione
 
 Per ogni _a:Artist_ deve essere vero che a.foundation_date <= a.registration_timestamp
-
-<!-- TOC --><a id="art_albumpubblicazione_dopo_fondazione"></a>
-### [V.art_album.pubblicazione_dopo_fondazione] Un Artista non può pubblicare un Album se non è stato fondato
-
-Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve essere vero che art.foundation_date < alb.pub_date
 
 <!-- TOC --><a id="song_creditpubblicazione_dopo_fondazione"></a>
 ### [V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato
