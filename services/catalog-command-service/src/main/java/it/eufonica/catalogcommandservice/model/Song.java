@@ -22,6 +22,8 @@ import java.util.UUID;
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Song {
+    @Version private Integer version;
+
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 

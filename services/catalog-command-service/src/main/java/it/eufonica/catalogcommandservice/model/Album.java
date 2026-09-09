@@ -20,6 +20,8 @@ import java.util.*;
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Album {
+    @Version private Integer version;
+
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
