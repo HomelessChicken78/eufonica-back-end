@@ -7,9 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(
@@ -41,7 +39,7 @@ public class Album {
             inverseJoinColumns = @JoinColumn(name = "artist_id")
     )
     @NotEmpty(message = "An Album should have at least one Artist.")
-    private List<Artist> artists =  new ArrayList<>();
+    private Set<Artist> artists =  new HashSet<>();
 
     @ManyToMany
     @JoinTable(
@@ -49,5 +47,5 @@ public class Album {
             joinColumns = @JoinColumn(name = "album_id"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
-    private List<Song> songs = new ArrayList<>();
+    private Set<Song> songs = new HashSet<>();
 }

@@ -4,7 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor
@@ -24,7 +24,7 @@ public class AlbumCreationRequestDTO {
     private LocalDate originalReleaseDate;
 
     @NotEmpty(message = "An Album should have at least one Artist.")
-    private List<@NotNull(message = "Artist ID cannot be null.") UUID> artists;
+    private Set<@NotNull(message = "Artist ID cannot be null.") UUID> artists;
 
-    private List<@NotNull(message = "Song ID cannot be null.") UUID> songs;
+    private Set<@NotNull(message = "Song ID cannot be null.") UUID> songs;
 }

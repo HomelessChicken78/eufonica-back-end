@@ -18,7 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
-import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 @Service @Transactional
@@ -85,7 +85,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      * @throws NotFoundException if an artist with one of the given ids does not exist
      * @throws ConflictException if an artist violates the temporal constraints
      */
-    private void mapArtistsToAlbum(List<UUID> artistIds, Album album, LocalDateTime pubDate) {
+    private void mapArtistsToAlbum(Set<UUID> artistIds, Album album, LocalDateTime pubDate) {
         for (UUID artId : artistIds) {
             Artist artist = artistCommandService.findByIdOrThrow(artId);
             validateArtistAlbumTemporalConstraints(artist, album, pubDate);
@@ -105,7 +105,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      *
      * @throws NotFoundException if an artist with one of the given ids does not exist
      */
-    private void mapSongsToAlbum(List<UUID> songIds, Album album) {
+    private void mapSongsToAlbum(Set<UUID> songIds, Album album) {
         for (UUID songId : songIds) {
             Song song = songCommandService.findByIdOrElseThrow(songId);
 
