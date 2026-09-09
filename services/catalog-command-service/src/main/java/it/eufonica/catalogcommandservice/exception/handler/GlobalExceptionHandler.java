@@ -5,7 +5,9 @@ import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorExc
 import it.eufonica.catalogcommandservice.exception.client.*;
 import it.eufonica.catalogcommandservice.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.catalogcommandservice.exception.dto.ValidationErrorResponseDTO;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -72,6 +74,23 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new GeneralErrorResponseDTO(err409.getMessage(), 409));
     }
+
+    @ExceptionHandler
+    ResponseEntity<GeneralErrorResponseDTO> handleOptimisticLockingFailure(
+            OptimisticLockingFailureException exc,
+            HttpServletRequest request
+    ) {
+        log.warn("Optimistic locking failure: method={}, uri={}, message={}",
+                request.getMethod(), request.getRequestURI(), exc.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.CONFLICT)
+                .body(new GeneralErrorResponseDTO(
+                        "Resource was modified by another request. Please reload and try again.",
+                        409
+                ));
+    }
+
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error413(ContentTooLargeException err413) {
