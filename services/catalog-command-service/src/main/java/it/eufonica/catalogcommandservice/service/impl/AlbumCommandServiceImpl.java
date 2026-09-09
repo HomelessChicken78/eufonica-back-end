@@ -103,7 +103,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      *
      * @throws NotFoundException if the artist with the given id does not exist
      */
-    private void mapSongsToAlbum(UUID songId, Album album) {
+    private void mapSongToAlbum(UUID songId, Album album) {
         Song song = songCommandService.findByIdOrElseThrow(songId);
 
         log.info("Added song with id {} to the album {}", songId, album.getName());
@@ -118,7 +118,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             mapArtistToAlbum(artId, album, LocalDateTime.now());
 
         for (UUID songId : request.getSongs())
-            mapSongsToAlbum(songId, album);
+            mapSongToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(album);
         return mapper.toSummaryResponse(savedAlbum);
@@ -147,7 +147,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             mapArtistToAlbum(artId, album, LocalDateTime.now());
 
         for (UUID songId : request.getSongs())
-            mapSongsToAlbum(songId, album);
+            mapSongToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(album);
         return mapper.toSummaryResponse(savedAlbum);
