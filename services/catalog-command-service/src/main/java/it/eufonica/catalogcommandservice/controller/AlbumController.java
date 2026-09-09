@@ -38,5 +38,20 @@ public class AlbumController {
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void deleteAlbum(@PathVariable UUID albumId) {
         albumCommandService.deleteAlbum(albumId);
+        log.info("Album deleted: {}.", albumId);
+    }
+
+    @PutMapping(path = "/{albumId}/songs/{idSong}")
+    public AlbumSummaryResponseDTO addSongToAlbum(@PathVariable UUID albumId, @PathVariable UUID idSong) {
+        AlbumSummaryResponseDTO album = albumCommandService.addSongToAlbum(albumId, idSong);
+        log.info("Song added to album. Updated album: {}.", album);
+        return album;
+    }
+
+    @DeleteMapping(path = "/{albumId}/songs/{idSong}")
+    public AlbumSummaryResponseDTO removeSongFromAlbum(@PathVariable UUID albumId, @PathVariable UUID idSong) {
+        AlbumSummaryResponseDTO album = albumCommandService.removeSongFromAlbum(albumId, idSong);
+        log.info("Song removed from album. Updated album: {}.", album);
+        return album;
     }
 }

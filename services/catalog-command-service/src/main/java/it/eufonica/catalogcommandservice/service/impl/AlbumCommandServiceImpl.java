@@ -164,11 +164,25 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO addSongToAlbum(UUID albumId, UUID songId) {
-        return null;
+        Album album = findByIdOrThrow(albumId);
+
+        mapSongToAlbum(songId, album);
+        return mapper.toSummaryResponse(album);
     }
 
     @Override
     public AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId) {
-        return null;
+        Album album = findByIdOrThrow(albumId);
+
+        // Remove the song directly by id to avoid querying the Song table
+        boolean removed = album.getSongs().removeIf(s -> s.getId().equals(songId));
+
+        if (!removed)
+            throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId);
+
+        album = albumRepository.save(album);
+        log.info("Removed song with id {} from the album with id {}", songId, albumId);
+
+        return mapper.toSummaryResponse(album);
     }
 }
