@@ -101,7 +101,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      * @param songId the id of the song to associate with the album
      * @param album the album to which the song is added
      *
-     * @throws NotFoundException if the artist with the given id does not exist
+     * @throws NotFoundException if the song with the given id does not exist
      */
     private void mapSongToAlbum(UUID songId, Album album) {
         Song song = songCommandService.findByIdOrElseThrow(songId);
