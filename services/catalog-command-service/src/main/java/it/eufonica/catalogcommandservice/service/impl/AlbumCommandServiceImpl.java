@@ -73,53 +73,52 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     }
 
     /**
-     * Associates the specific artists with the album.
+     * Associates the specific artist with the album.
      *
-     * <p>Each artist is retrieved through the artist command service and validated
+     * <p>The artist is retrieved through the artist command service and validated
      * against the album's temporal constraints before being added to the album.
      *
-     * @param artistIds the ids of the artists to associate with the album
-     * @param album the album to which the artists are added
+     * @param artistId the id of the artist to associate with the album
+     * @param album the album to which the artist is added
      * @param pubDate the publication date used for temporal validation
      *
-     * @throws NotFoundException if an artist with one of the given ids does not exist
-     * @throws ConflictException if an artist violates the temporal constraints
+     * @throws NotFoundException if the artist with the given id does not exist
+     * @throws ConflictException if the artist violates the temporal constraints
      */
-    private void mapArtistsToAlbum(Set<UUID> artistIds, Album album, LocalDateTime pubDate) {
-        for (UUID artId : artistIds) {
-            Artist artist = artistCommandService.findByIdOrThrow(artId);
-            validateArtistAlbumTemporalConstraints(artist, album, pubDate);
+    private void mapArtistToAlbum(UUID artistId, Album album, LocalDateTime pubDate) {
+        Artist artist = artistCommandService.findByIdOrThrow(artistId);
+        validateArtistAlbumTemporalConstraints(artist, album, pubDate);
 
-            log.info("Added artist with id {} to the album {}", artId, album.getName());
-            album.getArtists().add(artist);
-        }
+        log.info("Added artist with id {} to the album {}", artistId, album.getName());
+        album.getArtists().add(artist);
     }
 
     /**
      * Associates the specific song with the album.
      *
-     * <p>Each song is retrieved through the song command service.
+     * <p>The song is retrieved through the song command service.
      *
-     * @param songIds the ids of the songs to associate with the album
-     * @param album the album to which the songs are added
+     * @param songId the id of the song to associate with the album
+     * @param album the album to which the song is added
      *
-     * @throws NotFoundException if an artist with one of the given ids does not exist
+     * @throws NotFoundException if the artist with the given id does not exist
      */
-    private void mapSongsToAlbum(Set<UUID> songIds, Album album) {
-        for (UUID songId : songIds) {
-            Song song = songCommandService.findByIdOrElseThrow(songId);
+    private void mapSongsToAlbum(UUID songId, Album album) {
+        Song song = songCommandService.findByIdOrElseThrow(songId);
 
-            log.info("Added song with id {} to the album {}", songId, album.getName());
-            album.getSongs().add(song);
-        }
+        log.info("Added song with id {} to the album {}", songId, album.getName());
+        album.getSongs().add(song);
     }
 
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
         Album album = mapper.toEntity(request);
 
-        mapArtistsToAlbum(request.getArtists(), album, LocalDateTime.now());
-        mapSongsToAlbum(request.getSongs(), album);
+        for (UUID artId : request.getArtists())
+            mapArtistToAlbum(artId, album, LocalDateTime.now());
+
+        for (UUID songId : request.getSongs())
+            mapSongsToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(album);
         return mapper.toSummaryResponse(savedAlbum);
@@ -129,6 +128,11 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumCreationRequestDTO request) {
         Album album = findByIdOrThrow(albumId);
 
+        // [V.Album.rilascio_originale_prima_di_pubblicazione]
+        // album.original_release_date <= album.pub_date
+        if (request.getOriginalReleaseDate().isAfter(album.getPubDate().toLocalDate()))
+            throw new ConflictException("Album's original release date must be before or equal to its publication date.");
+
         Album updatedAlbum = mapper.toEntity(request);
         updatedAlbum.setId(albumId);
         updatedAlbum.setPubDate(album.getPubDate());
@@ -136,13 +140,11 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         updatedAlbum.getSongs().clear();
         updatedAlbum.getArtists().clear();
 
-        // [V.Album.rilascio_originale_prima_di_pubblicazione]
-        // album.original_release_date <= album.pub_date
-        if (request.getOriginalReleaseDate().isAfter(updatedAlbum.getPubDate().toLocalDate()))
-            throw new ConflictException("Album's original release date must be before or equal to its publication date.");
+        for (UUID artId : request.getArtists())
+            mapArtistToAlbum(artId, album, LocalDateTime.now());
 
-        mapArtistsToAlbum(request.getArtists(), updatedAlbum, updatedAlbum.getPubDate());
-        mapSongsToAlbum(request.getSongs(), updatedAlbum);
+        for (UUID songId : request.getSongs())
+            mapSongsToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(updatedAlbum);
         return mapper.toSummaryResponse(savedAlbum);
