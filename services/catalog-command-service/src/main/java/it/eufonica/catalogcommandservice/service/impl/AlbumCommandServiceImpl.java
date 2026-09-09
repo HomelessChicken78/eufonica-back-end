@@ -150,6 +150,12 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public void deleteAlbum(UUID albumId) {
+        Album album = findByIdOrThrow(albumId);
+
+        album.getArtists().clear();
+        album.getSongs().clear();
+
+        albumRepository.deleteById(albumId);
     }
 
     @Override

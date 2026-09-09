@@ -33,4 +33,10 @@ public class AlbumController {
         log.info("Album updated: {}.", album);
         return album;
     }
+
+    @DeleteMapping(path = "/{albumId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteAlbum(@PathVariable UUID albumId) {
+        albumCommandService.deleteAlbum(albumId);
+    }
 }
