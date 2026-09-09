@@ -16,6 +16,12 @@ public interface AlbumMapper {
     @Mapping(target = "numberOfSongs", ignore = true)
     AlbumSummaryResponseDTO toSummaryResponse(Album entity);
 
+    @Mapping(target = "pubDate", ignore = true)
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "artists", ignore = true)
+    @Mapping(target = "songs", ignore = true)
+    void updateEntityFromDto(AlbumCreationRequestDTO request, @MappingTarget Album album);
+
     @AfterMapping
     default void mapNumberOfSongs(Album entity, @MappingTarget AlbumSummaryResponseDTO dto) {
         dto.setNumberOfSongs(entity.getSongs().size());

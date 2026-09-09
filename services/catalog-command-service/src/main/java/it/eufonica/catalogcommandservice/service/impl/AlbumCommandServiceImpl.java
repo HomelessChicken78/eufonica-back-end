@@ -133,12 +133,15 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         if (request.getOriginalReleaseDate().isAfter(album.getPubDate().toLocalDate()))
             throw new ConflictException("Album's original release date must be before or equal to its publication date.");
 
-        Album updatedAlbum = mapper.toEntity(request);
-        updatedAlbum.setId(albumId);
-        updatedAlbum.setPubDate(album.getPubDate());
+        // Update the album with the new information
+        // Keep album.id and album.pubDate intact
+        mapper.updateEntityFromDto(request, album);
 
-        updatedAlbum.getSongs().clear();
-        updatedAlbum.getArtists().clear();
+        // Clear and rebuild the collections
+        album.getSongs().clear();
+        log.trace("Removed songs for album with id {}.", albumId);
+        album.getArtists().clear();
+        log.trace("Removed artists for album with id {}.", albumId);
 
         for (UUID artId : request.getArtists())
             mapArtistToAlbum(artId, album, LocalDateTime.now());
@@ -146,7 +149,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         for (UUID songId : request.getSongs())
             mapSongsToAlbum(songId, album);
 
-        Album savedAlbum = albumRepository.save(updatedAlbum);
+        Album savedAlbum = albumRepository.save(album);
         return mapper.toSummaryResponse(savedAlbum);
     }
 
