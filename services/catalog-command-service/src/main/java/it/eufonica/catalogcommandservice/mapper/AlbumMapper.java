@@ -7,6 +7,7 @@ import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
 public interface AlbumMapper {
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "pubDate", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "artists", ignore = true)
@@ -16,6 +17,7 @@ public interface AlbumMapper {
     @Mapping(target = "numberOfSongs", ignore = true)
     AlbumSummaryResponseDTO toSummaryResponse(Album entity);
 
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "pubDate", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "artists", ignore = true)

@@ -10,6 +10,7 @@ import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface ArtistMapper {
+    @Mapping(target = "version", ignore = true)
     @Mapping(target = "registrationDate", ignore = true)
     @Mapping(target = "ownedSongs", ignore = true)
     @Mapping(target = "id", ignore = true)
