@@ -19,19 +19,19 @@ public class OutboxServiceImpl implements OutboxService {
     private final OutboxEventRepository outboxEventRepository;
 
     @Value("${OUTBOX_RETRY_MAX_ATTEMPTS:5}")
-    private static int maxAttempts;
+    private int maxAttempts;
 
     @Value("${OUTBOX_RETRY_INITIAL_DELAY_MS:1000}")
-    private static long initialDelay;
+    private long initialDelay;
 
     @Value("${OUTBOX_RETRY_MAX_DELAY_MS:30000}")
-    private static long maxDelay;
+    private long maxDelay;
 
     @Value("${OUTBOX_RETRY_BACKOFF_MULTIPLIER:1.5}")
-    private static double backoffMultiplier;
+    private double backoffMultiplier;
 
     @Value("${OUTBOX_RETRY_JITTER_INTENSITY_PERCENTAGE:0.2}")
-    private static double jitterIntensity;
+    private double jitterIntensity;
 
     private LocalDateTime calculateNextAttemptAt(int retryCount) {
         double exponentialDelay = initialDelay * Math.pow(backoffMultiplier, retryCount);
