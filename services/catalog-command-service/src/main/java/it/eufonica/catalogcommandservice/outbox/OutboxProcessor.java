@@ -16,7 +16,7 @@ import static java.time.LocalDateTime.now;
 @RequiredArgsConstructor @Slf4j
 public class OutboxProcessor {
     private final OutboxService outboxService;
-    private final KafkaTemplate<?, ?> kafkaTemplate;
+    private final KafkaTemplate<String, String> kafkaTemplate;
 
     @Scheduled(fixedDelayString = "${OUTBOX_PROCESSOR_JOB_DELAY_MS:1000}")
     public void process() {
@@ -31,7 +31,7 @@ public class OutboxProcessor {
             try {
                 outboxService.markAsProcessing(event);
 
-                // TODO Publish the event
+                kafkaTemplate.send(event.getTopic(), event.getAggregateId(), event.getPayload()).get();
 
                 successfulEvents++;
                 outboxService.markAsPublished(event);
