@@ -54,7 +54,6 @@ public class OutboxServiceImpl implements OutboxService {
     @Override
     public OutboxEvent save(OutboxEvent event) {
         // Override passed values
-        event.setCreatedAt(now());
         event.setStatus(OutboxEvent.OutboxStatus.PENDING);
         event.setNextAttemptAt(now());
 
