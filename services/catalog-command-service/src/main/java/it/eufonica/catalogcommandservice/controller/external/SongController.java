@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.controller;
+package it.eufonica.catalogcommandservice.controller.external;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;

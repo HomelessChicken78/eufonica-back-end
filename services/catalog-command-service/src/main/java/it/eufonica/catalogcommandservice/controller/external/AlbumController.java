@@ -1,8 +1,7 @@
-package it.eufonica.catalogcommandservice.controller;
+package it.eufonica.catalogcommandservice.controller.external;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
-import it.eufonica.catalogcommandservice.dto.artist.*;
 import it.eufonica.catalogcommandservice.service.AlbumCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
