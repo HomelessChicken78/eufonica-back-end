@@ -33,8 +33,8 @@ public class OutboxProcessor {
 
                 kafkaTemplate.send(event.getTopic(), event.getAggregateId(), event.getPayload()).get();
 
-                successfulEvents++;
                 outboxService.markAsPublished(event);
+                successfulEvents++;
             } catch (Exception e) {
                 failedEvents++;
                 outboxService.handleFailure(event, e);
