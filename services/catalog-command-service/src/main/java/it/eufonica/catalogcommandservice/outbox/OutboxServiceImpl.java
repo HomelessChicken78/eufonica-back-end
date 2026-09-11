@@ -63,16 +63,17 @@ public class OutboxServiceImpl implements OutboxService {
     }
 
     @Override
-    public List<OutboxEvent> findEventsReadyForProcessing(LocalDateTime instant) {
+    public List<OutboxEvent> findEventsReadyForProcessing(LocalDateTime instant, LocalDateTime processingTimeout) {
         log.trace("Finding outbox events ready for processing at instant: {}", instant);
 
-        return outboxEventRepository.findEventsReadyForProcessing(instant);
+        return outboxEventRepository.findEventsReadyForProcessing(instant, processingTimeout);
     }
 
     @Override
     public void markAsProcessing(OutboxEvent event) {
         log.trace("Marking outbox events ready for PROCESSING. eventId={}", event.getId());
 
+        event.setProcessingStartedAt(now());
         event.setStatus(OutboxEvent.OutboxStatus.PROCESSING);
         outboxEventRepository.save(event);
     }

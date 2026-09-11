@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -12,9 +13,12 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, Intege
             """
             SELECT evt
             FROM OutboxEvent AS evt
-            WHERE evt.nextAttemptAt <= :instant
-            AND evt.status IN ('PENDING', 'PROCESSING')
+            WHERE (evt.status = 'PENDING'
+                        AND evt.nextAttemptAt <= :instantNow)
+               OR (evt.status = 'PROCESSING'
+                        AND evt.processingStartedAt <= :processingTimeout)
             """
     )
-    List<OutboxEvent> findEventsReadyForProcessing(@Param("instant") LocalDateTime instant);
+    List<OutboxEvent> findEventsReadyForProcessing(@Param("instantNow") LocalDateTime instantNow,
+                                                   @Param("processingTimeout") LocalDateTime processingTimeout);
 }

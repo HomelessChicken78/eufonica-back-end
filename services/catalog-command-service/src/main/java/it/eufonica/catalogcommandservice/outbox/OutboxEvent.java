@@ -48,6 +48,8 @@ public class OutboxEvent {
 
     private String lastError;
 
+    private LocalDateTime processingStartedAt;
+
     @Column(nullable = false)
     @Builder.Default
     private LocalDateTime nextAttemptAt = LocalDateTime.now();

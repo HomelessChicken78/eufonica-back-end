@@ -6,7 +6,7 @@ import java.util.List;
 public interface OutboxService {
     OutboxEvent save(OutboxEvent event);
 
-    List<OutboxEvent> findEventsReadyForProcessing(LocalDateTime instant);
+    List<OutboxEvent> findEventsReadyForProcessing(LocalDateTime instant, LocalDateTime processingTimeout);
 
     void markAsProcessing(OutboxEvent event);
 
