@@ -7,14 +7,15 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
 import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor @AllArgsConstructor
 @Getter @Setter @Builder
 @ToString @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class OutboxEvent {
-    @Id @GeneratedValue(strategy = GenerationType.AUTO)
-    @EqualsAndHashCode.Include private Long id;
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include private UUID id;
 
     @Column(nullable = false)
     private String aggregateId;
