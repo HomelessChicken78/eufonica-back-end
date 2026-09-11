@@ -1,6 +1,5 @@
-package it.eufonica.catalogcommandservice.repository;
+package it.eufonica.catalogcommandservice.outbox;
 
-import it.eufonica.catalogcommandservice.model.OutboxEvent;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
