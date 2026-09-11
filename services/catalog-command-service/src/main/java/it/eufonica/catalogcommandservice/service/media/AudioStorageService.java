@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.service;
+package it.eufonica.catalogcommandservice.service.media;
 
 import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
 import org.springframework.web.multipart.MultipartFile;

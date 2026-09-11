@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.service.impl;
+package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
@@ -9,9 +9,6 @@ import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
-import it.eufonica.catalogcommandservice.service.AlbumCommandService;
-import it.eufonica.catalogcommandservice.service.ArtistCommandService;
-import it.eufonica.catalogcommandservice.service.SongCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.service;
+package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;

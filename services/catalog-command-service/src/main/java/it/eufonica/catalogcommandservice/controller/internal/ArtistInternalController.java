@@ -2,7 +2,7 @@ package it.eufonica.catalogcommandservice.controller.internal;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
-import it.eufonica.catalogcommandservice.service.ArtistCommandService;
+import it.eufonica.catalogcommandservice.service.core.ArtistCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

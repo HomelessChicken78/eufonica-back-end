@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.service.impl;
+package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
@@ -7,7 +7,6 @@ import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.ArtistMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
-import it.eufonica.catalogcommandservice.service.ArtistCommandService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

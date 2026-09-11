@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.service.impl;
+package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
@@ -9,10 +9,8 @@ import it.eufonica.catalogcommandservice.mapper.SongMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.repository.SongRepository;
-import it.eufonica.catalogcommandservice.service.ArtistCommandService;
-import it.eufonica.catalogcommandservice.service.AudioMetadataService;
-import it.eufonica.catalogcommandservice.service.AudioStorageService;
-import it.eufonica.catalogcommandservice.service.SongCommandService;
+import it.eufonica.catalogcommandservice.service.media.AudioMetadataService;
+import it.eufonica.catalogcommandservice.service.media.AudioStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;

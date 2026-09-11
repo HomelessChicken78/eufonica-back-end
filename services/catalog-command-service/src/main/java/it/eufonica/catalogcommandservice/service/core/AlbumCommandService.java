@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.service;
+package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.*;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;

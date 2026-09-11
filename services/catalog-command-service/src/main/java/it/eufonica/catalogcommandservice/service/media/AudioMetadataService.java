@@ -1,9 +1,8 @@
-package it.eufonica.catalogcommandservice.service;
+package it.eufonica.catalogcommandservice.service.media;
 
 import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
 import it.eufonica.catalogcommandservice.exception.client.ContentTooLargeException;
-import org.apache.tika.mime.MimeType;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AudioMetadataService {

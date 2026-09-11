@@ -1,10 +1,9 @@
-package it.eufonica.catalogcommandservice.service.impl;
+package it.eufonica.catalogcommandservice.service.media;
 
 import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
 import it.eufonica.catalogcommandservice.exception.client.ContentTooLargeException;
 import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
-import it.eufonica.catalogcommandservice.service.AudioMetadataService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
