@@ -46,6 +46,8 @@ public class OutboxEvent {
     @Builder.Default
     private Integer retryCount = 0;
 
+    private String lastError;
+
     @Column(nullable = false)
     @Builder.Default
     private LocalDateTime nextAttemptAt = LocalDateTime.now();

@@ -99,6 +99,7 @@ public class OutboxServiceImpl implements OutboxService {
     public void handleFailure(OutboxEvent event, Exception exc) {
         int updatedRetryCount = event.getRetryCount() + 1;
         event.setRetryCount(updatedRetryCount);
+        event.setLastError(exc.getMessage());
 
         if (updatedRetryCount >= maxAttempts) {
             log.warn("Outbox event processing failed and maximum retry attempts reached. " +
