@@ -9,6 +9,7 @@ import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -21,7 +22,14 @@ import java.util.UUID;
 public class ArtistCommandServiceImpl implements ArtistCommandService {
     private final ArtistRepository artistRepository;
     private final ArtistMapper artistMapper;
-    // private final EventPublisher eventPublisher; // TODO
+    private final OutboxService outboxService;
+    private final ObjectMapper objectMapper; // Used to serialize the JSON payload
+
+    @Value("${ARTIST_CREATED_TOPIC_NAME:artist.created}")
+    private String artistCreatedTopicName;
+
+    @Value("${ARTIST_UPDATED_TOPIC_NAME:artist.updated}")
+    private String artistUpdatedTopicName;
 
     /**
      * Validates the artist creation/update request.
