@@ -33,14 +33,8 @@ public class SongCommandServiceImpl implements SongCommandService {
     private final OutboxService outboxService;
     private final ObjectMapper objectMapper; // Used to serialize the JSON payload
 
-    @Value("${SONG_CREATED_TOPIC_NAME:catalog.song.created}")
-    private String songCreatedTopicName;
-
-    @Value("${SONG_CREDITED_ARTIST_ADDED_TOPIC_NAME:catalog.song.credited-artist-added}")
-    private String songCreditedArtistAddedTopicName;
-
-    @Value("${SONG_CREDITED_ARTIST_REMOVED_TOPIC_NAME:catalog.song.credited-artist-removed}")
-    private String songCreditedArtistRemovedTopicName;
+    @Value("${SONG_TOPIC_NAME:catalog.song.created}")
+    private String songTopicName;
 
     @Override
     public Song findByIdOrElseThrow(UUID id) {
