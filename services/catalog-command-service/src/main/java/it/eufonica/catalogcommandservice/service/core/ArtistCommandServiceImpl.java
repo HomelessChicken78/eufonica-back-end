@@ -2,16 +2,23 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.event.artist.ArtistCreatedEvent;
+import it.eufonica.catalogcommandservice.event.artist.ArtistUpdatedEvent;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
 import it.eufonica.catalogcommandservice.mapper.ArtistMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
+import it.eufonica.catalogcommandservice.outbox.OutboxEvent;
+import it.eufonica.catalogcommandservice.outbox.OutboxService;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import tools.jackson.core.JacksonException;
+import tools.jackson.databind.ObjectMapper;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -53,6 +60,60 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
                 .orElseThrow(() -> new NotFoundException("Artist not found with id: " + id + "."));
     }
 
+    /**
+     * Creates and persists the outbox event for a newly created artist.
+     *
+     * @param artist the persisted artist to create the event from
+     * @throws InternalServerErrorException if the event payload cannot be serialized
+     */
+    private void publishArtistCreatedEvent(Artist artist) {
+        ArtistCreatedEvent event = artistMapper.toCreationEvent(artist);
+
+        String payload;
+        try {
+            payload = objectMapper.writeValueAsString(event);
+        } catch (JacksonException e) {
+            throw new InternalServerErrorException("Failed to serialize ArtistCreatedEvent.");
+        }
+
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateId(artist.getId().toString())
+                .eventType("ArtistUpdatedEvent")
+                .topic(artistCreatedTopicName)
+                .payload(payload)
+                .build();
+
+        outboxService.save(outboxEvent);
+        log.debug("Put ArtistUpdatedEvent in outbox. artistId={}", artist.getId());
+    }
+
+    /**
+     * Creates and persists the outbox event for an updated artist.
+     *
+     * @param artist the updated artist to create the event from
+     * @throws InternalServerErrorException if the event payload cannot be serialized
+     */
+    private void publishArtistUpdatedEvent(Artist artist) {
+        ArtistUpdatedEvent event = artistMapper.toUpdatingEvent(artist);
+
+        String payload;
+        try {
+            payload = objectMapper.writeValueAsString(event);
+        } catch (JacksonException e) {
+            throw new InternalServerErrorException("Failed to serialize ArtistCreatedEvent.");
+        }
+
+        OutboxEvent outboxEvent = OutboxEvent.builder()
+                .aggregateId(artist.getId().toString())
+                .eventType("ArtistCreatedEvent")
+                .topic(artistUpdatedTopicName)
+                .payload(payload)
+                .build();
+
+        outboxService.save(outboxEvent);
+        log.debug("Put ArtistCreatedEvent in outbox. artistId={}", artist.getId());
+    }
+
     @Override
     public ArtistSummaryResponseDTO createArtist(ArtistCreationRequestDTO creationRequestDTO) {
         log.info("Creating artist with name {}.", creationRequestDTO.getName());
@@ -67,8 +128,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
         Artist savedArtist = artistRepository.save(artist);
 
-        // TODO: Pubblicare l'evento "ArtistCreatedEvent" sul message broker (es. Kafka/RabbitMQ)
-        // eventPublisher.publishArtistCreated(savedArtist.getId(), savedArtist.getName());
+        publishArtistCreatedEvent(artist);
 
         return artistMapper.toSummaryResponse(savedArtist);
     }
@@ -84,6 +144,9 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         artist.setFoundationDate(creationRequestDTO.getFoundationDate());
 
         Artist updatedArtist = artistRepository.save(artist);
+
+        publishArtistUpdatedEvent(artist);
+
         return artistMapper.toSummaryResponse(updatedArtist);
     }
 }
