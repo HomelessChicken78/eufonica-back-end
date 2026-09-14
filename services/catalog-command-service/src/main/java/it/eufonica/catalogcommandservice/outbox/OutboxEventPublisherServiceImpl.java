@@ -12,7 +12,7 @@ import tools.jackson.databind.ObjectMapper;
 @RequiredArgsConstructor @Slf4j
 public class OutboxEventPublisherServiceImpl implements OutboxEventPublisherService {
     private final OutboxService outboxService;
-    private final ObjectMapper objectMapper;
+    private final ObjectMapper objectMapper; // For serializing the JSON
 
     @Override
     public void publish(String aggregateId, String eventType, String topic, Object event) {

@@ -26,7 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor @Slf4j
 public class SongCommandServiceImpl implements SongCommandService {
     private final ArtistCommandService artistService;
-    private final SongMapper mapper;
+    private final SongMapper songMapper;
     private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
     private final SongRepository songRepository;
@@ -68,7 +68,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Override
     public SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile) {
-        Song song = mapper.toEntity(request);
+        Song song = songMapper.toEntity(request);
 
         // Add the Artist owner
         // TODO this currently uses artistId. It should use the jwt instead
@@ -118,7 +118,7 @@ public class SongCommandServiceImpl implements SongCommandService {
         song.setAudio(audioObjectKeys);
 
         Song savedSong = songRepository.save(song);
-        return mapper.toResponse(savedSong);
+        return songMapper.toResponse(savedSong);
     }
 
     @Override
@@ -130,7 +130,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         Song savedSong = songRepository.save(song);
 
-        return mapper.toResponse(savedSong);
+        return songMapper.toResponse(savedSong);
     }
 
     @Override
@@ -146,6 +146,6 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         Song savedSong = songRepository.save(song);
 
-        return mapper.toResponse(savedSong);
+        return songMapper.toResponse(savedSong);
     }
 }
