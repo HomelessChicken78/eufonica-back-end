@@ -75,13 +75,13 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(artist.getId().toString())
-                .eventType("ArtistUpdatedEvent")
+                .eventType("ArtistCreatedEvent")
                 .topic(artistTopicName)
                 .payload(payload)
                 .build();
 
         outboxService.save(outboxEvent);
-        log.debug("Put ArtistUpdatedEvent in outbox. artistId={}", artist.getId());
+        log.debug("Put ArtistCreatedEvent in outbox. artistId={}", artist.getId());
     }
 
     /**
@@ -97,18 +97,18 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         try {
             payload = objectMapper.writeValueAsString(event);
         } catch (JacksonException e) {
-            throw new InternalServerErrorException("Failed to serialize ArtistCreatedEvent.");
+            throw new InternalServerErrorException("Failed to serialize ArtistUpdatedEvent.");
         }
 
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(artist.getId().toString())
-                .eventType("ArtistCreatedEvent")
+                .eventType("ArtistUpdatedEvent")
                 .topic(artistTopicName)
                 .payload(payload)
                 .build();
 
         outboxService.save(outboxEvent);
-        log.debug("Put ArtistCreatedEvent in outbox. artistId={}", artist.getId());
+        log.debug("Put ArtistUpdatedEvent in outbox. artistId={}", artist.getId());
     }
 
     @Override
