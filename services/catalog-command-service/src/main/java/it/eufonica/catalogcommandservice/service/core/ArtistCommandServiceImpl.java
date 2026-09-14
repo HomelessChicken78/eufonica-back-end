@@ -32,11 +32,8 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
     private final OutboxService outboxService;
     private final ObjectMapper objectMapper; // Used to serialize the JSON payload
 
-    @Value("${ARTIST_CREATED_TOPIC_NAME:artist.created}")
-    private String artistCreatedTopicName;
-
-    @Value("${ARTIST_UPDATED_TOPIC_NAME:artist.updated}")
-    private String artistUpdatedTopicName;
+    @Value("${ARTIST_TOPIC_NAME:artist.events}")
+    private String artistTopicName;
 
     /**
      * Validates the artist creation/update request.
@@ -79,7 +76,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(artist.getId().toString())
                 .eventType("ArtistUpdatedEvent")
-                .topic(artistCreatedTopicName)
+                .topic(artistTopicName)
                 .payload(payload)
                 .build();
 
@@ -106,7 +103,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         OutboxEvent outboxEvent = OutboxEvent.builder()
                 .aggregateId(artist.getId().toString())
                 .eventType("ArtistCreatedEvent")
-                .topic(artistUpdatedTopicName)
+                .topic(artistTopicName)
                 .payload(payload)
                 .build();
 

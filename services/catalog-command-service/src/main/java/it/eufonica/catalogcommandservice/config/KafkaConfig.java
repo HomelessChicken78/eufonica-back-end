@@ -8,23 +8,12 @@ import org.springframework.kafka.config.TopicBuilder;
 
 @Configuration
 public class KafkaConfig {
-    @Value("${ARTIST_CREATED_TOPIC_NAME:artist.created}")
-    private String artistCreatedTopicName;
-
-    @Value("${ARTIST_UPDATED_TOPIC_NAME:artist.updated}")
-    private String artistUpdatedTopicName;
+    @Value("${ARTIST_TOPIC_NAME:artist.events}")
+    private String artistTopicName;
 
     @Bean
-    public NewTopic artistCreatedTopic() {
-        return TopicBuilder.name(artistCreatedTopicName)
-                .partitions(1)
-                .replicas(1)
-                .build();
-    }
-
-    @Bean
-    public NewTopic artistUpdatedTopic() {
-        return TopicBuilder.name(artistUpdatedTopicName)
+    public NewTopic artistTopic() {
+        return TopicBuilder.name(artistTopicName)
                 .partitions(1)
                 .replicas(1)
                 .build();

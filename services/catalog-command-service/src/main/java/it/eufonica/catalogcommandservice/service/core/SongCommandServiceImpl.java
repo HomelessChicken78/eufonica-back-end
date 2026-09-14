@@ -8,14 +8,17 @@ import it.eufonica.catalogcommandservice.dto.song.*;
 import it.eufonica.catalogcommandservice.mapper.SongMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
+import it.eufonica.catalogcommandservice.outbox.OutboxService;
 import it.eufonica.catalogcommandservice.repository.SongRepository;
 import it.eufonica.catalogcommandservice.service.media.AudioMetadataService;
 import it.eufonica.catalogcommandservice.service.media.AudioStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
@@ -27,6 +30,17 @@ public class SongCommandServiceImpl implements SongCommandService {
     private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
     private final SongRepository songRepository;
+    private final OutboxService outboxService;
+    private final ObjectMapper objectMapper; // Used to serialize the JSON payload
+
+    @Value("${SONG_CREATED_TOPIC_NAME:catalog.song.created}")
+    private String songCreatedTopicName;
+
+    @Value("${SONG_CREDITED_ARTIST_ADDED_TOPIC_NAME:catalog.song.credited-artist-added}")
+    private String songCreditedArtistAddedTopicName;
+
+    @Value("${SONG_CREDITED_ARTIST_REMOVED_TOPIC_NAME:catalog.song.credited-artist-removed}")
+    private String songCreditedArtistRemovedTopicName;
 
     @Override
     public Song findByIdOrElseThrow(UUID id) {
