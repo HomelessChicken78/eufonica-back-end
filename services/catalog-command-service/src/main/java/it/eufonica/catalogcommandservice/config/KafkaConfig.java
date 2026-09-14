@@ -11,7 +11,7 @@ public class KafkaConfig {
     @Value("${ARTIST_TOPIC_NAME:artist.events}")
     private String artistTopicName;
 
-    @Value("${ARTIST_TOPIC_PARTITIONS}")
+    @Value("${ARTIST_TOPIC_PARTITIONS:2}")
     private int artistTopicPartitions;
 
     @Value("${ARTIST_TOPIC_REPLICAS:1}")
