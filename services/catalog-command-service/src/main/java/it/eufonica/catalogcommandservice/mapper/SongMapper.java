@@ -2,6 +2,8 @@
 
     import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
     import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
+    import it.eufonica.catalogcommandservice.event.song.SongCreatedEvent;
+    import it.eufonica.catalogcommandservice.model.Artist;
     import it.eufonica.catalogcommandservice.model.Song;
     import org.mapstruct.Mapper;
     import org.mapstruct.Mapping;
@@ -19,4 +21,9 @@
         Song toEntity(PublishSongRequestDTO request);
 
         SongResponseDTO toResponse(Song song);
+
+        @Mapping(target = "artistOwnerId", source = "artistOwner.id")
+        SongCreatedEvent toCreatedEvent(Song savedSong);
+
+        SongCreatedEvent.ArtistCredited toArtistCredited(Artist artist);
     }

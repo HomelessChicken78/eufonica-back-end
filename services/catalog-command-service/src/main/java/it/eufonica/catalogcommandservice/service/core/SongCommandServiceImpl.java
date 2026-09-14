@@ -2,13 +2,15 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
+import it.eufonica.catalogcommandservice.event.song.CreditedArtistAddedEvent;
+import it.eufonica.catalogcommandservice.event.song.CreditedArtistRemovedEvent;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.dto.song.*;
 import it.eufonica.catalogcommandservice.mapper.SongMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
-import it.eufonica.catalogcommandservice.outbox.OutboxService;
+import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.SongRepository;
 import it.eufonica.catalogcommandservice.service.media.AudioMetadataService;
 import it.eufonica.catalogcommandservice.service.media.AudioStorageService;
@@ -18,7 +20,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
-import tools.jackson.databind.ObjectMapper;
 
 import java.util.UUID;
 
@@ -30,10 +31,9 @@ public class SongCommandServiceImpl implements SongCommandService {
     private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
     private final SongRepository songRepository;
-    private final OutboxService outboxService;
-    private final ObjectMapper objectMapper; // Used to serialize the JSON payload
+    private final OutboxEventPublisherService eventPublisher;
 
-    @Value("${SONG_TOPIC_NAME:catalog.song.created}")
+    @Value("${SONG_TOPIC_NAME:song.created}")
     private String songTopicName;
 
     @Override
@@ -118,6 +118,10 @@ public class SongCommandServiceImpl implements SongCommandService {
         song.setAudio(audioObjectKeys);
 
         Song savedSong = songRepository.save(song);
+
+        eventPublisher.publish(savedSong.getId().toString(), "SongCreatedEvent",
+                songTopicName, songMapper.toCreatedEvent(savedSong));
+
         return songMapper.toResponse(savedSong);
     }
 
@@ -129,6 +133,11 @@ public class SongCommandServiceImpl implements SongCommandService {
         addCreditedArtist(song, creditedArtist);
 
         Song savedSong = songRepository.save(song);
+
+        var event = new CreditedArtistAddedEvent(idSong, idArtist);
+
+        eventPublisher.publish(savedSong.getId().toString(), "SongCreditedArtistAddedEvent",
+                songTopicName, event);
 
         return songMapper.toResponse(savedSong);
     }
@@ -145,6 +154,11 @@ public class SongCommandServiceImpl implements SongCommandService {
         removeCreditedArtist(song, creditedArtist);
 
         Song savedSong = songRepository.save(song);
+
+        var event = new CreditedArtistRemovedEvent(idSong, idArtist);
+
+        eventPublisher.publish(savedSong.getId().toString(), "SongCreditedArtistRemovedEvent",
+                songTopicName, event);
 
         return songMapper.toResponse(savedSong);
     }
