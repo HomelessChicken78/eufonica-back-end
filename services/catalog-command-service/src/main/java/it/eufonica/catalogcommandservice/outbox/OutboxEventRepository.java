@@ -17,6 +17,7 @@ public interface OutboxEventRepository extends JpaRepository<OutboxEvent, UUID> 
                         AND evt.nextAttemptAt <= :instantNow)
                OR (evt.status = 'PROCESSING'
                         AND evt.processingStartedAt <= :processingTimeout)
+            ORDER BY evt.createdAt
             """
     )
     List<OutboxEvent> findEventsReadyForProcessing(@Param("instantNow") LocalDateTime instantNow,
