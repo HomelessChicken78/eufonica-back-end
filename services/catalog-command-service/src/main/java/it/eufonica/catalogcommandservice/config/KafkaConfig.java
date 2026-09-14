@@ -11,11 +11,17 @@ public class KafkaConfig {
     @Value("${ARTIST_TOPIC_NAME:artist.events}")
     private String artistTopicName;
 
+    @Value("${ARTIST_TOPIC_PARTITIONS}")
+    private int artistTopicPartitions;
+
+    @Value("${ARTIST_TOPIC_REPLICAS:1}")
+    private int artistTopicReplicas;
+
     @Bean
     public NewTopic artistTopic() {
         return TopicBuilder.name(artistTopicName)
-                .partitions(1)
-                .replicas(1)
+                .partitions(artistTopicPartitions)
+                .replicas(artistTopicReplicas)
                 .build();
     }
 }
