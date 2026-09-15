@@ -6,10 +6,9 @@
    * [Specifica dei tipi di dato](#specifica-dei-tipi-di-dato)
    * [Vincoli Esterni](#vincoli-esterni)
       + [[V.Artist.registrato_dopo_fondazione]](#artistregistrato_dopo_fondazione)
-      + [[V.art_album.pubblicazione_dopo_fondazione]](#art_albumpubblicazione_dopo_fondazione)
       + [[V.song_credit.pubblicazione_dopo_fondazione]](#song_creditpubblicazione_dopo_fondazione)
       + [[V.Album.rilascio_originale_prima_di_pubblicazione]](#albumrilascio_originale_prima_di_pubblicazione)
-      + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_album)
+      + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_ufficiale_album)
       + [[V.art_album.artista_registrato_prima_pubblicazione_album]](#art_albumartista_registrato_prima_pubblicazione_album)
       + [[V.Listen.data_di_ascolto_valida]](#listendata_di_ascolto_valida)
       + [[V.Listen.non_ascolta_piu_della_durata]](#listennon_ascolta_piu_della_durata)
@@ -59,12 +58,7 @@
 <!-- TOC --><a id="artistregistrato_dopo_fondazione"></a>
 ### [V.Artist.registrato_dopo_fondazione] Un Artista può registrarsi solo dopo la sua data di fondazione
 
-Per ogni _a:Artist_ deve essere vero che a.foundation_date < a.registration_timestamp
-
-<!-- TOC --><a id="art_albumpubblicazione_dopo_fondazione"></a>
-### [V.art_album.pubblicazione_dopo_fondazione] Un Artista non può pubblicare un Album se non è stato fondato
-
-Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve essere vero che art.foundation_date < alb.pub_date
+Per ogni _a:Artist_ deve essere vero che a.foundation_date <= a.registration_timestamp
 
 <!-- TOC --><a id="song_creditpubblicazione_dopo_fondazione"></a>
 ### [V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato
@@ -72,19 +66,24 @@ Per ogni _art:Artist_ e _alb:Album_, tali che _(art, alb):art_album_, deve esser
 Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
 
 <!-- TOC --><a id="albumrilascio_originale_prima_di_pubblicazione"></a>
-### [V.Album.rilascio_originale_prima_di_pubblicazione] Un ALbum può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
+### [V.Album.rilascio_originale_prima_di_pubblicazione] Un Album può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
 
 Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
 
-<!-- TOC --><a id="art_albumartista_fondato_prima_rilascio_album"></a>
-### [V.art_album.artista_fondato_prima_rilascio_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
+<!-- TOC --><a id="art_albumartista_fondato_prima_rilascio_ufficiale_album"></a>
+### [V.art_album.artista_fondato_prima_rilascio_ufficiale_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
 
-Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.pub_date
+Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date <= al.original_release_date
 
 <!-- TOC --><a id="art_albumartista_registrato_prima_pubblicazione_album"></a>
 ### [V.art_album.artista_registrato_prima_pubblicazione_album] La pubblicazione di un Album può avvenire solo da Artisti registrati prima della data di pubblicazione dell'Album stesso
 
 Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.registration_timestamp < al.pub_date
+
+<!-- TOC --><a id="art_albumartista_fondato_prima_pubblicazione_album"></a>
+### [V.art_album.artista_fondato_prima_pubblicazione_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
+
+Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere vero che art.foundation_date < al.pub_date
 
 <!-- TOC --><a id="listendata_di_ascolto_valida"></a>
 ### [V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone
@@ -184,19 +183,36 @@ Post: L'operazione non modifica i dati. Il risultato è così definito:
 ### Strumenti di Autenticazione e Autorizzazione
 
 <p>
-registra(email: Stringa, disp_name: Stringa, f_name: Stringa[0..1], m_name: Stringa[0..1], l_name: Stringa[0..1]) : AppUser<br>
+registra(email: Stringa, disp_name: Stringa, f_name: Stringa[0..1], m_name: Stringa[0..1], l_name: Stringa[0..1], provider_name : Stringa, provider_user_id : Intero) : AppUser<br>
 Pre:
 </p>
 
 - Non deve esistere alcun _u:AppUser_ tale che u.email = **email**
 - Non deve esistere alcun _u:AppUser_ tale che u.display_name = **disp_name**
 - **email** e **disp_name** non devono essere vuoti
+- Non deve esistere alcun _am:AccessMethod_ tale che am.provider_name = **provider_name** e am.provider_user_id = **provider_user_id**.
 
 <p>
 Post:
 </p>
 
+- Viene creato un nuovo oggetto _am:AccessMethod_, con valori am.provider_name = **provider_name** e am.provider_user_id = **provider_user_id**
 - Viene creato e restituito un nuovo oggetto _res:AppUser_, con valori res.email = **email**, res.display_name = **disp_name**, res.first_name = **f_name**, res.middle_name = **m_name**, res.last_name = **l_name** e res.registration_timestamp = Oggi in questo momento
+- Viene creato il link _(am, res):ut_acc_
+
+<p style="margin-top: 20px">
+associa_metodo_accesso(ut: AppUser, provider_name: Stringa, provider_user_id: Intero) : AccessMethod<br>
+Pre:
+</p>
+
+- Non deve esistere alcun _am:AccessMethod_ tale che am.provider_name = **provider_name** e am.provider_user_id = **provider_user_id**.
+
+<p>
+Post:
+</p>
+
+- Viene creato e restituito un nuovo oggetto _res:AccessMethod_, con valori res.provider_name = **provider_name** e res.provider_user_id = **provider_user_id**
+- Viene creato il link _(res, **ut**):ut_acc_
 
 <!-- TOC --><a name="strumenti-di-utilizzo-playlist-e-musiche"></a>
 ### Strumenti di Utilizzo Playlist e Musiche
@@ -278,19 +294,19 @@ Post:
 ### Use-Case Strumenti Gestione Catalogo Musicale
 
 <p>
-pubblica_canzone(art_owner: Artist, art_credits: Artist[1..*], song_name: Stringa, duration: Intero >= 0, audio_url: Url): Song<br>
+pubblica_canzone(art_owner: Artist, art_credits: Artist[1..*], song_title: Stringa, duration: Intero >= 0, audio_url: Url): Song<br>
 Pre:
 </p>
 
 - **art_owner** deve essere incluso nell'insieme degli artisti **art_credits**
 - Per ogni _art:Artist_ in **art_credits**, deve essere vero che art.foundation_date <= Oggi
-- **song_name** non deve essere vuoto
+- **song_title** non deve essere vuoto
 
 <p>
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.name = **song_name**, res.duration_sec = **duration**, res.url = **audio_url** e res.pub_date = Oggi
+- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.title = **song_title**, res.duration_sec = **duration**, res.audio = **audio_url** e res.pub_date = Oggi
 - Per ogni _art:Artist_ in **art_credits**, vengono creati i link _(art, res):song_credit_
    - Tra questi, il link _(**art_owner**, res)_ viene specializzato come istanza anche dell'associazione _song_ownership_
 
@@ -408,12 +424,12 @@ public enum VisibilityType {
 }
 ````
 
-- Tipo `Url`
+- Tipo `ObjectKey`
 ````java
 @Pattern(
-    regexp = "https?:\\\\/\\\\/(www\\\\.)?[-a-zA-Z0-9@:%._\\\\+~#=]{1,256}\\\\.[a-zA-Z0-9()]{1,6}\\\\b([-a-zA-Z0-9()@:%_\\\\+.~#?&//=]*)"
+    regexp = "^[a-zA-Z0-9!_.*'()/-]+$"
 )
-private String url;
+private String objectKey;
 ````
 
 <!-- TOC --><a name="vincoli-ristrutturati"></a>
