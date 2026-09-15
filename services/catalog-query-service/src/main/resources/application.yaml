@@ -11,6 +11,7 @@ spring:
       ddl-auto: ${DDL_AUTO:none}
 
 server:
+  port: ${SERVER_PORT:8080}
   servlet:
     context-path: ${CONTEXT_PATH:/api}
 
