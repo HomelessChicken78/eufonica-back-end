@@ -2,6 +2,9 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
+import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
+import it.eufonica.catalogcommandservice.event.album.DeletedAlbumEvent;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
@@ -154,6 +157,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             mapSongToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(album);
+        eventPublisher.publish(savedAlbum.getId().toString(), "AlbumUpdatedEvent",
+                albumTopicName, albumMapper.toUpdatedEvent(savedAlbum));
         return albumMapper.toSummaryResponse(savedAlbum);
     }
 
@@ -165,6 +170,9 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         album.getSongs().clear();
 
         albumRepository.deleteById(albumId);
+
+        eventPublisher.publish(album.getId().toString(), "AlbumDeletedEvent",
+                albumTopicName, new DeletedAlbumEvent(album.getVersion(), album.getId()));
     }
 
     @Override
@@ -172,6 +180,16 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         Album album = findByIdOrThrow(albumId);
 
         mapSongToAlbum(songId, album);
+        Album savedAlbum = albumRepository.save(album);
+
+        AlbumSongAddedEvent event = AlbumSongAddedEvent.builder()
+                .version(savedAlbum.getVersion())
+                .albumId(savedAlbum.getId())
+                .songId(songId)
+                .build();
+        eventPublisher.publish(album.getId().toString(), "AlbumSongAddedEvent",
+                albumTopicName, event);
+
         return albumMapper.toSummaryResponse(album);
     }
 
@@ -185,9 +203,18 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         if (!removed)
             throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId);
 
-        album = albumRepository.save(album);
+        Album savedAlbum = albumRepository.save(album);
         log.info("Removed song with id {} from the album with id {}", songId, albumId);
 
-        return albumMapper.toSummaryResponse(album);
+        AlbumSongRemovedEvent event = AlbumSongRemovedEvent.builder()
+                .version(savedAlbum.getVersion())
+                .albumId(savedAlbum.getId())
+                .songId(songId)
+                .build();
+
+        eventPublisher.publish(album.getId().toString(), "AlbumSongRemovedEvent",
+                albumTopicName, event);
+
+        return albumMapper.toSummaryResponse(savedAlbum);
     }
 }

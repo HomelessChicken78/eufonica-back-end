@@ -3,6 +3,7 @@ package it.eufonica.catalogcommandservice.mapper;
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumCreatedEvent;
+import it.eufonica.catalogcommandservice.event.album.AlbumUpdatedEvent;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
@@ -33,6 +34,8 @@ public interface AlbumMapper {
     }
 
     AlbumCreatedEvent toCreatedEvent(Album album);
+
+    AlbumUpdatedEvent toUpdatedEvent(Album album);
 
     AlbumCreatedEvent.Artist toAlbumArtist(Artist artist);
 
