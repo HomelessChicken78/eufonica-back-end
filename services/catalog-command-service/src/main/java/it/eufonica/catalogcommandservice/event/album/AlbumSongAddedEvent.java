@@ -10,4 +10,5 @@ public class AlbumSongAddedEvent {
     private Integer version;
     private UUID albumId;
     private UUID songId;
+    private String songTitle;
 }

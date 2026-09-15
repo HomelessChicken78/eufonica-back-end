@@ -107,12 +107,15 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      * @param album the album to which the song is added
      *
      * @throws NotFoundException if the song with the given id does not exist
+     * @return the fetched song
      */
-    private void mapSongToAlbum(UUID songId, Album album) {
+    private Song mapSongToAlbum(UUID songId, Album album) {
         Song song = songCommandService.findByIdOrElseThrow(songId);
 
         log.info("Added song with id {} to the album {}", songId, album.getName());
         album.getSongs().add(song);
+
+        return song;
     }
 
     @Override
@@ -179,13 +182,14 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public AlbumSummaryResponseDTO addSongToAlbum(UUID albumId, UUID songId) {
         Album album = findByIdOrThrow(albumId);
 
-        mapSongToAlbum(songId, album);
+        Song addedSong = mapSongToAlbum(songId, album);
         Album savedAlbum = albumRepository.save(album);
 
         AlbumSongAddedEvent event = AlbumSongAddedEvent.builder()
                 .version(savedAlbum.getVersion())
                 .albumId(savedAlbum.getId())
                 .songId(songId)
+                .songTitle(addedSong.getTitle())
                 .build();
         eventPublisher.publish(album.getId().toString(), "AlbumSongAddedEvent",
                 albumTopicName, event);
