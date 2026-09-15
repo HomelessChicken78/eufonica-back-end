@@ -134,7 +134,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         Song savedSong = songRepository.save(song);
 
-        var event = new CreditedArtistAddedEvent(idSong, idArtist);
+        var event = new CreditedArtistAddedEvent(savedSong.getVersion(), idSong, idArtist);
 
         eventPublisher.publish(savedSong.getId().toString(), "SongCreditedArtistAddedEvent",
                 songTopicName, event);
@@ -155,7 +155,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         Song savedSong = songRepository.save(song);
 
-        var event = new CreditedArtistRemovedEvent(idSong, idArtist);
+        var event = new CreditedArtistRemovedEvent(savedSong.getVersion(), idSong, idArtist);
 
         eventPublisher.publish(savedSong.getId().toString(), "SongCreditedArtistRemovedEvent",
                 songTopicName, event);
