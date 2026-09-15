@@ -23,7 +23,7 @@
         SongResponseDTO toResponse(Song song);
 
         @Mapping(target = "artistOwnerId", source = "artistOwner.id")
-        SongCreatedEvent toCreatedEvent(Song savedSong);
+        SongCreatedEvent toCreatedEvent(Song song);
 
         SongCreatedEvent.ArtistCredited toArtistCredited(Artist artist);
     }

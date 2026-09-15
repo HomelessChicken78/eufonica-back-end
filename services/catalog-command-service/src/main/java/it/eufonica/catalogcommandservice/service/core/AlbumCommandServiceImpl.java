@@ -8,9 +8,11 @@ import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
+import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,7 +25,11 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     private final AlbumRepository albumRepository;
     private final SongCommandService songCommandService;
     private final ArtistCommandService artistCommandService;
-    private final AlbumMapper mapper;
+    private final AlbumMapper albumMapper;
+    private final OutboxEventPublisherService eventPublisher;
+
+    @Value("${ALBUM_TOPIC_NAME:album.events}")
+    private String albumTopicName;
 
     @Override
     public Album findByIdOrThrow(UUID id) {
@@ -108,7 +114,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
-        Album album = mapper.toEntity(request);
+        Album album = albumMapper.toEntity(request);
 
         for (UUID artId : request.getArtists())
             mapArtistToAlbum(artId, album, LocalDateTime.now());
@@ -117,7 +123,9 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             mapSongToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(album);
-        return mapper.toSummaryResponse(savedAlbum);
+        eventPublisher.publish(savedAlbum.getId().toString(), "AlbumCreatedEvent",
+                albumTopicName, albumMapper.toCreatedEvent(savedAlbum));
+        return albumMapper.toSummaryResponse(savedAlbum);
     }
 
     @Override
@@ -131,7 +139,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         // Update the album with the new information
         // Keep album.id and album.pubDate intact
-        mapper.updateEntityFromDto(request, album);
+        albumMapper.updateEntityFromDto(request, album);
 
         // Clear and rebuild the collections
         album.getSongs().clear();
@@ -146,7 +154,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             mapSongToAlbum(songId, album);
 
         Album savedAlbum = albumRepository.save(album);
-        return mapper.toSummaryResponse(savedAlbum);
+        return albumMapper.toSummaryResponse(savedAlbum);
     }
 
     @Override
@@ -164,7 +172,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         Album album = findByIdOrThrow(albumId);
 
         mapSongToAlbum(songId, album);
-        return mapper.toSummaryResponse(album);
+        return albumMapper.toSummaryResponse(album);
     }
 
     @Override
@@ -180,6 +188,6 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         album = albumRepository.save(album);
         log.info("Removed song with id {} from the album with id {}", songId, albumId);
 
-        return mapper.toSummaryResponse(album);
+        return albumMapper.toSummaryResponse(album);
     }
 }

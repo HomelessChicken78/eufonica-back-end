@@ -2,7 +2,10 @@ package it.eufonica.catalogcommandservice.mapper;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.event.album.AlbumCreatedEvent;
 import it.eufonica.catalogcommandservice.model.Album;
+import it.eufonica.catalogcommandservice.model.Artist;
+import it.eufonica.catalogcommandservice.model.Song;
 import org.mapstruct.*;
 
 @Mapper(componentModel = "spring")
@@ -28,4 +31,10 @@ public interface AlbumMapper {
     default void mapNumberOfSongs(Album entity, @MappingTarget AlbumSummaryResponseDTO dto) {
         dto.setNumberOfSongs(entity.getSongs().size());
     }
+
+    AlbumCreatedEvent toCreatedEvent(Album album);
+
+    AlbumCreatedEvent.Artist toAlbumArtist(Artist artist);
+
+    AlbumCreatedEvent.Song toAlbumSong(Song song);
 }
