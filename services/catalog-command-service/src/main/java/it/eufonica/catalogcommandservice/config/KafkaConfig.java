@@ -17,11 +17,45 @@ public class KafkaConfig {
     @Value("${ARTIST_TOPIC_REPLICAS:1}")
     private int artistTopicReplicas;
 
+    @Value("${SONG_TOPIC_NAME:song.created}")
+    private String songTopicName;
+
+    @Value("${SONG_TOPIC_PARTITIONS:2}")
+    private int songTopicPartitions;
+
+    @Value("${SONG_TOPIC_REPLICAS:1}")
+    private int songTopicReplicas;
+
+    @Value("${ALBUM_TOPIC_NAME:album.events}")
+    private String albumTopicName;
+
+    @Value("${ALBUM_TOPIC_PARTITIONS:2}")
+    private int albumTopicPartitions;
+
+    @Value("${ALBUM_TOPIC_REPLICAS:1}")
+    private int albumTopicReplicas;
+
     @Bean
     public NewTopic artistTopic() {
         return TopicBuilder.name(artistTopicName)
                 .partitions(artistTopicPartitions)
                 .replicas(artistTopicReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic songTopic() {
+        return TopicBuilder.name(songTopicName)
+                .partitions(songTopicPartitions)
+                .replicas(songTopicReplicas)
+                .build();
+    }
+
+    @Bean
+    public NewTopic albumTopic() {
+        return TopicBuilder.name(albumTopicName)
+                .partitions(albumTopicPartitions)
+                .replicas(albumTopicReplicas)
                 .build();
     }
 }
