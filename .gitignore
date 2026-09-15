@@ -1,0 +1,31 @@
+# IDE (IntelliJ IDEA)
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Build Maven
+target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+
+# Java & Log
+*.class
+*.log
+
+# Variabili d'ambiente e Segreti
+.env
+.env.*
+!.env.example
+
+# Frontend / Node (visto che c'erano tracce di npm)
+node_modules/
+
+# OS specific
+.DS_Store
+Thumbs.db
