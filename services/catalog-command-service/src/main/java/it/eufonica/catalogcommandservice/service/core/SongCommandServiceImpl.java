@@ -33,7 +33,7 @@ public class SongCommandServiceImpl implements SongCommandService {
     private final SongRepository songRepository;
     private final OutboxEventPublisherService eventPublisher;
 
-    @Value("${SONG_TOPIC_NAME:song.created}")
+    @Value("${SONG_TOPIC_NAME:song.events}")
     private String songTopicName;
 
     @Override
