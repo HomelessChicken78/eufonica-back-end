@@ -29,7 +29,7 @@ public class EventProcessingServiceImpl implements EventProcessingService {
             // Catch DataIntegrityViolationException instead of propagating it.
             // This allows us to still give an ACK to kafka,
             // thus avoiding a useless retry of an event that has purposely been ignored.
-            log.warn("Event already exists. eventId={}, eventType={}", eventId, eventType, e);
+            log.debug("Event already exists. eventId={}, eventType={}", eventId, eventType, e);
             return false;
         }
     }
