@@ -12,8 +12,7 @@ import java.util.UUID;
 @ToString @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class ProcessedEvent {
     @EqualsAndHashCode.Include
-    @Id @GeneratedValue(strategy = GenerationType.UUID)
-    private UUID id;
+    @Id private UUID id;
 
     @Column(nullable = false)
     private String eventType;
