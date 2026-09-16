@@ -13,7 +13,7 @@ import java.util.UUID;
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter @Builder
 @ToString @EqualsAndHashCode(onlyExplicitlyIncluded = true)
-public class AlbumContains {
+public class AlbumContainsRead {
     @EqualsAndHashCode.Include
     @Id @GeneratedValue(strategy = GenerationType.UUID) private UUID id;
 
