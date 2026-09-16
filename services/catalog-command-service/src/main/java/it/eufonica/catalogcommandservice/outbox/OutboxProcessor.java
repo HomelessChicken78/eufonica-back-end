@@ -2,6 +2,7 @@ package it.eufonica.catalogcommandservice.outbox;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.kafka.clients.producer.ProducerRecord;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -35,7 +36,10 @@ public class OutboxProcessor {
             try {
                 outboxService.markAsProcessing(event);
 
-                kafkaTemplate.send(event.getTopic(), event.getAggregateId(), event.getPayload()).get();
+                ProducerRecord<String, String> record = new ProducerRecord<>(
+                        event.getTopic(), event.getAggregateId(), event.getPayload());
+                record.headers().add("eventId", event.getId().toString().getBytes()); // Add the event id to the headers
+                kafkaTemplate.send(record).get();
 
                 outboxService.markAsPublished(event);
                 successfulEvents++;
