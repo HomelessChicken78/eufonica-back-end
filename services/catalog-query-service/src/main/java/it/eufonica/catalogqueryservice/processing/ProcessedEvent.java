@@ -2,6 +2,7 @@ package it.eufonica.catalogqueryservice.processing;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.LocalDateTime;
 import java.util.UUID;
@@ -21,6 +22,7 @@ public class ProcessedEvent {
     private String aggregateId;
 
     @Column(nullable = false)
+    @CreationTimestamp
     @Builder.Default
     private LocalDateTime processedAt = LocalDateTime.now();
 }
