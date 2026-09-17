@@ -9,6 +9,15 @@ spring:
   jpa:
     hibernate:
       ddl-auto: ${DDL_AUTO:none}
+  kafka:
+    bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    consumer:
+      group-id: ${KAFKA_CONSUMER_GROUP_ID:catalog-query-service-group}
+      auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
+      key-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+      value-deserializer: org.apache.kafka.common.serialization.StringDeserializer
+    listener:
+      ack-mode: ${KAFKA_LISTENER_ACK_MODE:RECORD}
 
 server:
   port: ${SERVER_PORT:8080}
