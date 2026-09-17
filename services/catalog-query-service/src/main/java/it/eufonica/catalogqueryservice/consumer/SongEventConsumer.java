@@ -4,6 +4,7 @@ import it.eufonica.catalogqueryservice.event.song.CreditedArtistAddedEvent;
 import it.eufonica.catalogqueryservice.event.song.CreditedArtistRemovedEvent;
 import it.eufonica.catalogqueryservice.event.song.SongCreatedEvent;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
+import it.eufonica.catalogqueryservice.model.SongCreditRead;
 import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
@@ -76,6 +77,11 @@ public class SongEventConsumer {
 
             songRepository.save(songMapper.toEntity(event));
         }
+
+        songCreditRepository.deleteBySongId(event.getId());
+
+        for (SongCreatedEvent.ArtistCredited credited : event.getCreditedArtists())
+            songCreditRepository.save(new SongCreditRead(null, event.getId(), credited.getId()));
     }
 
     /**
