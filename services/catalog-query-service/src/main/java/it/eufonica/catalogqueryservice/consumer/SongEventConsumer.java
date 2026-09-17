@@ -87,28 +87,42 @@ public class SongEventConsumer {
     /**
      * Handles the attaching of a credited artist to a song.
      * Compares the current song's version against the event's version.
-     * If the event's version is less than the song's current version,
+     * <p>If the event's version is less than the song's current version,
      * assumes a mistakes is done and leaves the responsibility to manage
-     * that event to the rest of the flow.
+     * that event to the rest of the flow.</p>
      *
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
     public void handleCreditedArtistAdded(UUID eventId, CreditedArtistAddedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "CreditedArtistAddedEvent", event.getSongId().toString())) return;
 
+        songRepository.findById(event.getSongId())
+                .ifPresent(songRead ->
+                        versionChecker.isDeltaVersionAnomalous(event.getVersion(), songRead.getVersion())
+                );
+
+        songCreditRepository.save(new SongCreditRead(null, event.getSongId(), event.getCreditedArtistId()));
     }
 
     /**
      * Handles the detaching of a credited artist to a song.
      * Compares the current song's version against the event's version.
-     * If the event's version is less than the song's current version,
+     * <p>If the event's version is less than the song's current version,
      * assumes a mistakes is done and leaves the responsibility to manage
-     * that event to the rest of the flow.
+     * that event to the rest of the flow.</p>
      *
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
     public void handleCreditedArtistRemoved(UUID eventId, CreditedArtistRemovedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "CreditedArtistRemovedEvent", event.getSongId().toString())) return;
 
+        songRepository.findById(event.getSongId())
+                .ifPresent(songRead ->
+                        versionChecker.isDeltaVersionAnomalous(event.getVersion(), songRead.getVersion())
+                );
+
+        songCreditRepository.deleteBySongIdAndArtistId(event.getSongId(), event.getCreditedArtistId());
     }
 }
