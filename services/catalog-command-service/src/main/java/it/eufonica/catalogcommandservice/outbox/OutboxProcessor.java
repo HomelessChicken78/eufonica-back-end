@@ -39,6 +39,7 @@ public class OutboxProcessor {
                 ProducerRecord<String, String> record = new ProducerRecord<>(
                         event.getTopic(), event.getAggregateId(), event.getPayload());
                 record.headers().add("eventId", event.getId().toString().getBytes()); // Add the event id to the headers
+                record.headers().add("eventType", event.getEventType().getBytes());
                 kafkaTemplate.send(record).get();
 
                 outboxService.markAsPublished(event);
