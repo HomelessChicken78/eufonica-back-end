@@ -3,6 +3,8 @@ package it.eufonica.catalogqueryservice.consumer;
 import it.eufonica.catalogqueryservice.event.song.CreditedArtistAddedEvent;
 import it.eufonica.catalogqueryservice.event.song.CreditedArtistRemovedEvent;
 import it.eufonica.catalogqueryservice.event.song.SongCreatedEvent;
+import it.eufonica.catalogqueryservice.mapper.SongMapper;
+import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
@@ -21,8 +23,10 @@ import java.util.UUID;
 @Component @Transactional
 @RequiredArgsConstructor @Slf4j
 public class SongEventConsumer {
-    private final ObjectMapper objectMapper;
+    // Utility & Mappers
     private final VersionChecker versionChecker;
+    private final ObjectMapper objectMapper;
+    private final SongMapper songMapper;
 
     // Services
     private final EventProcessingService processingService;
@@ -47,13 +51,31 @@ public class SongEventConsumer {
 
     /**
      * Handles the creation of a new song after a SongCreatedEvent is received.
-     * If the song already exists, assume the event is duplicated and ignores it.
+     * <p>If the song already exists and the event's version is higher
+     * than the song's current version, perform an upsertion.</p>
+     * <p>If the version is lower than or equal to the song's current version, ignore it.</p>
      *
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
     public void handleSongCreation(UUID eventId, SongCreatedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "SongCreatedEvent", event.getId().toString())) return;
 
+        SongRead existingSong = songRepository.findById(event.getId()).orElse(null);
+
+        if (existingSong != null) {
+            if (versionChecker.isStateRepresentationEventOutdated(event.getVersion(), existingSong.getVersion()))
+                return;
+
+            log.debug("Upserting existing song for event {}.", eventId);
+            songMapper.updateEntityFromCreationEvent(event, existingSong);
+
+            songRepository.save(existingSong);
+        } else  {
+            log.debug("Creating song for event {}.", eventId);
+
+            songRepository.save(songMapper.toEntity(event));
+        }
     }
 
     /**
