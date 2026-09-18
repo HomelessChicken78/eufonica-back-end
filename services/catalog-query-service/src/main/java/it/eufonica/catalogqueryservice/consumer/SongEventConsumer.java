@@ -66,6 +66,7 @@ public class SongEventConsumer {
         SongRead existingSong = songRepository.findById(event.getId()).orElse(null);
 
         if (existingSong != null) {
+            // Case that song already exists: upsertion
             if (versionChecker.isStateRepresentationEventOutdated(event.getVersion(), existingSong.getVersion()))
                 return;
 
@@ -74,6 +75,7 @@ public class SongEventConsumer {
 
             songRepository.save(existingSong);
         } else  {
+            // Case that song doesn't exist: save as new
             log.debug("Creating song for event {}.", eventId);
 
             songRepository.save(songMapper.toEntity(event));
