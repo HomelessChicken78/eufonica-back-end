@@ -55,7 +55,7 @@ public class ArtistEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
-    private void handleArtistCreation(UUID eventId, ArtistCreatedEvent event) {
+    public void handleArtistCreation(UUID eventId, ArtistCreatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "ArtistCreatedEvent", event.getId().toString())) return;
 
         ArtistRead existingArtist = artistRepository.findById(event.getId()).orElse(null);
