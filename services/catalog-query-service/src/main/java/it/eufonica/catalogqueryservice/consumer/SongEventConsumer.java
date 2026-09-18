@@ -67,6 +67,8 @@ public class SongEventConsumer {
 
         if (existingSong != null) {
             // Case that song already exists: upsertion
+
+            // Check if the version of the event is lower than or equal to the current. If it is, ignore the event
             if (versionChecker.isStateRepresentationEventOutdated(event.getVersion(), existingSong.getVersion()))
                 return;
 
@@ -76,13 +78,16 @@ public class SongEventConsumer {
             songRepository.save(existingSong);
         } else  {
             // Case that song doesn't exist: save as new
+
             log.debug("Creating song for event {}.", eventId);
 
             songRepository.save(songMapper.toEntity(event));
         }
 
+        // Remove all the links between the song and the credited artists to guarantee a clean new state
         songCreditRepository.deleteBySongId(event.getId());
 
+        // Add all the links between the song and the credited artists back
         for (SongCreatedEvent.ArtistCredited credited : event.getCreditedArtists())
             songCreditRepository.save(new SongCreditRead(null, event.getId(), credited.getId()));
     }
