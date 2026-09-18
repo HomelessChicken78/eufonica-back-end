@@ -1,7 +1,13 @@
 package it.eufonica.catalogqueryservice.consumer;
 
 import it.eufonica.catalogqueryservice.event.album.*;
+import it.eufonica.catalogqueryservice.mapper.AlbumMapper;
+import it.eufonica.catalogqueryservice.model.AlbumRead;
+import it.eufonica.catalogqueryservice.model.ArtistRead;
 import it.eufonica.catalogqueryservice.processing.EventProcessingService;
+import it.eufonica.catalogqueryservice.repository.AlbumContainsRepository;
+import it.eufonica.catalogqueryservice.repository.AlbumRepository;
+import it.eufonica.catalogqueryservice.repository.ArtAlbumRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,9 +26,15 @@ public class AlbumEventConsumer {
     // Utility & Mappers
     private final VersionChecker versionChecker;
     private final ObjectMapper objectMapper;
+    private final AlbumMapper albumMapper;
 
     // Services
     private final EventProcessingService processingService;
+
+    // Repositories
+    private final AlbumRepository albumRepository;
+    private final ArtAlbumRepository artAlbumRepository;
+    private final AlbumContainsRepository albumContainsRepository;
 
     @KafkaListener(topics = "${ALBUM_TOPIC_NAME:album.events}")
     public void consume(@Payload String payload,
@@ -40,8 +52,40 @@ public class AlbumEventConsumer {
         }
     }
 
+    /**
+     * Handles the creation of a new album after a AlbumCreatedEvent is received.
+     * <p>If the album already exists and the event's version is higher
+     * than the album's current version, perform an upsertion.</p>
+     * <p>If the version is lower than or equal to the album's current version, ignore it.</p>
+     *
+     * @param eventId The id of the event to compare against processed events
+     * @param event The deserialized event's payload
+     */
     public void handleAlbumCreation(UUID eventId, AlbumCreatedEvent event) {
-        // TODO unfinished stub method
+        if (!processingService.saveOrIgnore(eventId, "AlbumCreatedEvent", event.getId().toString())) return;
+
+        AlbumRead existingAlbum = albumRepository.findById(event.getId()).orElse(null);
+
+        if (existingAlbum != null) {
+            // Case that artist already exists: upsertion
+
+            // Check if the version of the event is lower than or equal to the current. If it is, ignore the event
+            if (versionChecker.isStateRepresentationEventOutdated(event.getVersion(), existingAlbum.getVersion()))
+                return;
+
+            log.debug("Upserting existing album for event {}.", eventId);
+            albumMapper.updateEntityFromCreationEvent(event, existingAlbum);
+
+            albumRepository.save(existingAlbum);
+        } else {
+            // Case that artist doesn't exist: save as new
+
+            log.debug("Creating album for event {}.", eventId);
+
+            albumRepository.save(albumMapper.toEntity(event));
+        }
+
+        // TODO unfinished stub method: Should manage links with songs and artists
     }
 
     public void handleAlbumSongAdded(UUID eventId, AlbumSongAddedEvent event) {
