@@ -28,3 +28,4 @@ logging:
   level:
     root: ${ROOT_LOG_LEVEL:INFO}
     it.eufonica.catalogqueryservice.service: ${SERVICE_LOG_LEVEL:INFO}
+    it.eufonica.catalogqueryservice.consumer: ${CONSUMER_LOG_LEVEL:INFO}
