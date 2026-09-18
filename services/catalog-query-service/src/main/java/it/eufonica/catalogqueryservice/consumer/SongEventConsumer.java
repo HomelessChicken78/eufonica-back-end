@@ -39,6 +39,7 @@ public class SongEventConsumer {
     @KafkaListener(topics = "${SONG_TOPIC_NAME:song.events}")
     public void consume(@Payload String payload,
                         @Header("eventId") String eventIdHeader, @Header("eventType") String eventType) {
+        log.debug("Received event for song. eventId={}, eventType={}, payload={}", eventIdHeader, eventType, payload);
         UUID eventId = UUID.fromString(eventIdHeader);
 
         // Perform the correct action depending on the type of event

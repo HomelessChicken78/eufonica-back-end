@@ -50,6 +50,9 @@ public class OutboxProcessor {
             }
         }
 
-        log.debug("Outbox scheduled job completed in {}ms. successfulEvents={} failedEvents={}", Duration.between(start, now()).toMillis(), successfulEvents, failedEvents);
+        if (successfulEvents + failedEvents > 0)
+            log.debug("Outbox scheduled job completed in {}ms. successfulEvents={} failedEvents={}", Duration.between(start, now()).toMillis(), successfulEvents, failedEvents);
+        else
+            log.trace("Outbox scheduled job completed. No event sent.");
     }
 }
