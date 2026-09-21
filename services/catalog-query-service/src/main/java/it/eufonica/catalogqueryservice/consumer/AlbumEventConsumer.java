@@ -102,8 +102,25 @@ public class AlbumEventConsumer {
             albumContainsRepository.save(new AlbumContainsRead(null, event.getId(), song.getId()));
     }
 
+    /**
+     * Handles the attaching of a song to an album.
+     * Compares the current album's version against the event's version.
+     * <p>If the event's version is less than the album's current version,
+     * assumes a mistakes is done and leaves the responsibility to manage
+     * that event to the rest of the flow.</p>
+     *
+     * @param eventId The id of the event to compare against processed events
+     * @param event The deserialized event's payload
+     */
     public void handleAlbumSongAdded(UUID eventId, AlbumSongAddedEvent event) {
-        // TODO unfinished stub method
+        if (!processingService.saveOrIgnore(eventId, "AlbumSongAddedEvent", event.getSongId().toString())) return;
+
+        // Look up the album this song applies to. If found, just log a warning when the event's
+        // version looks anomalous (older than what's already stored) — this doesn't block processing,
+        albumRepository.findById(eventId).ifPresent(album ->
+                versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion()));
+
+        albumContainsRepository.save(new AlbumContainsRead(null, event.getAlbumId(), event.getSongId()));
     }
 
     public void handleAlbumSongRemoved(UUID eventId, AlbumSongRemovedEvent event) {
