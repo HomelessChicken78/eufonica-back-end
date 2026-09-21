@@ -184,11 +184,26 @@ public class AlbumEventConsumer {
 
     /**
      * Handles the removal of an album after a DeletedAlbumEvent is received.
+     * <p>If the album doesn't exist, this does nothing aside from a
+     * debug log, since deletion is idempotent by nature.</p>
      *
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
     public void handleAlbumDeletion(UUID eventId, DeletedAlbumEvent event) {
-        // TODO unfinished stub method
+        if (!processingService.saveOrIgnore(eventId, "DeletedAlbumEvent", event.getId().toString())) return;
+
+        // Delete the many-to-many link tables, since there is no
+        // cascade configured - orphaned rows would otherwise be left
+        // pointing at a non-existent album.
+        artAlbumRepository.deleteByAlbumId(event.getId());
+        albumContainsRepository.deleteByAlbumId(event.getId());
+
+        albumRepository.deleteById(event.getId());
+
+        if (albumRepository.existsById(event.getId()))
+            log.debug("Deleted album for event {}. albumId={}", eventId, event.getId());
+        else
+            log.debug("Album already absent from projection, nothing to delete. eventId={}, albumId={}", eventId, event.getId());
     }
 }
