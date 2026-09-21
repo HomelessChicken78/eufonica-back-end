@@ -9,4 +9,6 @@ public interface AlbumContainsRepository extends JpaRepository<AlbumContainsRead
     void deleteByAlbumId(UUID albumId);
 
     void deleteByAlbumIdAndSongId(UUID albumId, UUID songId);
+
+    boolean existsByAlbumIdAndSongId(UUID albumId, UUID songId);
 }

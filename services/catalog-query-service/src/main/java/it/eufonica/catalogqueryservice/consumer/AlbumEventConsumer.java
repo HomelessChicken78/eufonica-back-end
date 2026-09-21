@@ -120,7 +120,9 @@ public class AlbumEventConsumer {
         albumRepository.findById(event.getAlbumId()).ifPresent(album ->
                 versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion()));
 
-        albumContainsRepository.save(new AlbumContainsRead(null, event.getAlbumId(), event.getSongId()));
+        // Avoid inserting a duplicate link if the song is already associated with this album
+        if (!albumContainsRepository.existsByAlbumIdAndSongId(event.getAlbumId(), event.getSongId()))
+            albumContainsRepository.save(new AlbumContainsRead(null, event.getAlbumId(), event.getSongId()));
     }
 
     /**
