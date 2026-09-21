@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface AlbumContainsRepository extends JpaRepository<AlbumContainsRead, UUID> {
     void deleteByAlbumId(UUID albumId);
+
+    void deleteByAlbumIdAndSongId(UUID albumId, UUID songId);
 }
