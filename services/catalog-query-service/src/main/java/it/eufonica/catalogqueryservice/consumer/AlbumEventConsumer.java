@@ -144,10 +144,24 @@ public class AlbumEventConsumer {
         albumContainsRepository.deleteByAlbumIdAndSongId(event.getAlbumId(), event.getSongId());
     }
 
+    /**
+     * Handles the updating of a new album after an AlbumUpdatedEvent is received.
+     * <p>If event's version is lower than or equal to the album's current
+     * version, ignore the event.</p>
+     *
+     * @param eventId The id of the event to compare against processed events
+     * @param event The deserialized event's payload
+     */
     public void handleAlbumUpdatedEvent(UUID eventId, AlbumUpdatedEvent event) {
         // TODO unfinished stub method
     }
 
+    /**
+     * Handles the removal of an album after a DeletedAlbumEvent is received.
+     *
+     * @param eventId The id of the event to compare against processed events
+     * @param event The deserialized event's payload
+     */
     public void handleAlbumDeletion(UUID eventId, DeletedAlbumEvent event) {
         // TODO unfinished stub method
     }
