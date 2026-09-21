@@ -3,6 +3,7 @@ package it.eufonica.catalogcommandservice.event.album;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Set;
 import java.util.UUID;
 
@@ -12,7 +13,7 @@ public class AlbumCreatedEvent {
     private int version;
     private UUID id;
     private String name;
-    private LocalDate pubDate;
+    private LocalDateTime pubDate;
     private LocalDate originalReleaseDate;
 
     @EqualsAndHashCode.Exclude @ToString.Exclude

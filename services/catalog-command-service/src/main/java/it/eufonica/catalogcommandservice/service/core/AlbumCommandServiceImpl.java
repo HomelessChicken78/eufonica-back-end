@@ -128,7 +128,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         for (UUID songId : request.getSongs())
             mapSongToAlbum(songId, album);
 
-        Album savedAlbum = albumRepository.save(album);
+        Album savedAlbum = albumRepository.saveAndFlush(album);
         eventPublisher.publish(savedAlbum.getId().toString(), "AlbumCreatedEvent",
                 albumTopicName, albumMapper.toCreatedEvent(savedAlbum));
         return albumMapper.toSummaryResponse(savedAlbum);
