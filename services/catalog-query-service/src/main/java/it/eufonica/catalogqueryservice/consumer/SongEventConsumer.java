@@ -105,9 +105,11 @@ public class SongEventConsumer {
     public void handleCreditedArtistAdded(UUID eventId, CreditedArtistAddedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistAddedEvent", event.getSongId().toString())) return;
 
+        // Look up the song this credit applies to. If found, just log a warning when the event's
+        // version looks anomalous (older than what's already stored) — this doesn't block processing,
         songRepository.findById(event.getSongId())
-                .ifPresent(songRead ->
-                        versionChecker.isDeltaVersionAnomalous(event.getVersion(), songRead.getVersion())
+                .ifPresent(song ->
+                        versionChecker.isDeltaVersionAnomalous(event.getVersion(), song.getVersion())
                 );
 
         songCreditRepository.save(new SongCreditRead(null, event.getSongId(), event.getCreditedArtistId()));
