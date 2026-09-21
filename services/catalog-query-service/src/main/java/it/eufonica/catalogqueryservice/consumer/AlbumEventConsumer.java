@@ -116,7 +116,7 @@ public class AlbumEventConsumer {
         if (!processingService.saveOrIgnore(eventId, "AlbumSongAddedEvent", event.getSongId().toString())) return;
 
         // Look up the album this song applies to. If found, just log a warning when the event's
-        // version looks anomalous (older than what's already stored) — this doesn't block processing,
+        // version looks anomalous (older than what's already stored) - this doesn't block processing,
         albumRepository.findById(event.getAlbumId()).ifPresent(album ->
                 versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion()));
 
@@ -139,7 +139,7 @@ public class AlbumEventConsumer {
         if (!processingService.saveOrIgnore(eventId, "AlbumSongRemovedEvent", event.getSongId().toString())) return;
 
         // Look up the album this song applies to. If found, just log a warning when the event's
-        // version looks anomalous (older than what's already stored) — this doesn't block processing,
+        // version looks anomalous (older than what's already stored) - this doesn't block processing,
         albumRepository.findById(event.getAlbumId()).ifPresent(album ->
                 versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion()));
 

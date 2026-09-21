@@ -45,8 +45,8 @@ public class SongEventConsumer {
         // Perform the correct action depending on the type of event
         switch (eventType) {
             case "SongCreatedEvent" -> handleSongCreation(eventId, objectMapper.readValue(payload, SongCreatedEvent.class));
-            case "CreditedArtistAddedEvent" -> handleCreditedArtistAdded(eventId, objectMapper.readValue(payload, CreditedArtistAddedEvent.class));
-            case "CreditedArtistRemovedEvent" -> handleCreditedArtistRemoved(eventId, objectMapper.readValue(payload, CreditedArtistRemovedEvent.class));
+            case "SongCreditedArtistAddedEvent" -> handleCreditedArtistAdded(eventId, objectMapper.readValue(payload, CreditedArtistAddedEvent.class));
+            case "SongCreditedArtistRemovedEvent" -> handleCreditedArtistRemoved(eventId, objectMapper.readValue(payload, CreditedArtistRemovedEvent.class));
             default -> log.warn("Unknown event type received. eventType={}", eventType);
         }
     }
