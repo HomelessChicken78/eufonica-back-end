@@ -2,6 +2,7 @@ package it.eufonica.catalogqueryservice.consumer;
 
 import it.eufonica.catalogqueryservice.event.album.*;
 import it.eufonica.catalogqueryservice.mapper.AlbumMapper;
+import it.eufonica.catalogqueryservice.model.AlbumContainsRead;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
 import it.eufonica.catalogqueryservice.model.ArtAlbumRead;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
@@ -90,11 +91,15 @@ public class AlbumEventConsumer {
         artAlbumRepository.deleteByAlbumId(event.getId());
 
         // Add all the links between the album and the artists back
-        for (AlbumCreatedEvent.Artist art : event.getArtists()) {
+        for (AlbumCreatedEvent.Artist art : event.getArtists())
             artAlbumRepository.save(new ArtAlbumRead(null, event.getId(), art.getId()));
-        }
 
-        // TODO unfinished stub method: Should manage links with artists
+        // Remove all the links between the album and the songs to guarantee a clean new state
+        albumContainsRepository.deleteByAlbumId(event.getId());
+
+        // Add all the links between the album and the songs back
+        for (AlbumCreatedEvent.Song song : event.getSongs())
+            albumContainsRepository.save(new AlbumContainsRead(null, event.getId(), song.getId()));
     }
 
     public void handleAlbumSongAdded(UUID eventId, AlbumSongAddedEvent event) {
