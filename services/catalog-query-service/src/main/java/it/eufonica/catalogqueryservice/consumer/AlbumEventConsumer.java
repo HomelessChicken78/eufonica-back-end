@@ -153,7 +153,33 @@ public class AlbumEventConsumer {
      * @param event The deserialized event's payload
      */
     public void handleAlbumUpdatedEvent(UUID eventId, AlbumUpdatedEvent event) {
-        // TODO unfinished stub method
+        if (!processingService.saveOrIgnore(eventId, "AlbumUpdatedEvent", event.getId().toString())) return;
+
+        AlbumRead existingAlbum = albumRepository.findById(event.getId()).orElse(null);
+
+        if (existingAlbum == null)
+            log.warn("Trying to update an album that doesn't exist in the projection. Creating it instead. " +
+                    "eventId={}, albumId={}, albumName={}", eventId, event.getId(), event.getName());
+        else
+            // Check if the version of the event is lower than or equal to the current. If it is, ignore the event
+            if (versionChecker.isStateRepresentationEventOutdated(event.getVersion(), existingAlbum.getVersion()))
+                return;
+
+        albumRepository.save(albumMapper.toEntity(event));
+
+        // Remove all the links between the album and the artists to guarantee a clean new state
+        artAlbumRepository.deleteByAlbumId(event.getId());
+
+        // Add all the links between the album and the artists back
+        for (AlbumUpdatedEvent.Artist art : event.getArtists())
+            artAlbumRepository.save(new ArtAlbumRead(null, event.getId(), art.getId()));
+
+        // Remove all the links between the album and the songs to guarantee a clean new state
+        albumContainsRepository.deleteByAlbumId(event.getId());
+
+        // Add all the links between the album and the songs back
+        for (AlbumUpdatedEvent.Song song : event.getSongs())
+            albumContainsRepository.save(new AlbumContainsRead(null, event.getId(), song.getId()));
     }
 
     /**

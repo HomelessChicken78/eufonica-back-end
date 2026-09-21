@@ -1,6 +1,7 @@
 package it.eufonica.catalogqueryservice.mapper;
 
 import it.eufonica.catalogqueryservice.event.album.AlbumCreatedEvent;
+import it.eufonica.catalogqueryservice.event.album.AlbumUpdatedEvent;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
 import org.mapstruct.*;
 
@@ -9,4 +10,7 @@ public interface AlbumMapper {
     void updateEntityFromCreationEvent(AlbumCreatedEvent event, @MappingTarget AlbumRead existingAlbum);
 
     AlbumRead toEntity(AlbumCreatedEvent event);
+
+    @Mapping(target = "pubDate", ignore = true)
+    AlbumRead toEntity(AlbumUpdatedEvent event);
 }
