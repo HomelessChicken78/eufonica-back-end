@@ -132,6 +132,8 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         addCreditedArtist(song, creditedArtist);
 
+        song.setVersion(song.getVersion() + 1);
+
         Song savedSong = songRepository.save(song);
 
         var event = new CreditedArtistAddedEvent(savedSong.getVersion(), idSong, idArtist);
@@ -152,6 +154,8 @@ public class SongCommandServiceImpl implements SongCommandService {
             throw new ConflictException("Cannot remove the primary owner from the song's credited artists.");
 
         removeCreditedArtist(song, creditedArtist);
+
+        song.setVersion(song.getVersion() + 1);
 
         Song savedSong = songRepository.save(song);
 
