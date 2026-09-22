@@ -183,6 +183,13 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         Album album = findByIdOrThrow(albumId);
 
         Song addedSong = mapSongToAlbum(songId, album);
+
+        // Modifying a @ManyToMany collection only touches the join table, not any
+        // scalar column on the Album row itself. Hibernate therefore won't emit an
+        // UPDATE for the Album entity and @Version won't auto-increment. We change it
+        // manually so the version published in the event reflects the real change.
+        album.setVersion(album.getVersion() + 1);
+
         Album savedAlbum = albumRepository.save(album);
 
         AlbumSongAddedEvent event = AlbumSongAddedEvent.builder()
@@ -194,7 +201,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         eventPublisher.publish(album.getId().toString(), "AlbumSongAddedEvent",
                 albumTopicName, event);
 
-        return albumMapper.toSummaryResponse(album);
+        return albumMapper.toSummaryResponse(savedAlbum);
     }
 
     @Override
@@ -206,6 +213,12 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         if (!removed)
             throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId);
+
+        // Modifying a @ManyToMany collection only touches the join table, not any
+        // scalar column on the Album row itself. Hibernate therefore won't emit an
+        // UPDATE for the Album entity and @Version won't auto-increment. We change it
+        // manually so the version published in the event reflects the real change.
+        album.setVersion(album.getVersion() + 1);
 
         Album savedAlbum = albumRepository.save(album);
         log.info("Removed song with id {} from the album with id {}", songId, albumId);
