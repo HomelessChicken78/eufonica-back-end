@@ -116,9 +116,18 @@ public class AlbumEventConsumer {
         if (!processingService.saveOrIgnore(eventId, "AlbumSongAddedEvent", event.getSongId().toString())) return;
 
         // Look up the album this song applies to. If found, just log a warning when the event's
-        // version looks anomalous (older than what's already stored) - this doesn't block processing,
-        albumRepository.findById(event.getAlbumId()).ifPresent(album ->
-                versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion()));
+        // version looks anomalous (older than what's already stored) - this doesn't block processing.
+        // Update the version even when we skip the insert below.
+        // The event still really happened, so the version should move forward.
+        // If we only updated it when we insert, the version would get stuck whenever the link is
+        // already there - which can happen normally, since the "add song" request doesn't check if
+        // the link already exists before running.
+        // TL;DR: The command side updates the version even when no-op, so the query should do the same
+        albumRepository.findById(event.getAlbumId()).ifPresent(album -> {
+            versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion());
+            album.setVersion(event.getVersion());
+            albumRepository.save(album);
+        });
 
         // Avoid inserting a duplicate link if the song is already associated with this album
         if (!albumContainsRepository.existsByAlbumIdAndSongId(event.getAlbumId(), event.getSongId()))
