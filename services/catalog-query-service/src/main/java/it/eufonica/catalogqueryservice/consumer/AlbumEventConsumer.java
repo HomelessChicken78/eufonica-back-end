@@ -148,9 +148,15 @@ public class AlbumEventConsumer {
         if (!processingService.saveOrIgnore(eventId, "AlbumSongRemovedEvent", event.getSongId().toString())) return;
 
         // Look up the album this song applies to. If found, just log a warning when the event's
-        // version looks anomalous (older than what's already stored) - this doesn't block processing,
-        albumRepository.findById(event.getAlbumId()).ifPresent(album ->
-                versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion()));
+        // version looks anomalous (older than what's already stored) - this doesn't block processing.
+        // Update the version even if we don't delete anything below.
+        // The event still occurred, so the version must advance.
+        // TL;DR: the command side updates the version even for empty operations, so we do the same here.
+        albumRepository.findById(event.getAlbumId()).ifPresent(album -> {
+            versionChecker.isDeltaVersionAnomalous(event.getVersion(), album.getVersion());
+            album.setVersion(event.getVersion());
+            albumRepository.save(album);
+        });
 
         albumContainsRepository.deleteByAlbumIdAndSongId(event.getAlbumId(), event.getSongId());
     }
