@@ -9,4 +9,6 @@ public interface SongCreditRepository extends JpaRepository<SongCreditRead, UUID
     void deleteBySongId(UUID songId);
 
     void deleteBySongIdAndArtistId(UUID songId, UUID artistId);
+
+    boolean existsBySongIdAndArtistId(UUID songId, UUID artistId);
 }

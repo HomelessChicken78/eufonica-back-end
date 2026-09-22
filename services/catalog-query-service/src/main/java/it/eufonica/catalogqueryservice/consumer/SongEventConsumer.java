@@ -106,13 +106,18 @@ public class SongEventConsumer {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistAddedEvent", event.getSongId().toString())) return;
 
         // Look up the song this credit applies to. If found, just log a warning when the event's
-        // version looks anomalous (older than what's already stored) — this doesn't block processing,
-        songRepository.findById(event.getSongId())
-                .ifPresent(song ->
-                        versionChecker.isDeltaVersionAnomalous(event.getVersion(), song.getVersion())
-                );
+        // version looks anomalous (older than what's already stored) — this doesn't block processing.
+        // Update the version even if we don't delete anything below.
+        // The event still occurred, so the version must advance.
+        // TL;DR: the command side updates the version even for empty operations, so we do the same here.
+        songRepository.findById(event.getSongId()).ifPresent(song -> {
+            versionChecker.isDeltaVersionAnomalous(event.getVersion(), song.getVersion());
+            song.setVersion(event.getVersion());
+            songRepository.save(song);
+        });
 
-        songCreditRepository.save(new SongCreditRead(null, event.getSongId(), event.getCreditedArtistId()));
+        if (!songCreditRepository.existsBySongIdAndArtistId(event.getSongId(), event.getCreditedArtistId()))
+            songCreditRepository.save(new SongCreditRead(null, event.getSongId(), event.getCreditedArtistId()));
     }
 
     /**
@@ -129,11 +134,15 @@ public class SongEventConsumer {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistRemovedEvent", event.getSongId().toString())) return;
 
         // Look up the song this credit applies to. If found, just log a warning when the event's
-        // version looks anomalous (older than what's already stored) — this doesn't block processing,
-        songRepository.findById(event.getSongId())
-                .ifPresent(songRead ->
-                        versionChecker.isDeltaVersionAnomalous(event.getVersion(), songRead.getVersion())
-                );
+        // version looks anomalous (older than what's already stored) — this doesn't block processing.
+        // Update the version even if we don't delete anything below.
+        // The event still occurred, so the version must advance.
+        // TL;DR: the command side updates the version even for empty operations, so we do the same here.
+        songRepository.findById(event.getSongId()).ifPresent(song -> {
+            versionChecker.isDeltaVersionAnomalous(event.getVersion(), song.getVersion());
+            song.setVersion(event.getVersion());
+            songRepository.save(song);
+        });
 
         songCreditRepository.deleteBySongIdAndArtistId(event.getSongId(), event.getCreditedArtistId());
     }
