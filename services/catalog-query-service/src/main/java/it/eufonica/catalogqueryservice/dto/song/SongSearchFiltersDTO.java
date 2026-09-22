@@ -23,7 +23,7 @@ public class SongSearchFiltersDTO {
     @PositiveOrZero(message = "The maximum duration can't be negative.")
     private Integer maxDurationSec; // Null means no maximum
 
-    private String artistName;
+    private String artistOwnerName;
 
     private LocalDate publishedDateAfter;
 
