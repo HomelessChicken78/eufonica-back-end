@@ -57,7 +57,7 @@ public class SongQueryServiceImpl implements SongQueryService {
         }
     }
 
-    private Specification<SongRead> buildSpecification(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder) {
+    private Specification<SongRead> buildSpecification(SongSearchFiltersDTO filters) {
         return ((root, query, criteriaBuilder) -> {
             List<Predicate> predicates = new ArrayList<>();
 
