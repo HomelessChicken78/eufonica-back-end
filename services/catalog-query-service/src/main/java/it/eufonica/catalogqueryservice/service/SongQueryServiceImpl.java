@@ -153,7 +153,7 @@ public class SongQueryServiceImpl implements SongQueryService {
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
         Specification<SongRead> spec = buildSpecification(filters);
-        Page<SongRead> results = songRepository.findAll(spec, PageRequest.of(pageNumber, pageSize, toSorting(sortOrder)));
+        Page<SongRead> results = songRepository.findAll(spec, PageRequest.of(pageNumber - 1, pageSize, toSorting(sortOrder)));
         return null;
     }
 }
