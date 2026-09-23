@@ -53,14 +53,14 @@ public class SongQueryServiceImpl implements SongQueryService {
     @SuppressWarnings({"LoggingSimilarMessage", "SameParameterValue"})
     private void addRangePredicates(List<Predicate> predicates, Root<SongRead> root, CriteriaBuilder cb,
                                     String attributeName, LocalDate after, LocalDate before) {
-        if (before != null) {
-            predicates.add(cb.greaterThanOrEqualTo(root.get(attributeName), before));
-            log.trace("Added filter {} >= {}", attributeName, before);
+        if (after != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get(attributeName), after));
+            log.trace("Added filter {} >= {}", attributeName, after);
         }
 
-        if (after != null) {
-            predicates.add(cb.lessThanOrEqualTo(root.get(attributeName), after));
-            log.trace("Added filter {} <= {}", attributeName, after);
+        if (before != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get(attributeName), before));
+            log.trace("Added filter {} <= {}", attributeName, before);
         }
     }
 
@@ -100,7 +100,7 @@ public class SongQueryServiceImpl implements SongQueryService {
             addRangePredicates(predicates, root, criteriaBuilder, "durationSec", filters.getMinDurationSec(), filters.getMaxDurationSec());
 
             // Published Date
-            addRangePredicates(predicates, root, criteriaBuilder, "publishedDate", filters.getPublishedDateBefore(), filters.getPublishedDateAfter());
+            addRangePredicates(predicates, root, criteriaBuilder, "publishedDate", filters.getPublishedDateAfter(), filters.getPublishedDateBefore());
 
             // Listens
             addRangePredicates(predicates, root, criteriaBuilder, "amountListens", filters.getMinListens(), filters.getMaxListens());
