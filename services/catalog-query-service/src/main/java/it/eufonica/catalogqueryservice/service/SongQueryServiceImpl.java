@@ -93,7 +93,7 @@ public class SongQueryServiceImpl implements SongQueryService {
             // Title
             if (filters.getTitle() != null) {
                 predicates.add(
-                        criteriaBuilder.like(root.get("title"),
+                        criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),
                                 "%" + filters.getTitle().toLowerCase() + "%")
                 );
                 log.trace("Added filter title LIKE %{}%.", filters.getTitle());
