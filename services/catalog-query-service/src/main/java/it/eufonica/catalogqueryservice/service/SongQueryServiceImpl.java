@@ -154,6 +154,17 @@ public class SongQueryServiceImpl implements SongQueryService {
 
         Specification<SongRead> spec = buildSpecification(filters);
         Page<SongRead> results = songRepository.findAll(spec, PageRequest.of(pageNumber - 1, pageSize, toSorting(sortOrder)));
-        return null;
+
+        List<SongShortResponseDTO> content = results.stream()
+                .map((songMapper::toShortResponse))
+                .toList();
+
+        return PageResponseDTO.<SongShortResponseDTO>builder()
+                .content(content)
+                .currentPage(pageNumber)
+                .totalPages(results.getTotalPages())
+                .totalElements(results.getTotalElements())
+                .pageSize(pageSize)
+                .build();
     }
 }

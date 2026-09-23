@@ -1,6 +1,7 @@
 package it.eufonica.catalogqueryservice.mapper;
 
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
+import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
 import it.eufonica.catalogqueryservice.event.song.SongCreatedEvent;
 import it.eufonica.catalogqueryservice.model.SongRead;
 import org.mapstruct.Mapper;
@@ -19,4 +20,6 @@ public interface SongMapper {
 
     @Mapping(target = "creditedArtistsIds", ignore = true)
     SongFullResponseDTO toEntity(SongRead songRead);
+
+    SongShortResponseDTO toShortResponse(SongRead songRead);
 }
