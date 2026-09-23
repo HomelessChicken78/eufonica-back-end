@@ -13,6 +13,7 @@ import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,5 +50,18 @@ public class SongQueryServiceImpl implements SongQueryService {
                                                              Integer pageNumber, Integer pageSize
     ) {
         return null;
+    }
+
+    private static Sort toSorting(SongResponseSortOrder sortOrder) {
+        return switch (sortOrder) {
+            case TITLE_ASC -> Sort.by(Sort.Direction.ASC, "title");
+            case TITLE_DESC -> Sort.by(Sort.Direction.DESC, "title");
+            case PUBLISHED_DATE_ASC -> Sort.by(Sort.Direction.ASC, "publishedDate");
+            case PUBLISHED_DATE_DESC -> Sort.by(Sort.Direction.DESC, "publishedDate");
+            case AMOUNT_LISTENS_ASC -> Sort.by(Sort.Direction.ASC, "amountListens");
+            case AMOUNT_LISTENS_DESC -> Sort.by(Sort.Direction.DESC, "amountListens");
+            case AMOUNT_LIKES_ASC -> Sort.by(Sort.Direction.ASC, "amountLikes");
+            case AMOUNT_LIKES_DESC -> Sort.by(Sort.Direction.DESC, "amountLikes");
+        };
     }
 }
