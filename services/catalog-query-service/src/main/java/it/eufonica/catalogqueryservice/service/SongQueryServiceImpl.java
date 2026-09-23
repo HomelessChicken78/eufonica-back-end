@@ -1,10 +1,7 @@
 package it.eufonica.catalogqueryservice.service;
 
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
-import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
-import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
-import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
-import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
+import it.eufonica.catalogqueryservice.dto.song.*;
 import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
@@ -12,7 +9,9 @@ import it.eufonica.catalogqueryservice.model.SongCreditRead;
 import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -20,6 +19,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -30,6 +30,32 @@ public class SongQueryServiceImpl implements SongQueryService {
     private final SongRepository songRepository;
     private final SongCreditRepository songCreditRepository;
     private final SongMapper songMapper;
+
+    @SuppressWarnings("LoggingSimilarMessage")
+    private void addRangePredicates(List<Predicate> predicates, Root<SongRead> root, CriteriaBuilder cb,
+                                    String attributeName, Number min, Number max) {
+        predicates.add(cb.ge(root.get(attributeName), min != null ? min : 0L));
+        log.trace("Added filter {} >= {}", attributeName, min);
+
+        if (max != null) {
+            predicates.add(cb.le(root.get(attributeName), max));
+            log.trace("Added filter {} <= {}", attributeName, max);
+        }
+    }
+
+    @SuppressWarnings({"LoggingSimilarMessage", "SameParameterValue"})
+    private void addRangePredicates(List<Predicate> predicates, Root<SongRead> root, CriteriaBuilder cb,
+                                    String attributeName, LocalDate after, LocalDate before) {
+        if (before != null) {
+            predicates.add(cb.greaterThanOrEqualTo(root.get(attributeName), before));
+            log.trace("Added filter {} >= {}", attributeName, before);
+        }
+
+        if (after != null) {
+            predicates.add(cb.lessThanOrEqualTo(root.get(attributeName), after));
+            log.trace("Added filter {} <= {}", attributeName, after);
+        }
+    }
 
     private Specification<SongRead> buildSpecification(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder) {
         return ((root, query, criteriaBuilder) -> {
@@ -64,69 +90,16 @@ public class SongQueryServiceImpl implements SongQueryService {
             }
 
             // Duration
-            // Minimum
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("durationSec"),
-                            filters.getMinDurationSec() != null ? filters.getMinDurationSec() : 0L)
-            );
-            log.trace("Added filter durationSec >= {}", filters.getMinDurationSec());
-
-            // Maximum
-            if (filters.getMaxDurationSec() != null) {
-                predicates.add(
-                        criteriaBuilder.lessThanOrEqualTo(root.get("durationSec"), filters.getMaxDurationSec())
-                );
-                log.trace("Added filter durationSec <= {}", filters.getMaxDurationSec());
-            }
+            addRangePredicates(predicates, root, criteriaBuilder, "durationSec", filters.getMinDurationSec(), filters.getMaxDurationSec());
 
             // Published Date
-            // After
-            if (filters.getPublishedDateAfter() != null) {
-                predicates.add(
-                        criteriaBuilder.greaterThanOrEqualTo(root.get("publishedDate"), filters.getPublishedDateAfter())
-                );
-                log.trace("Added filter publishedDate >= '{}'", filters.getPublishedDateAfter());
-            }
-
-            // Before
-            if (filters.getPublishedDateBefore() != null) {
-                predicates.add(
-                        criteriaBuilder.lessThanOrEqualTo(root.get("publishedDate"), filters.getPublishedDateBefore())
-                );
-                log.trace("Added filter publishedDate <= '{}'", filters.getPublishedDateBefore());
-            }
+            addRangePredicates(predicates, root, criteriaBuilder, "publishedDate", filters.getPublishedDateBefore(), filters.getPublishedDateAfter());
 
             // Listens
-            // Minimum
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("amountListens"),
-                            filters.getMinListens() != null ? filters.getMinListens() : 0L)
-            );
-            log.trace("Added filter amountListens >= {}", filters.getMinListens());
-
-            // Maximum
-            if (filters.getMaxListens() != null) {
-                predicates.add(
-                        criteriaBuilder.lessThanOrEqualTo(root.get("amountListens"), filters.getMaxListens())
-                );
-                log.trace("Added filter amountListens <= {}", filters.getMaxListens());
-            }
+            addRangePredicates(predicates, root, criteriaBuilder, "amountListens", filters.getMinListens(), filters.getMaxListens());
 
             // Likes
-            // Minimum
-            predicates.add(
-                    criteriaBuilder.greaterThanOrEqualTo(root.get("amountLikes"),
-                            filters.getMinLikes() != null ? filters.getMinLikes() : 0L)
-            );
-            log.trace("Added filter amountLikes >= {}", filters.getMinLikes());
-
-            // Maximum
-            if (filters.getMaxLikes() != null) {
-                predicates.add(
-                        criteriaBuilder.lessThanOrEqualTo(root.get("amountLikes"), filters.getMaxLikes())
-                );
-                log.trace("Added filter amountLikes <= {}", filters.getMaxLikes());
-            }
+            addRangePredicates(predicates, root, criteriaBuilder, "amountLikes", filters.getMinLikes(), filters.getMaxLikes());
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
