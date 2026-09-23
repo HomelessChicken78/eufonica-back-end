@@ -2,6 +2,7 @@ package it.eufonica.catalogqueryservice.service;
 
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.*;
+import it.eufonica.catalogqueryservice.exception.client.BadRequestException;
 import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
@@ -14,6 +15,9 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,9 @@ public class SongQueryServiceImpl implements SongQueryService {
     private final SongRepository songRepository;
     private final SongCreditRepository songCreditRepository;
     private final SongMapper songMapper;
+
+    @Value("${SONG_PAGE_MAX_SIZE:50}")
+    private Integer maxPageSize;
 
     @SuppressWarnings("LoggingSimilarMessage")
     private void addRangePredicates(List<Predicate> predicates, Root<SongRead> root, CriteriaBuilder cb,
@@ -141,6 +148,12 @@ public class SongQueryServiceImpl implements SongQueryService {
     public PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder,
                                                              Integer pageNumber, Integer pageSize
     ) {
+        if (pageNumber == null || pageNumber < 1) throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+        if (pageSize == null || pageSize < 1) throw new BadRequestException("pageSize must be greater than or equal to 1.");
+        pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
+
+        Specification<SongRead> spec = buildSpecification(filters);
+        Page<SongRead> results = songRepository.findAll(spec, PageRequest.of(pageNumber, pageSize, toSorting(sortOrder)));
         return null;
     }
 }
