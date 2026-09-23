@@ -38,6 +38,9 @@ public class SongQueryServiceImpl implements SongQueryService {
     @Value("${SONG_PAGE_MAX_SIZE:50}")
     private Integer maxPageSize;
 
+    @Value("${SONG_DEFAULT_SORT_ORDER:AMOUNT_LISTENS_ASC}")
+    private SongResponseSortOrder defaultSortOrder;
+
     @SuppressWarnings("LoggingSimilarMessage")
     private void addRangePredicates(List<Predicate> predicates, Root<SongRead> root, CriteriaBuilder cb,
                                     String attributeName, Number min, Number max) {
@@ -112,7 +115,9 @@ public class SongQueryServiceImpl implements SongQueryService {
         });
     }
 
-    private static Sort toSorting(SongResponseSortOrder sortOrder) {
+    private Sort toSorting(SongResponseSortOrder sortOrder) {
+        if (sortOrder == null) sortOrder = defaultSortOrder;
+
         return switch (sortOrder) {
             case TITLE_ASC -> Sort.by(Sort.Direction.ASC, "title");
             case TITLE_DESC -> Sort.by(Sort.Direction.DESC, "title");
