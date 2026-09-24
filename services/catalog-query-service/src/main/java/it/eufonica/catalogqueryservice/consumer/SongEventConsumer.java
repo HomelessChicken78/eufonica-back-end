@@ -30,6 +30,7 @@ public class SongEventConsumer {
     private final VersionChecker versionChecker;
     private final ObjectMapper objectMapper;
     private final SongMapper songMapper;
+    private final RedisCacheManager cacheManager;
 
     // Services
     private final EventProcessingService processingService;
@@ -37,7 +38,6 @@ public class SongEventConsumer {
     // Repositories
     private final SongRepository songRepository;
     private final SongCreditRepository songCreditRepository;
-    private final RedisCacheManager cacheManager;
 
     /**
      * Removes a song from the "songs" cache.
