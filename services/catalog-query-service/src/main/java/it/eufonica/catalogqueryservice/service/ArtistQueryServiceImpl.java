@@ -12,6 +12,7 @@ import it.eufonica.catalogqueryservice.repository.ArtistRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -30,6 +31,7 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
     private Integer maxPageSize;
 
     @Override
+    @Cacheable(value = "artists", key = "#artistId")
     public ArtistFullResponseDTO findArtistById(UUID artistId) {
         ArtistRead found = artistRepository.findById(artistId)
                 .orElseThrow(
@@ -44,6 +46,7 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
     }
 
     @Override
+    @Cacheable("artist-search")
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(ArtistSearchFiltersDTO filters, Integer pageNumber, Integer pageSize) {
         if (pageNumber == null || pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.");

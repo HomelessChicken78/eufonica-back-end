@@ -9,6 +9,7 @@ import it.eufonica.catalogqueryservice.repository.ArtistRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -25,12 +26,30 @@ public class ArtistEventConsumer {
     private final VersionChecker versionChecker;
     private final ObjectMapper objectMapper;
     private final ArtistMapper artistMapper;
+    private final CacheManager cacheManager;
 
     // Services
     private final EventProcessingService processingService;
 
     // Repositories
     private final ArtistRepository artistRepository;
+
+    /**
+     * Removes an artist from the "artists" cache.
+     * <p>
+     * We do this manually instead of using @CacheEvict on each handler method,
+     * because the handlers are called from consume() in the SAME class
+     * (self-invocation). Spring's caching annotations only work when a method
+     * is called from OUTSIDE the class, through Spring's proxy. Calling a
+     * method directly on "this" skips that proxy, so @CacheEvict would
+     * silently do nothing here.
+     *
+     * @param artistId the id of the artist to remove from the cache
+     */
+    private void evictArtistCache(UUID artistId) {
+        var cache = cacheManager.getCache("artists");
+        if (cache != null) cache.evict(artistId);
+    }
 
     @KafkaListener(topics = "${ARTIST_TOPIC_NAME:artist.events}")
     public void consume(@Payload String payload,
@@ -78,6 +97,8 @@ public class ArtistEventConsumer {
 
             artistRepository.save(artistMapper.toEntity(event));
         }
+
+        evictArtistCache(event.getId());
     }
 
     /**
@@ -102,5 +123,7 @@ public class ArtistEventConsumer {
                 return;
 
         artistRepository.save(artistMapper.toEntity(event));
+
+        evictArtistCache(event.getId());
     }
 }
