@@ -26,6 +26,9 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
     private final ArtistRepository artistRepository;
     private final ArtistMapper artistMapper;
 
+    @Value("${ARTIST_PAGE_MAX_SIZE:50}")
+    private Integer maxPageSize;
+
     @Override
     public ArtistFullResponseDTO findArtistById(UUID artistId) {
         ArtistRead found = artistRepository.findById(artistId)
@@ -42,6 +45,30 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
 
     @Override
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(ArtistSearchFiltersDTO filters, Integer pageNumber, Integer pageSize) {
-        return null;
+        if (pageNumber == null || pageNumber < 1)
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+        if (pageSize == null || pageSize < 1)
+            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+        pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
+
+        Page<ArtistRead> results;
+        if (filters.getName() != null) {
+            results = artistRepository.findByNameContainingIgnoreCase(
+                    filters.getName(), PageRequest.of(pageNumber - 1, pageSize));
+        } else {
+            results = artistRepository.findAll(PageRequest.of(pageNumber - 1, pageSize));
+        }
+
+        List<ArtistShortResponseDTO> content = results.stream()
+                .map(artistMapper::toShortResponse)
+                .toList();
+
+        return PageResponseDTO.<ArtistShortResponseDTO>builder()
+                .content(content)
+                .currentPage(pageNumber)
+                .totalPages(results.getTotalPages())
+                .totalElements(results.getTotalElements())
+                .pageSize(pageSize)
+                .build();
     }
 }
