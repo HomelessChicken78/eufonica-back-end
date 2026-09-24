@@ -16,6 +16,7 @@ import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -135,6 +136,7 @@ public class SongQueryServiceImpl implements SongQueryService {
     }
 
     @Override
+    @Cacheable(value = "songs", key = "#songId")
     public SongFullResponseDTO findSongById(UUID songId) {
         SongRead found = songRepository.findById(songId)
                 .orElseThrow(
@@ -154,6 +156,7 @@ public class SongQueryServiceImpl implements SongQueryService {
     }
 
     @Override
+    @Cacheable(value = "song-search")
     public PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder,
                                                              Integer pageNumber, Integer pageSize
     ) {

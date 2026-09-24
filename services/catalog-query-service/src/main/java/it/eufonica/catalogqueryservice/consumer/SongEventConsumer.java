@@ -12,6 +12,7 @@ import it.eufonica.catalogqueryservice.repository.SongRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -60,6 +61,7 @@ public class SongEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
+    @CacheEvict(value = "songs", key = "#event.id")
     public void handleSongCreation(UUID eventId, SongCreatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "SongCreatedEvent", event.getId().toString())) return;
 
@@ -102,6 +104,7 @@ public class SongEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
+    @CacheEvict(value = "songs", key = "#event.songId")
     public void handleCreditedArtistAdded(UUID eventId, CreditedArtistAddedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistAddedEvent", event.getSongId().toString())) return;
 
@@ -130,6 +133,7 @@ public class SongEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
+    @CacheEvict(value = "songs", key = "#event.songId")
     public void handleCreditedArtistRemoved(UUID eventId, CreditedArtistRemovedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistRemovedEvent", event.getSongId().toString())) return;
 
