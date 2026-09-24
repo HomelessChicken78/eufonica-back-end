@@ -13,6 +13,7 @@ import it.eufonica.catalogqueryservice.repository.ArtAlbumRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.CacheManager;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -29,6 +30,7 @@ public class AlbumEventConsumer {
     private final VersionChecker versionChecker;
     private final ObjectMapper objectMapper;
     private final AlbumMapper albumMapper;
+    private final CacheManager cacheManager;
 
     // Services
     private final EventProcessingService processingService;
@@ -37,6 +39,23 @@ public class AlbumEventConsumer {
     private final AlbumRepository albumRepository;
     private final ArtAlbumRepository artAlbumRepository;
     private final AlbumContainsRepository albumContainsRepository;
+
+    /**
+     * Removes an album from the "albums" cache.
+     * <p>
+     * We do this manually instead of using @CacheEvict on each handler method,
+     * because the handlers are called from consume() in the SAME class
+     * (self-invocation). Spring's caching annotations only work when a method
+     * is called from OUTSIDE the class, through Spring's proxy. Calling a
+     * method directly on "this" skips that proxy, so @CacheEvict would
+     * silently do nothing here.
+     *
+     * @param albumId the id of the album to remove from the cache
+     */
+    private void evictAlbumCache(UUID albumId) {
+        var cache = cacheManager.getCache("albums");
+        if (cache != null) cache.evict(albumId);
+    }
 
     @KafkaListener(topics = "${ALBUM_TOPIC_NAME:album.events}")
     public void consume(@Payload String payload,
@@ -100,6 +119,8 @@ public class AlbumEventConsumer {
         // Add all the links between the album and the songs back
         for (AlbumCreatedEvent.Song song : event.getSongs())
             albumContainsRepository.save(new AlbumContainsRead(null, event.getId(), song.getId()));
+
+        evictAlbumCache(event.getId());
     }
 
     /**
@@ -132,6 +153,8 @@ public class AlbumEventConsumer {
         // Avoid inserting a duplicate link if the song is already associated with this album
         if (!albumContainsRepository.existsByAlbumIdAndSongId(event.getAlbumId(), event.getSongId()))
             albumContainsRepository.save(new AlbumContainsRead(null, event.getAlbumId(), event.getSongId()));
+
+        evictAlbumCache(event.getAlbumId());
     }
 
     /**
@@ -159,6 +182,8 @@ public class AlbumEventConsumer {
         });
 
         albumContainsRepository.deleteByAlbumIdAndSongId(event.getAlbumId(), event.getSongId());
+
+        evictAlbumCache(event.getAlbumId());
     }
 
     /**
@@ -197,6 +222,8 @@ public class AlbumEventConsumer {
         // Add all the links between the album and the songs back
         for (AlbumUpdatedEvent.Song song : event.getSongs())
             albumContainsRepository.save(new AlbumContainsRead(null, event.getId(), song.getId()));
+
+        evictAlbumCache(event.getId());
     }
 
     /**
@@ -222,5 +249,7 @@ public class AlbumEventConsumer {
             log.debug("Deleted album for event {}. albumId={}", eventId, event.getId());
         else
             log.debug("Album already absent from projection, nothing to delete. eventId={}, albumId={}", eventId, event.getId());
+
+        evictAlbumCache(event.getId());
     }
 }

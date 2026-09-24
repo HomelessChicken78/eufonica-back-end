@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
@@ -98,6 +99,7 @@ public class AlbumQueryServiceImpl implements AlbumQueryService {
     }
 
     @Override
+    @Cacheable(value = "albums", key = "#albumId")
     public AlbumFullResponseDTO findAlbumById(UUID albumId) {
         AlbumRead found = albumRepository.findById(albumId)
                 .orElseThrow(
@@ -122,6 +124,7 @@ public class AlbumQueryServiceImpl implements AlbumQueryService {
     }
 
     @Override
+    @Cacheable("album-search")
     public PageResponseDTO<AlbumShortResponseDTO> searchAlbums(AlbumSearchFiltersDTO filters,
                                                                Integer pageNumber, Integer pageSize) {
         if (pageNumber == null || pageNumber < 1)
