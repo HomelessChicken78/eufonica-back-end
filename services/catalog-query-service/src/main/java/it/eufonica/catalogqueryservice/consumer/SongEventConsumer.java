@@ -13,6 +13,7 @@ import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -36,6 +37,24 @@ public class SongEventConsumer {
     // Repositories
     private final SongRepository songRepository;
     private final SongCreditRepository songCreditRepository;
+    private final RedisCacheManager cacheManager;
+
+    /**
+     * Removes a song from the "songs" cache.
+     * <p>
+     * We do this manually instead of using @CacheEvict on each handler method,
+     * because the handlers are called from consume() in the SAME class
+     * (self-invocation). Spring's caching annotations only work when a method
+     * is called from OUTSIDE the class, through Spring's proxy. Calling a
+     * method directly on "this" skips that proxy, so @CacheEvict would
+     * silently do nothing here.
+     *
+     * @param songId the id of the song to remove from the cache
+     */
+    private void evictSongCache(UUID songId) {
+        var cache = cacheManager.getCache("songs");
+        if (cache != null) cache.evict(songId);
+    }
 
     @KafkaListener(topics = "${SONG_TOPIC_NAME:song.events}")
     public void consume(@Payload String payload,
@@ -61,7 +80,6 @@ public class SongEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
-    @CacheEvict(value = "songs", key = "#event.id")
     public void handleSongCreation(UUID eventId, SongCreatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "SongCreatedEvent", event.getId().toString())) return;
 
@@ -92,6 +110,8 @@ public class SongEventConsumer {
         // Add all the links between the song and the credited artists back
         for (SongCreatedEvent.ArtistCredited credited : event.getCreditedArtists())
             songCreditRepository.save(new SongCreditRead(null, event.getId(), credited.getId()));
+
+        evictSongCache(event.getId());
     }
 
     /**
@@ -104,7 +124,6 @@ public class SongEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
-    @CacheEvict(value = "songs", key = "#event.songId")
     public void handleCreditedArtistAdded(UUID eventId, CreditedArtistAddedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistAddedEvent", event.getSongId().toString())) return;
 
@@ -121,6 +140,8 @@ public class SongEventConsumer {
 
         if (!songCreditRepository.existsBySongIdAndArtistId(event.getSongId(), event.getCreditedArtistId()))
             songCreditRepository.save(new SongCreditRead(null, event.getSongId(), event.getCreditedArtistId()));
+
+        evictSongCache(event.getSongId());
     }
 
     /**
@@ -133,7 +154,6 @@ public class SongEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
-    @CacheEvict(value = "songs", key = "#event.songId")
     public void handleCreditedArtistRemoved(UUID eventId, CreditedArtistRemovedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistRemovedEvent", event.getSongId().toString())) return;
 
@@ -149,5 +169,7 @@ public class SongEventConsumer {
         });
 
         songCreditRepository.deleteBySongIdAndArtistId(event.getSongId(), event.getCreditedArtistId());
+
+        evictSongCache(event.getSongId());
     }
 }
