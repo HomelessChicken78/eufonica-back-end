@@ -1,6 +1,7 @@
 package it.eufonica.catalogqueryservice.mapper;
 
 import it.eufonica.catalogqueryservice.dto.album.AlbumFullResponseDTO;
+import it.eufonica.catalogqueryservice.dto.album.AlbumShortResponseDTO;
 import it.eufonica.catalogqueryservice.event.album.AlbumCreatedEvent;
 import it.eufonica.catalogqueryservice.event.album.AlbumUpdatedEvent;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
@@ -18,4 +19,6 @@ public interface AlbumMapper {
     @Mapping(target = "songIds", ignore = true)
     @Mapping(target = "artistIds", ignore = true)
     AlbumFullResponseDTO toFullResponse(AlbumRead found);
+
+    AlbumShortResponseDTO toShortResponse(AlbumRead albumRead);
 }
