@@ -30,7 +30,7 @@ public class ArtistController {
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(
             @ModelAttribute @Valid ArtistSearchFiltersDTO filters,
             @RequestParam(defaultValue = "1") Integer pageNumber,
-            @RequestParam(defaultValue = "${ALBUM_PAGE_DEFAULT_SIZE:10}") Integer pageSize
+            @RequestParam(defaultValue = "${ARTIST_PAGE_DEFAULT_SIZE:10}") Integer pageSize
     ) {
         PageResponseDTO<ArtistShortResponseDTO> result = artistQueryService.searchArtists(filters, pageNumber, pageSize);
         log.debug("Artist searched: found {} results (page {}/{}).", result.getTotalElements(), pageNumber, result.getTotalPages());
