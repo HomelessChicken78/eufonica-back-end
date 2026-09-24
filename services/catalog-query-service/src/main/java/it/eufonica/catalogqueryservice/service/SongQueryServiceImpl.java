@@ -92,11 +92,15 @@ public class SongQueryServiceImpl implements SongQueryService {
             // Add more predicate depending on if the filter's attributes are null
             // Title
             if (filters.getTitle() != null) {
+                String escapedTitle = filters.getTitle()
+                        .replace("\\", "\\\\")
+                        .replace("%", "\\%")
+                        .replace("_", "\\_");
                 predicates.add(
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),
-                                "%" + filters.getTitle().toLowerCase() + "%")
+                                "%" + escapedTitle + "%", '\\')
                 );
-                log.trace("Added filter title LIKE %{}%.", filters.getTitle());
+                log.trace("Added filter title LIKE %{}%.", escapedTitle);
             }
 
             // Duration
