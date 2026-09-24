@@ -23,6 +23,9 @@ public class SongSearchFiltersDTO {
     @PositiveOrZero(message = "The maximum duration can't be negative.")
     private Integer maxDurationSec; // Null means no maximum
 
+    /**
+     * Case-insensitive substring match against the song owner's name.
+     */
     private String artistOwnerName;
 
     private LocalDate publishedDateAfter;
