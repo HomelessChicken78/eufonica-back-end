@@ -1,6 +1,7 @@
 package it.eufonica.catalogqueryservice.mapper;
 
 import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
+import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
 import it.eufonica.catalogqueryservice.event.artist.ArtistCreatedEvent;
 import it.eufonica.catalogqueryservice.event.artist.ArtistUpdatedEvent;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
@@ -18,4 +19,6 @@ public interface ArtistMapper {
     ArtistRead toEntity(ArtistUpdatedEvent event);
 
     ArtistFullResponseDTO toFullResponse(ArtistRead found);
+
+    ArtistShortResponseDTO toShortResponse(ArtistRead artistRead);
 }
