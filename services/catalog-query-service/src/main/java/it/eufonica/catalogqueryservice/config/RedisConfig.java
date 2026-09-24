@@ -19,8 +19,8 @@ public class RedisConfig {
     @Value("${REDIS_BASE_TTL_DURATION_SECONDS:1800}")
     private Long ttlDuration;
 
-    @Value("${REDIS_POST_TTL_DURATION_SECONDS:3600}")
-    private Long postTtlDuration;
+    @Value("${SEARCH_TTL_DURATION_SECONDS:300}")
+    private Long searchTtlDuration;
 
     @Bean
     public RedisCacheConfiguration cacheConfiguration() {
@@ -58,9 +58,17 @@ public class RedisConfig {
             RedisCacheConfiguration cacheConfiguration) {
         return (builder) -> builder
                 .cacheDefaults(cacheConfiguration)
-                .withCacheConfiguration("posts",
+                .withCacheConfiguration("songs",
                         cacheConfiguration.entryTtl(Duration.ofSeconds(ttlDuration)))
-                .withCacheConfiguration("post",
-                        cacheConfiguration.entryTtl(Duration.ofSeconds(postTtlDuration)));
+                .withCacheConfiguration("albums",
+                        cacheConfiguration.entryTtl(Duration.ofSeconds(ttlDuration)))
+                .withCacheConfiguration("artists",
+                        cacheConfiguration.entryTtl(Duration.ofSeconds(ttlDuration)))
+                .withCacheConfiguration("song-search",
+                        cacheConfiguration.entryTtl(Duration.ofSeconds(searchTtlDuration)))
+                .withCacheConfiguration("album-search",
+                        cacheConfiguration.entryTtl(Duration.ofSeconds(searchTtlDuration)))
+                .withCacheConfiguration("artist-search",
+                        cacheConfiguration.entryTtl(Duration.ofSeconds(searchTtlDuration)));
     }
 }
