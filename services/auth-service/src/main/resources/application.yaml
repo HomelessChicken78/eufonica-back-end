@@ -1,3 +1,20 @@
 spring:
   application:
     name: auth-service
+
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
+
+  jpa:
+    hibernate:
+      ddl-auto: ${DDL_AUTO:none}
+
+server:
+  servlet:
+    context-path: ${CONTEXT_PATH:/api}
+
+logging:
+  level:
+    root: ${ROOT_LOG_LEVEL:INFO}
