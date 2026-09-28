@@ -7,4 +7,6 @@ import java.util.UUID;
 
 public interface AccessMethodRepository extends JpaRepository<AccessMethod, UUID> {
     boolean existsByProviderNameAndProviderUserId(String cognito, String providerUserId);
+
+    AccessMethod findByProviderNameAndProviderUserId(String providerName, String providerUserId);
 }
