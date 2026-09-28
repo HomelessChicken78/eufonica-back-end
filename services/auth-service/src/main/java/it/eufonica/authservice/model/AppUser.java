@@ -25,10 +25,6 @@ public class AppUser {
     })
     private String displayName;
 
-    @Column(nullable = false, unique = true)
-    @Email
-    private String email;
-
     @Pattern(regexp = "\\p{L}*", message = "First name must contain only letters.")
     @Size.List({
             @Size(min = 2, message = "First name must be at least 2 characters."),
