@@ -5,6 +5,7 @@ import it.eufonica.authservice.model.AccessMethod;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.repository.AccessMethodRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
@@ -12,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
 
-@Component @RequiredArgsConstructor
+@Component @RequiredArgsConstructor @Slf4j
 public class CurrentUserProvider {
     private final AccessMethodRepository accessMethodRepository;
 
@@ -28,7 +29,11 @@ public class CurrentUserProvider {
     public Jwt getJwt() {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
         if (auth == null || !auth.isAuthenticated()) throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        return (Jwt) auth.getPrincipal();
+        var jwt = (Jwt) auth.getPrincipal();
+
+        log.trace("Retrieved JWT from the current security context.");
+
+        return jwt;
     }
 
     /**
@@ -38,7 +43,11 @@ public class CurrentUserProvider {
      * @return the subject string from the authenticated user's JWT
      */
     public String getSub() {
-        return getJwt().getSubject();
+        String sub = getJwt().getSubject();
+
+        log.trace("Retrieved sub from the current security context. sub={}", sub);
+
+        return sub;
     }
 
     /**
@@ -48,7 +57,11 @@ public class CurrentUserProvider {
      * @return the {@link AccessMethod} corresponding to the current user and identity provider
      */
     public AccessMethod getAccessMethod() {
-        return accessMethodRepository.findByProviderNameAndProviderUserId(providerName, getSub());
+        var accessMethod = accessMethodRepository.findByProviderNameAndProviderUserId(providerName, getSub());
+
+        log.debug("Retrieved access method from the current security context. accessMethod={}", accessMethod);
+
+        return accessMethod;
     }
 
     /**
@@ -58,6 +71,10 @@ public class CurrentUserProvider {
      */
     public AppUser getCurrentUser() {
         AccessMethod accessMethod = getAccessMethod();
-        return accessMethod.getUser();
+        AppUser user = accessMethod.getUser();
+
+        log.debug("Retrieved user from the current security context. user={}", user);
+
+        return user;
     }
 }
