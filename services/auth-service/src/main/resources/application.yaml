@@ -11,6 +11,12 @@ spring:
     hibernate:
       ddl-auto: ${DDL_AUTO:none}
 
+  security:
+     oauth2:
+       resourceserver:
+         jwt:
+           issuer-uri: https://cognito-idp.${AWS_REGION}.amazonaws.com/${COGNITO_USER_POOL_ID}
+
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
     consumer:
