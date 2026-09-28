@@ -44,8 +44,10 @@ public class ArtistRequest {
     @ToString.Exclude
     private AppUser requestingUser;
 
-    @Column(name = "req_artist_id")
-    private UUID requestedArtistId;
+    @ManyToOne
+    @JoinColumn(name = "req_artist_id")
+    @ToString.Exclude
+    private ArtistAuthProjection requestedArtist;
 
     public enum RequestStatus {
         PENDING, ACCEPTED, REJECTED
