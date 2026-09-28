@@ -10,6 +10,7 @@ import it.eufonica.authservice.repository.AppUserRepository;
 import it.eufonica.authservice.security.CognitoUserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,16 +27,19 @@ public class AuthServiceImpl implements AuthService {
     // Mapper & Utilities
     private final AppUserMapper userMapper;
 
+    @Value("${PROVIDER_NAME:cognito}")
+    private String providerName;
+
     @Override
     public void signUp(SignUpRequestDTO request, String sub) {
-        if (accessMethodRepository.existsByProviderNameAndProviderUserId("cognito", sub))
+        if (accessMethodRepository.existsByProviderNameAndProviderUserId(providerName, sub))
             throw new ConflictException("You have already signed up. Try to login instead.");
 
         if (userRepository.existsByDisplayName(request.getDisplayName()))
             throw new ConflictException(String.format("The username %s is already in use. Try a different one.", request.getDisplayName()));
 
         AppUser user = userRepository.save(userMapper.toEntity(request));
-        accessMethodRepository.save(new AccessMethod(null, "cognito", sub, user));
+        accessMethodRepository.save(new AccessMethod(null, providerName, sub, user));
 
         cognitoUserService.addToUserGroup(sub);
 
