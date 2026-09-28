@@ -21,6 +21,9 @@ public class CognitoUserServiceImpl implements CognitoUserService {
     @Value("${COGNITO_ATTRIBUTE_ARTIST_ID_NAME:custom:artist_id}")
     private String attributeName;
 
+    @Value("${COGNITO_USER_GROUP_NAME:user}")
+    private String userGroupName;
+
     @Override
     public void setAffiliatedArtist(String sub, UUID artistId) {
         log.info("setAffiliatedArtist({}, {})", sub, artistId);
@@ -58,6 +61,22 @@ public class CognitoUserServiceImpl implements CognitoUserService {
             log.error("Unexpected error while trying to remove the artist affiliation for a user.", e);
             throw new InternalServerErrorException(
                     "Unknown error while removing the user's artist affiliation. It might be a connection problem. Please try again later.");
+        }
+    }
+
+    @Override
+    public void addToUserGroup(String sub) {
+        log.info("Adding user with sub={} to the user group", sub);
+        try {
+            cognitoClient.adminAddUserToGroup(builder -> builder
+                    .userPoolId(cognitoUserPoolId)
+                    .username(sub)
+                    .groupName(userGroupName)
+            );
+        } catch (RuntimeException e) {
+            log.error("Unexpected error while adding user to the user group. sub={}", sub, e);
+            throw new InternalServerErrorException(
+                    "Unknown error while completing the signup. It might be a connection problem. Please try again later.");
         }
     }
 }

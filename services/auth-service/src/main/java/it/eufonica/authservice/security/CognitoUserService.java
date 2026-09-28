@@ -20,4 +20,12 @@ public interface CognitoUserService {
      * @param sub The Cognito sub associated to the AppUser
      */
     void clearAffiliatedArtist(String sub);
+
+    /**
+     * Adds a Cognito user to the "user" group, so their access token
+     * carries the "cognito:groups" claim with the regular user role.
+     *
+     * @param sub The Cognito sub associated to the AppUser
+     */
+    void addToUserGroup(String sub);
 }
