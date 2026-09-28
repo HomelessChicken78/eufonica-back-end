@@ -14,5 +14,5 @@ public class ArtistAuthProjection {
     @EqualsAndHashCode.Include @Id private UUID id;
 
     @Column(nullable = false)
-    private LocalDateTime registrationTimestamp;
+    private LocalDateTime registrationDate;
 }
