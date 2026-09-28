@@ -35,3 +35,5 @@ server:
 logging:
   level:
     root: ${ROOT_LOG_LEVEL:INFO}
+    org.apache.kafka.clients.consumer.ConsumerConfig: WARN
+    org.apache.kafka.clients.admin.AdminClientConfig: WARN
