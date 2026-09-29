@@ -56,7 +56,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
             throw new ConflictException("You already have an artist request pending. Please wait for an admin to evaluate that first.");
 
-
+        // [V.ArtistRequest.richiesta_dopo_registrazione_ut] is structurally guaranteed:
+        // the request's timestamp is set by Hibernate (@CreationTimestamp) at save time,
+        // strictly after the current moment used here, and a user must already exist
+        // (and therefore be registered) to reach this point. No runtime check needed.
 
         ArtistRequest artistRequest = requestMapper.toEntity(request);
         artistRequest.setRequestingUser(currentUser);

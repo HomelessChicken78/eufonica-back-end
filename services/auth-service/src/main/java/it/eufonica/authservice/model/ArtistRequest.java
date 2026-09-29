@@ -34,6 +34,9 @@ public class ArtistRequest {
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
+    // Guarantees [V.ArtistRequest.richiesta_dopo_registrazione_ut] holds without a
+    // runtime check anywhere an ArtistRequest is created: this value is always set
+    // strictly after the requesting user must already exist to make the call.
     private LocalDateTime timestamp;
 
     @Column(name = "req_foundation_date")
