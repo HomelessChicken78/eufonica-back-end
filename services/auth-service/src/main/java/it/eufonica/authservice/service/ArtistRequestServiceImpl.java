@@ -3,6 +3,7 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
+import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistRequest;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CurrentUserProvider;
@@ -68,6 +69,18 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     public ArtistRequestFullResponseDTO findRequest(UUID requestId) {
-        return null;
+        ArtistRequest request = findByIdOrThrow(requestId);
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+
+        boolean isOwner = request.getRequestingUser().getId().equals(currentUser.getId());
+
+        if (!currentUserProvider.isAdmin() && !isOwner) {
+            log.debug("Access denied to artist request {}: user {} is neither the owner nor an admin.",
+                    requestId, currentUser.getId());
+            // Deliberately throw a 404 instead a 401 to not reveal the existence of the artist request
+            throw new NotFoundException("Artist request with the given id (" + requestId + ") does not exist.");
+        }
+
+        return requestMapper.toFullResponse(request);
     }
 }
