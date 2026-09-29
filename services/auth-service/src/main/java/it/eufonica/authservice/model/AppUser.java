@@ -49,4 +49,9 @@ public class AppUser {
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
     private LocalDateTime registrationTimestamp;
+
+    @ManyToOne
+    @JoinColumn(name = "artist_id")
+    @ToString.Exclude
+    private ArtistAuthProjection affiliatedArtist;
 }
