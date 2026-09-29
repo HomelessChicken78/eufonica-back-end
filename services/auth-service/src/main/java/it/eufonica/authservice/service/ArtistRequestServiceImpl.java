@@ -6,8 +6,6 @@ import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistRequest;
-import it.eufonica.authservice.repository.AppUserRepository;
-import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CognitoUserService;
 import it.eufonica.authservice.security.CurrentUserProvider;
@@ -17,7 +15,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -33,6 +30,19 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     // Services
     private final CognitoUserService cognitoUserService;
+
+    private void validateArtistRequest(AppUser currentUser) {
+        if (currentUser.getAffiliatedArtist() != null)
+            throw new ConflictException("You appear to already be an artist.");
+
+        if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
+            throw new ConflictException("You already have an artist request pending. Please wait for an admin to evaluate that first.");
+
+        // [V.ArtistRequest.richiesta_dopo_registrazione_ut] is structurally guaranteed:
+        // the request's timestamp is set by Hibernate (@CreationTimestamp) at save time,
+        // strictly after the current moment used here, and a user must already exist
+        // (and therefore be registered) to reach this point. No runtime check needed.
+    }
 
     @Override
     public ArtistRequest findByIdOrThrow(UUID id) {
@@ -50,16 +60,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     public ArtistRequestFullResponseDTO sendNewArtistRequest(SendNewArtistRequestDTO request) {
         AppUser currentUser = currentUserProvider.getCurrentUser();
 
-        if (currentUser.getAffiliatedArtist() != null)
-            throw new ConflictException("You appear to already be an artist.");
-
-        if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
-            throw new ConflictException("You already have an artist request pending. Please wait for an admin to evaluate that first.");
-
-        // [V.ArtistRequest.richiesta_dopo_registrazione_ut] is structurally guaranteed:
-        // the request's timestamp is set by Hibernate (@CreationTimestamp) at save time,
-        // strictly after the current moment used here, and a user must already exist
-        // (and therefore be registered) to reach this point. No runtime check needed.
+        validateArtistRequest(currentUser);
 
         ArtistRequest artistRequest = requestMapper.toEntity(request);
         artistRequest.setRequestingUser(currentUser);
