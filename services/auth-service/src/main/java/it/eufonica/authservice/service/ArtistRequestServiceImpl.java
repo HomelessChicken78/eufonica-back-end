@@ -1,11 +1,15 @@
 package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.artistrequest.*;
+import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistRequest;
+import it.eufonica.authservice.repository.AppUserRepository;
+import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
+import it.eufonica.authservice.security.CognitoUserService;
 import it.eufonica.authservice.security.CurrentUserProvider;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +30,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     // Mapper & Utility
     private final ArtistRequestMapper requestMapper;
     private final CurrentUserProvider currentUserProvider;
+
+    // Services
+    private final CognitoUserService cognitoUserService;
 
     @Override
     public ArtistRequest findByIdOrThrow(UUID id) {
@@ -40,7 +48,21 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Override
     @PreAuthorize("hasRole('USER')")
     public ArtistRequestFullResponseDTO sendNewArtistRequest(SendNewArtistRequestDTO request) {
-        return null;
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+
+        if (currentUser.getAffiliatedArtist() != null)
+            throw new ConflictException("You appear to already be an artist.");
+
+        if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
+            throw new ConflictException("You already have an artist request pending. Please wait for an admin to evaluate that first.");
+
+
+
+        ArtistRequest artistRequest = requestMapper.toEntity(request);
+        artistRequest.setRequestingUser(currentUser);
+
+        ArtistRequest saved = requestRepository.save(artistRequest);
+        return requestMapper.toFullResponse(saved);
     }
 
     @Override
