@@ -48,6 +48,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         // (and therefore be registered) to reach this point. No runtime check needed.
     }
 
+    private List<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
+        return List.of();
+    }
+
     @Override
     public ArtistRequest findByIdOrThrow(UUID id) {
         ArtistRequest found = requestRepository.findById(id)
@@ -104,7 +108,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
-        return List.of();
+        return doSearch(filters, pageNumber, pageSize);
     }
 
     @Override
@@ -115,7 +119,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                 .commonFilters(filters)
                 .build();
 
-        return searchAllRequests(completeFilters, pageNumber, pageSize);
+        return doSearch(completeFilters, pageNumber, pageSize);
     }
 
     @Override
