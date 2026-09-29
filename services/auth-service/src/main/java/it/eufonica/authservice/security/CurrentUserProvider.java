@@ -77,4 +77,17 @@ public class CurrentUserProvider {
 
         return user;
     }
+
+    /**
+     * Check if the current JWT's holder is an admin
+     *
+     * @return <ul>
+     * <li>{@code true} if the token's holder is an admin</li>
+     * <li>{@code false} if the token's holder is not an admin</li>
+     * </ul>
+     */
+    public boolean isAdmin() {
+        return getJwt().getClaimAsStringList("cognito:groups") != null
+                && getJwt().getClaimAsStringList("cognito:groups").contains("admin");
+    }
 }
