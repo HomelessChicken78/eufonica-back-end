@@ -7,7 +7,7 @@ import java.time.LocalDate;
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter @Builder
 @ToString @EqualsAndHashCode(onlyExplicitlyIncluded = false)
-public class SearchArtistRequestFiltersDTO {
+public class ArtistRequestFiltersDTO {
     private RequestStatus status;
     private LocalDate since; // Midnight of the given date
 
