@@ -27,10 +27,13 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     public ArtistRequest findByIdOrThrow(UUID id) {
-        return requestRepository.findById(id)
+        ArtistRequest found = requestRepository.findById(id)
                 .orElseThrow(
                         () -> new NotFoundException("Artist request with the given id (" + id + ") does not exist.")
                 );
+
+        log.trace("findByIdOrThrow - found {}", found);
+        return found;
     }
 
     @Override
