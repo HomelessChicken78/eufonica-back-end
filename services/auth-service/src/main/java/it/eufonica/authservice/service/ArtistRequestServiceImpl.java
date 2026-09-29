@@ -110,7 +110,12 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Override
     @PreAuthorize("hasRole('USER')")
     public List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
-        return List.of();
+        ArtistRequestFiltersDTO completeFilters = ArtistRequestFiltersDTO.builder()
+                .requestingUserId(currentUserProvider.getCurrentUser().getId())
+                .commonFilters(filters)
+                .build();
+
+        return searchAllRequests(completeFilters, pageNumber, pageSize);
     }
 
     @Override
