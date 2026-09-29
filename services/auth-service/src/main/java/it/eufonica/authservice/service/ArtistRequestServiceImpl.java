@@ -5,7 +5,9 @@ import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
 import it.eufonica.authservice.model.AppUser;
+import it.eufonica.authservice.model.ArtistAuthProjection;
 import it.eufonica.authservice.model.ArtistRequest;
+import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CognitoUserService;
 import it.eufonica.authservice.security.CurrentUserProvider;
@@ -15,6 +17,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -23,6 +26,7 @@ import java.util.UUID;
 public class ArtistRequestServiceImpl implements ArtistRequestService {
     // Repositories
     private final ArtistRequestRepository requestRepository;
+    private final ArtistRepository artistRepository;
 
     // Mapper & Utility
     private final ArtistRequestMapper requestMapper;
@@ -72,7 +76,23 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Override
     @PreAuthorize("hasRole('USER')")
     public ArtistRequestFullResponseDTO sendExistingArtistRequest(SendExistingArtistRequestDTO request) {
-        return null;
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+
+        validateArtistRequest(currentUser);
+
+        ArtistAuthProjection artist = artistRepository.findById(request.getArtistId())
+                .orElseThrow(() -> new NotFoundException("Artist with the given id (" + request.getArtistId() + ") does not exist."));
+
+        // [V.ArtistRequest.richiesta_dopo_registrazione_art]
+        if (!artist.getRegistrationDate().isBefore(LocalDateTime.now()))
+            throw new ConflictException("A request cannot concern an artist who registered after the request itself.");
+
+        ArtistRequest artistRequest = requestMapper.toEntity(request);
+        artistRequest.setRequestedArtist(artist);
+        artistRequest.setRequestingUser(currentUser);
+
+        ArtistRequest saved = requestRepository.save(artistRequest);
+        return requestMapper.toFullResponse(saved);
     }
 
     @Override
