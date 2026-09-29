@@ -11,13 +11,18 @@ import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CognitoUserService;
 import it.eufonica.authservice.security.CurrentUserProvider;
+import jakarta.persistence.criteria.Predicate;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -49,7 +54,40 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     private List<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
-        return List.of();
+        Specification<ArtistRequest> spec = buildSpecification(filters);
+
+        return requestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "timestamp")))
+                .stream()
+                .map(requestMapper::toShortResponse)
+                .toList();
+    }
+
+    private Specification<ArtistRequest> buildSpecification(ArtistRequestFiltersDTO filters) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            CommonArtistRequestFiltersDTO commonFilters = filters.getCommonFilters();
+
+            // Status
+            if (commonFilters.getStatus() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("status"), commonFilters.getStatus()));
+                log.trace("Added filter status = {}.", commonFilters.getStatus());
+            }
+
+            // Since
+            if (commonFilters.getSince() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timestamp"), commonFilters.getSince().atStartOfDay()));
+                log.trace("Added filter timestamp >= {}.", commonFilters.getSince().atStartOfDay());
+            }
+
+            // Requesting user
+            if (filters.getRequestingUserId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("requestingUser").get("id"), filters.getRequestingUserId()));
+                log.trace("Added filter requestingUserId = {}.", filters.getRequestingUserId());
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
     }
 
     @Override
