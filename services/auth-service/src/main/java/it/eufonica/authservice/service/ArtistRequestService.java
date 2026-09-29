@@ -1,7 +1,6 @@
 package it.eufonica.authservice.service;
 
-import it.eufonica.authservice.dto.artistrequest.ArtistRequestFullResponseDTO;
-import it.eufonica.authservice.dto.artistrequest.ArtistRequestShortResponseDTO;
+import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.model.ArtistRequest;
 
 import java.util.List;
@@ -10,15 +9,15 @@ import java.util.UUID;
 public interface ArtistRequestService {
     ArtistRequest findByIdOrThrow(UUID id);
 
-    ArtistRequestFullResponseDTO sendNewArtistRequest();
+    ArtistRequestFullResponseDTO sendNewArtistRequest(SendNewArtistRequestDTO request);
 
-    ArtistRequestFullResponseDTO sendExistingArtistRequest();
+    ArtistRequestFullResponseDTO sendExistingArtistRequest(SendExistingArtistRequestDTO request);
 
-    ArtistRequestFullResponseDTO evaluateRequest();
+    ArtistRequestFullResponseDTO evaluateRequest(UUID requestId, boolean accepted);
 
-    List<ArtistRequestShortResponseDTO> searchAllRequests();
+    List<ArtistRequestShortResponseDTO> searchAllRequests(SearchArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize);
 
-    List<ArtistRequestShortResponseDTO> searchOwnRequests(UUID requestingUserId);
+    List<ArtistRequestShortResponseDTO> searchOwnRequests(UUID requestingUserId, Integer pageNumber, Integer pageSize);
 
-    ArtistRequestFullResponseDTO findRequest();
+    ArtistRequestFullResponseDTO findRequest(UUID requestId);
 }
