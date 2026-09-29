@@ -1,6 +1,6 @@
 package it.eufonica.authservice.controller;
 
-import it.eufonica.authservice.dto.SignUpRequestDTO;
+import it.eufonica.authservice.dto.auth.SignUpRequestDTO;
 import it.eufonica.authservice.security.CurrentUserProvider;
 import it.eufonica.authservice.service.AuthService;
 import jakarta.validation.Valid;
