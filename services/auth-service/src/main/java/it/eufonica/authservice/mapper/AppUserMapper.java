@@ -7,6 +7,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface AppUserMapper {
+    @Mapping(target = "affiliatedArtist", ignore = true)
     @Mapping(target = "registrationTimestamp", ignore = true)
     @Mapping(target = "id", ignore = true)
     AppUser toEntity(SignUpRequestDTO request);
