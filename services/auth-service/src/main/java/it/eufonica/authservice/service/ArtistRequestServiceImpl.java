@@ -4,6 +4,7 @@ import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
+import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.authservice.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.mapper.ArtistMapper;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
@@ -26,6 +27,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
@@ -210,13 +212,21 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             else {
                 // Artist does not exist and must be created
 
-                ArtistSummaryResponseDTO artistCreatedResponse = catalogComRestClient.post()
-                        .uri(artistCreationUri)
-                        .contentType(APPLICATION_JSON)
-                        .body(requestMapper.toArtistCreationRequest(artistRequest))
-                        .retrieve()
-                        .body(ArtistSummaryResponseDTO.class);
-                // TODO: Manage exception from the server (currently throws 400 when the name is already in use)
+                ArtistSummaryResponseDTO artistCreatedResponse;
+                try {
+                    artistCreatedResponse = catalogComRestClient.post()
+                            .uri(artistCreationUri)
+                            .contentType(APPLICATION_JSON)
+                            .body(requestMapper.toArtistCreationRequest(artistRequest))
+                            .retrieve()
+                            .body(ArtistSummaryResponseDTO.class);
+                } catch (HttpClientErrorException.Conflict e) {
+                    GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
+                    String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
+                    throw new ConflictException("Cannot create the artist: " + upstreamMessage);
+                }  catch (HttpClientErrorException e) {
+                    throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
+                }
 
                 ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
                 artistRepository.save(createdArtist);
