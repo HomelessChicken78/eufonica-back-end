@@ -19,6 +19,7 @@ import it.eufonica.authservice.security.CurrentUserProvider;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -185,25 +186,37 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
+    /**
+     * Remove the creating-artist request and creates a new existing-artist request based on it.
+     * Used when there is already an accepted creating-artist request with status ACCEPTED.
+     *
+     * @param request The request to transform into an existing-artist request
+     * @param duplicate The duplicated creating-artist request, already ACCEPTED
+     *
+     * @return A dto containing the newly created existing-artist request
+     */
+    private ArtistRequestResultDTO convertToExistingArtistRequest(ArtistRequest request, ArtistRequest duplicate) {
+        ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
+        existingArtistRequest.setRequestedArtist(duplicate.getRequestedArtist());
+
+        ArtistRequest saved = requestRepository.save(existingArtistRequest);
+        requestRepository.delete(request);
+
+        log.info("Converted request {} into existing-artist request {} (artistId={}): " +
+                        "the requested name was already taken by another accepted request.",
+                request.getId(), saved.getId(), saved.getRequestedArtist().getId());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
+    }
+
     private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
             String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
 
             ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
                     .orElse(null);
 
-            if (duplicate != null) {
-                ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
-                existingArtistRequest.setRequestedArtist(duplicate.getRequestedArtist());
-
-                ArtistRequest saved = requestRepository.save(existingArtistRequest);
-                requestRepository.delete(request);
-
-                log.info("Converted request {} into existing-artist request {} (artistId={}): " +
-                                "the requested name was already taken by another accepted request.",
-                        request.getId(), saved.getId(), saved.getRequestedArtist().getId());
-
-                return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
-            }
+            if (duplicate != null)
+                return convertToExistingArtistRequest(request, duplicate);
 
             log.info("Artist request with requestId={} got accepted by {} (userId={})",
                     request.getId(), admin.getDisplayName(), admin.getId());
