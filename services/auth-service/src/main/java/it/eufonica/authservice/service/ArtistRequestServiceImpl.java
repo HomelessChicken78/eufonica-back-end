@@ -53,6 +53,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     // Services
     private final CognitoUserService cognitoUserService;
+    private final AccessMethodService accessMethodService;
 
     // Messaging
     private final RestClient catalogComRestClient;
@@ -179,11 +180,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         AppUser requestingUser = artistRequest.getRequestingUser();
         ArtistAuthProjection artist = artistRequest.getRequestedArtist();
 
-        String sub = accessMethodRepository.findByUser(requestingUser)
-                .orElseThrow(() ->
-                        // This shouldn't normally happen: each user must be created after registering (so AccessMethod is always created)
-                        new InternalServerErrorException("User " + requestingUser.getId() + " has no associated access method."))
-                .getProviderUserId();
+        String sub = accessMethodService.getSubFromUser(requestingUser);
 
         // If the admin accept the request, create the link and, if needed, the artist
         if (accepted) {
