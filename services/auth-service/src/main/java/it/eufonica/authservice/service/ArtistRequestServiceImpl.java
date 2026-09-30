@@ -1,12 +1,12 @@
 package it.eufonica.authservice.service;
 
+import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.exception.server.InternalServerErrorException;
-import it.eufonica.authservice.exception.server.NotImplementedException;
+import it.eufonica.authservice.mapper.ArtistMapper;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
-import it.eufonica.authservice.model.AccessMethod;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistAuthProjection;
 import it.eufonica.authservice.model.ArtistRequest;
@@ -17,22 +17,26 @@ import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CognitoUserService;
 import it.eufonica.authservice.security.CurrentUserProvider;
 import jakarta.persistence.criteria.Predicate;
-import lombok.AllArgsConstructor;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
 @Service @Transactional
-@AllArgsConstructor @Slf4j
+@RequiredArgsConstructor @Slf4j
 public class ArtistRequestServiceImpl implements ArtistRequestService {
     // Repositories
     private final ArtistRequestRepository requestRepository;
@@ -42,10 +46,17 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     // Mapper & Utility
     private final ArtistRequestMapper requestMapper;
+    private final ArtistMapper artistMapper;
     private final CurrentUserProvider currentUserProvider;
 
     // Services
     private final CognitoUserService cognitoUserService;
+
+    // Messaging
+    private final RestClient catalogComRestClient;
+
+    @Value("${ARTIST_CREATION_URI}")
+    private String artistCreationUri;
 
     private void validateArtistRequest(AppUser currentUser) {
         if (currentUser.getAffiliatedArtist() != null)
@@ -181,11 +192,22 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
             else {
                 // Artist does not exist and must be created
-                log.info("Creating new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
+                ArtistSummaryResponseDTO artistCreatedResponse = catalogComRestClient.post()
+                        .uri(artistCreationUri)
+                        .contentType(APPLICATION_JSON)
+                        .body(requestMapper.toArtistCreationRequest(artistRequest))
+                        .retrieve()
+                        .body(ArtistSummaryResponseDTO.class);
+                // TODO: Manage exception from the server (currently throws 400 when the name is already in use)
+
+                ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
+                artistRepository.save(createdArtist);
+                log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
                         artistRequest.getRequestedName(), requestingUser.getId(), requestId);
-                throw new NotImplementedException("The system does not currently support creating a new artist.");
-                // TODO Create the artist
-                // TODO cognitoUserService.setAffiliatedArtist(sub, ...);
+
+                requestingUser.setAffiliatedArtist(createdArtist);
+                userRepository.save(requestingUser);
+                cognitoUserService.setAffiliatedArtist(sub, artistCreatedResponse.getId());
             }
         }
 
