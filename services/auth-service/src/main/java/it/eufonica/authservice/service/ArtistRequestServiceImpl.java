@@ -187,6 +187,72 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
+    private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
+            String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+
+            ArtistRequest existingRequestSameName = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
+                    .orElse(null);
+
+            if (existingRequestSameName != null) {
+                ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
+                existingArtistRequest.setRequestedArtist(existingRequestSameName.getRequestedArtist());
+
+                ArtistRequest saved = requestRepository.save(existingArtistRequest);
+                requestRepository.delete(request);
+
+                log.info("Converted request {} into existing-artist request {} (artistId={}): " +
+                                "the requested name was already taken by another accepted request.",
+                        request.getId(), saved.getId(), saved.getRequestedArtist().getId());
+
+                return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
+            }
+
+            log.info("Artist request with requestId={} got accepted by {} (userId={})",
+                    request.getId(), admin.getDisplayName(), admin.getId());
+            request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
+
+        if (request.getRequestedArtist() == null) {
+            // Artist does not exist and must be created
+
+            ArtistSummaryResponseDTO artistCreatedResponse;
+            try {
+                artistCreatedResponse = catalogComRestClient.post()
+                        .uri(artistCreationUri)
+                        .contentType(APPLICATION_JSON)
+                        .body(requestMapper.toArtistCreationRequest(request))
+                        .retrieve()
+                        .body(ArtistSummaryResponseDTO.class);
+            } catch (HttpClientErrorException.Conflict e) {
+                GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
+                String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
+                throw new ConflictException("Cannot create the artist: " + upstreamMessage);
+            }  catch (HttpClientErrorException e) {
+                throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
+            }
+
+            ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
+            artistRepository.save(createdArtist);
+            log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
+                    request.getRequestedName(), request.getRequestingUser().getId(), request.getId());
+
+            request.getRequestingUser().setAffiliatedArtist(createdArtist);
+            userRepository.save(request.getRequestingUser());
+            cognitoUserService.setAffiliatedArtist(sub, artistCreatedResponse.getId());
+        } else {
+            // Artist already exists
+
+            log.info("Linking userId={} to artistId={} after request with requestId={} got accepted.",
+                    request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId());
+            request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
+
+            userRepository.save(request.getRequestingUser());
+            cognitoUserService.setAffiliatedArtist(sub, request.getRequestedArtist().getId());
+        }
+
+        ArtistRequest saved = requestRepository.save(request);
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted) {
@@ -195,80 +261,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         validateIsPending(artistRequest);
 
-        AppUser requestingUser = artistRequest.getRequestingUser();
-        ArtistAuthProjection artist = artistRequest.getRequestedArtist();
-
-        String sub = accessMethodService.getSubFromUser(requestingUser);
-
-        // If the admin accept the request, create the link and, if needed, the artist
-        if (accepted) {
-            ArtistRequest existingRequestSameName = requestRepository.findOneAcceptedByRequestedName(artistRequest.getRequestedName())
-                    .orElse(null);
-
-            if (existingRequestSameName != null) {
-                ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(artistRequest);
-                existingArtistRequest.setRequestedArtist(existingRequestSameName.getRequestedArtist());
-
-                ArtistRequest saved = requestRepository.save(existingArtistRequest);
-                requestRepository.delete(artistRequest);
-
-                log.info("Converted request {} into existing-artist request {} (artistId={}): " +
-                                "the requested name was already taken by another accepted request.",
-                        requestId, saved.getId(), saved.getRequestedArtist().getId());
-
-                return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
-            }
-
-            log.info("Artist request with requestId={} got accepted by {} (userId={})",
-                    requestId, evaluator.getDisplayName(), evaluator.getId());
-            artistRequest.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
-
-            if (artist != null) {
-                // Artist already exists
-
-                log.info("Linking userId={} to artistId={} after request with requestId={} got accepted.",
-                        requestingUser.getId(), artist.getId(), requestId);
-                requestingUser.setAffiliatedArtist(artist);
-
-                userRepository.save(requestingUser);
-                cognitoUserService.setAffiliatedArtist(sub, artist.getId());
-            }
-
-            else {
-                // Artist does not exist and must be created
-
-                ArtistSummaryResponseDTO artistCreatedResponse;
-                try {
-                    artistCreatedResponse = catalogComRestClient.post()
-                            .uri(artistCreationUri)
-                            .contentType(APPLICATION_JSON)
-                            .body(requestMapper.toArtistCreationRequest(artistRequest))
-                            .retrieve()
-                            .body(ArtistSummaryResponseDTO.class);
-                } catch (HttpClientErrorException.Conflict e) {
-                    GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
-                    String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
-                    throw new ConflictException("Cannot create the artist: " + upstreamMessage);
-                }  catch (HttpClientErrorException e) {
-                    throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
-                }
-
-                ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
-                artistRepository.save(createdArtist);
-                log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
-                        artistRequest.getRequestedName(), requestingUser.getId(), requestId);
-
-                requestingUser.setAffiliatedArtist(createdArtist);
-                userRepository.save(requestingUser);
-                cognitoUserService.setAffiliatedArtist(sub, artistCreatedResponse.getId());
-            }
-        }
+        if (accepted)
+            return accept(artistRequest, evaluator);
 
         else
             return reject(artistRequest, evaluator);
-
-        ArtistRequest saved = requestRepository.save(artistRequest);
-        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
     @Override
