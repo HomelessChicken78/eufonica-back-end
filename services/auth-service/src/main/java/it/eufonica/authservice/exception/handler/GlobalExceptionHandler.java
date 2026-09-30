@@ -5,6 +5,7 @@ import it.eufonica.authservice.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.exception.client.*;
 import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.authservice.exception.dto.ValidationErrorResponseDTO;
+import it.eufonica.authservice.exception.server.NotImplementedException;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;
@@ -131,13 +132,25 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error500(InternalServerErrorException err500) {
-        log.error("Unexpected error while processing request", err500);
+        log.error("Unexpected error while processing request.", err500);
 
         return ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new GeneralErrorResponseDTO(
-                        "An unexpected error occurred",
+                        "An unexpected error occurred.",
                         500
+                ));
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<GeneralErrorResponseDTO> error501(NotImplementedException err501) {
+        log.error("NotImplemented: {}", err501.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(new GeneralErrorResponseDTO(
+                        err501.getMessage(),
+                        501
                 ));
     }
 }
