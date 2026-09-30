@@ -38,4 +38,11 @@ public interface ArtistRequestMapper {
     @Mapping(target = "name", source = "requestedName")
     @Mapping(target = "foundationDate", source = "requestedFoundationDate")
     ArtistCreationRequestDTO toArtistCreationRequest(ArtistRequest artistRequest);
+
+    @Mapping(target = "id", ignore = true)
+    @Mapping(target = "requestedName", ignore = true)
+    @Mapping(target = "requestedFoundationDate", ignore = true)
+    @Mapping(target = "status", expression = "java(ArtistRequest.RequestStatus.PENDING)")
+    @Mapping(target = "requestedArtist", ignore = true)
+    ArtistRequest convertToExistingArtistRequest(ArtistRequest createArtistRequest);
 }
