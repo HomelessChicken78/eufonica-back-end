@@ -169,6 +169,24 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             throw new ConflictException("This request has already been evaluated.");
     }
 
+    /**
+     * Set the given request to REJECTED
+     *
+     * @param request The artist request to reject
+     * @param admin The admin that performed the request rejection - only used for logging
+     *
+     * @return A dto containing the rejected artist request
+     */
+    private ArtistRequestResultDTO reject(ArtistRequest request, AppUser admin) {
+        request.setStatus(ArtistRequest.RequestStatus.REJECTED);
+        ArtistRequest saved = requestRepository.save(request);
+
+        log.info("Artist request with requestId={} got rejected by {} (userId={})",
+                request.getId(), admin.getDisplayName(), admin.getId());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted) {
@@ -246,12 +264,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             }
         }
 
-        // If the admin doesn't accept the request, don't do anything other than setting it to REJECTED
-        else {
-            log.info("Artist request with requestId={} got rejected by {} (userId={})",
-                    requestId, evaluator.getDisplayName(), evaluator.getId());
-            artistRequest.setStatus(ArtistRequest.RequestStatus.REJECTED);
-        }
+        else
+            return reject(artistRequest, evaluator);
 
         ArtistRequest saved = requestRepository.save(artistRequest);
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
