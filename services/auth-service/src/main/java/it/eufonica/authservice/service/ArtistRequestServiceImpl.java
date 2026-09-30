@@ -3,10 +3,15 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
+import it.eufonica.authservice.exception.server.InternalServerErrorException;
+import it.eufonica.authservice.exception.server.NotImplementedException;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
+import it.eufonica.authservice.model.AccessMethod;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistAuthProjection;
 import it.eufonica.authservice.model.ArtistRequest;
+import it.eufonica.authservice.repository.AccessMethodRepository;
+import it.eufonica.authservice.repository.AppUserRepository;
 import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CognitoUserService;
@@ -32,6 +37,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     // Repositories
     private final ArtistRequestRepository requestRepository;
     private final ArtistRepository artistRepository;
+    private final AppUserRepository userRepository;
+    private final AccessMethodRepository accessMethodRepository;
 
     // Mapper & Utility
     private final ArtistRequestMapper requestMapper;
@@ -140,7 +147,57 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ArtistRequestFullResponseDTO evaluateRequest(UUID requestId, boolean accepted) {
-        return null;
+        AppUser evaluator = currentUserProvider.getCurrentUser();
+        ArtistRequest artistRequest = findByIdOrThrow(requestId);
+
+        if (artistRequest.getStatus() != ArtistRequest.RequestStatus.PENDING)
+            throw new ConflictException("This request has already been evaluated.");
+
+        AppUser requestingUser = artistRequest.getRequestingUser();
+        ArtistAuthProjection artist = artistRequest.getRequestedArtist();
+
+        String sub = accessMethodRepository.findByUser(requestingUser)
+                .orElseThrow(() ->
+                        // This shouldn't normally happen: each user must be created after registering (so AccessMethod is always created)
+                        new InternalServerErrorException("User " + requestingUser.getId() + " has no associated access method."))
+                .getProviderUserId();
+
+        // If the admin accept the request, create the link and, if needed, the artist
+        if (accepted) {
+            log.info("Artist request with requestId={} got accepted by {} (userId={})",
+                    requestId, evaluator.getDisplayName(), evaluator.getId());
+            artistRequest.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
+
+            if (artist != null) {
+                // Artist already exists
+
+                log.info("Linking userId={} to artistId={} after request with requestId={} got accepted.",
+                        requestingUser.getId(), artist.getId(), requestId);
+                requestingUser.setAffiliatedArtist(artist);
+
+                userRepository.save(requestingUser);
+                cognitoUserService.setAffiliatedArtist(sub, artist.getId());
+            }
+
+            else {
+                // Artist does not exist and must be created
+                log.info("Creating new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
+                        artistRequest.getRequestedName(), requestingUser.getId(), requestId);
+                throw new NotImplementedException("The system does not currently support creating a new artist.");
+                // TODO Create the artist
+                // TODO cognitoUserService.setAffiliatedArtist(sub, ...);
+            }
+        }
+
+        // If the admin doesn't accept the request, don't do anything other than setting it to REJECTED
+        else {
+            log.info("Artist request with requestId={} got rejected by {} (userId={})",
+                    requestId, evaluator.getDisplayName(), evaluator.getId());
+            artistRequest.setStatus(ArtistRequest.RequestStatus.REJECTED);
+        }
+
+        ArtistRequest saved = requestRepository.save(artistRequest);
+        return requestMapper.toFullResponse(saved);
     }
 
     @Override
