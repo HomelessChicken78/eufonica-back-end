@@ -11,7 +11,6 @@ import it.eufonica.authservice.mapper.ArtistRequestMapper;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistAuthProjection;
 import it.eufonica.authservice.model.ArtistRequest;
-import it.eufonica.authservice.repository.AccessMethodRepository;
 import it.eufonica.authservice.repository.AppUserRepository;
 import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
@@ -44,7 +43,6 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     private final ArtistRequestRepository requestRepository;
     private final ArtistRepository artistRepository;
     private final AppUserRepository userRepository;
-    private final AccessMethodRepository accessMethodRepository;
 
     // Mapper & Utility
     private final ArtistRequestMapper requestMapper;
