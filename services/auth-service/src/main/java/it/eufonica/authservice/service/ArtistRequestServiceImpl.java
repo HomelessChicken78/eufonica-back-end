@@ -157,14 +157,24 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         return requestMapper.toFullResponse(saved);
     }
 
+    /**
+     * Validate whether the given request has a PENDING status or not.
+     *
+     * @param request The request entity to check
+     * @throws ConflictException If the given request is not in status PENDING
+     */
+    private void validateIsPending(ArtistRequest request) {
+        if (request.getStatus() != ArtistRequest.RequestStatus.PENDING)
+            throw new ConflictException("This request has already been evaluated.");
+    }
+
     @Override
     @PreAuthorize("hasRole('ADMIN')")
     public ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted) {
         AppUser evaluator = currentUserProvider.getCurrentUser();
         ArtistRequest artistRequest = findByIdOrThrow(requestId);
 
-        if (artistRequest.getStatus() != ArtistRequest.RequestStatus.PENDING)
-            throw new ConflictException("This request has already been evaluated.");
+        validateIsPending(artistRequest);
 
         AppUser requestingUser = artistRequest.getRequestingUser();
         ArtistAuthProjection artist = artistRequest.getRequestedArtist();
