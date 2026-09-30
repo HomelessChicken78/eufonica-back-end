@@ -188,12 +188,12 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
             String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
 
-            ArtistRequest existingRequestSameName = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
+            ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
                     .orElse(null);
 
-            if (existingRequestSameName != null) {
+            if (duplicate != null) {
                 ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
-                existingArtistRequest.setRequestedArtist(existingRequestSameName.getRequestedArtist());
+                existingArtistRequest.setRequestedArtist(duplicate.getRequestedArtist());
 
                 ArtistRequest saved = requestRepository.save(existingArtistRequest);
                 requestRepository.delete(request);
