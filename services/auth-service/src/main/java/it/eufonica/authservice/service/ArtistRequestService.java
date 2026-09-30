@@ -13,7 +13,7 @@ public interface ArtistRequestService {
 
     ArtistRequestFullResponseDTO sendExistingArtistRequest(SendExistingArtistRequestDTO request);
 
-    ArtistRequestFullResponseDTO evaluateRequest(UUID requestId, boolean accepted);
+    ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted);
 
     List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize);
 

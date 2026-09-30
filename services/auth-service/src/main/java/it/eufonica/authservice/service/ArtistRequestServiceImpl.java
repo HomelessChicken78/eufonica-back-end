@@ -157,7 +157,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public ArtistRequestFullResponseDTO evaluateRequest(UUID requestId, boolean accepted) {
+    public ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted) {
         AppUser evaluator = currentUserProvider.getCurrentUser();
         ArtistRequest artistRequest = findByIdOrThrow(requestId);
 
@@ -219,7 +219,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         }
 
         ArtistRequest saved = requestRepository.save(artistRequest);
-        return requestMapper.toFullResponse(saved);
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
     @Override
