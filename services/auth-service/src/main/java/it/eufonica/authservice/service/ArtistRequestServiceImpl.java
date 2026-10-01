@@ -302,16 +302,17 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     // TODO Javadoc
     private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
+        if (request.getRequestedArtist() != null)
+            return acceptForExistingArtist(request, admin);
+
+        // At this point the request must be for a new artist
         ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
                 .orElse(null);
 
         if (duplicate != null)
             return convertToExistingArtistRequest(request, duplicate, admin);
 
-        if (request.getRequestedArtist() == null)
-            return acceptForNewArtist(request, admin);
-        else
-            return acceptForExistingArtist(request, admin);
+        return acceptForNewArtist(request, admin);
     }
 
     @Override
