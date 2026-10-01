@@ -347,13 +347,13 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted) {
+    public ArtistRequestResultDTO evaluateRequest(UUID requestId, EvaluateArtistRequestDTO evaluation) {
         AppUser evaluator = currentUserProvider.getCurrentUser();
         ArtistRequest artistRequest = findByIdOrThrow(requestId);
 
         validateIsPending(artistRequest);
 
-        if (accepted)
+        if (evaluation.isAccepted())
             return accept(artistRequest, evaluator);
 
         else

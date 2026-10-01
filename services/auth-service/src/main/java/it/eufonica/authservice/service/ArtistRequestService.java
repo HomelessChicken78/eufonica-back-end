@@ -50,13 +50,14 @@ public interface ArtistRequestService {
      * the new-artist creation and existing-request-name conflict handling.</p>
      *
      * @param requestId the id of the request to evaluate
-     * @param accepted true to accept the request, false to reject it
+     * @param evaluation Object with a single field "isAccepted":
+     * true to accept the request, false to reject it
      *
      * @return a dto describing the outcome, including whether the original request
      * was converted into an existing-artist request due to a name conflict
      * @throws ConflictException if the request has already been evaluated
      */
-    ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted);
+    ArtistRequestResultDTO evaluateRequest(UUID requestId, EvaluateArtistRequestDTO evaluation);
 
     /**
      * Searches artist requests across all users, matching the given filters.
