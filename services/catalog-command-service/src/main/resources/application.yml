@@ -22,6 +22,7 @@ spring:
       value-serializer: ${KAFKA_VALUE_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
 
 server:
+  port: ${SERVER_PORT:8080}
   servlet:
     context-path: ${CONTEXT_PATH:/api}
 
