@@ -30,8 +30,14 @@ public class AuthServiceImpl implements AuthService {
     @Value("${PROVIDER_NAME:cognito}")
     private String providerName;
 
+    @Value("${CURRENT_USER_KEYWORD:me}")
+    private String currentUserKeyword;
+
     @Override
     public void signUp(SignUpRequestDTO request, String sub) {
+        if (currentUserKeyword.equals(request.getDisplayName()))
+            throw new ConflictException("The username \"" + currentUserKeyword + "\" is reserved. Please choose a different one.");
+
         if (accessMethodRepository.existsByProviderNameAndProviderUserId(providerName, sub))
             throw new ConflictException("You have already signed up. Try to login instead.");
 
