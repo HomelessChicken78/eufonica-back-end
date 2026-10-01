@@ -19,6 +19,7 @@ import it.eufonica.authservice.security.CurrentUserProvider;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.jspecify.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -209,9 +210,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     /**
-     * Set the given request to ACCEPTED and affiliate the requesting user to the existing artist in the request itself.
+     * Set the given request to ACCEPTED and affiliate the requesting user
+     * to the existing artist in the request itself.
      *
      * @param request The request to accept
+     *
      * @return A dto containing the accepted artist request
      */
     private ArtistRequestResultDTO acceptForExistingArtist(ArtistRequest request) {
@@ -230,51 +233,77 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
-    private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
+    /**
+     * Calls catalog-command-service to request the creation of a new artist starting from an {@code ArtistRequest}.
+     * Then saves it in the auth's projection.
+     *
+     * @param request The {@code ArtistRequest} to create the artist from.
+     *
+     * @return The auth projection of the created artist
+     * @throws ConflictException if the command service returns a 409
+     * @throws InternalServerErrorException if the command service returns any other status code
+     */
+    private ArtistAuthProjection createArtist(ArtistRequest request) {
+        ArtistSummaryResponseDTO artistCreatedResponse;
+        try {
+            artistCreatedResponse = catalogComRestClient.post()
+                    .uri(artistCreationUri)
+                    .contentType(APPLICATION_JSON)
+                    .body(requestMapper.toArtistCreationRequest(request))
+                    .retrieve()
+                    .body(ArtistSummaryResponseDTO.class);
+        } catch (HttpClientErrorException.Conflict e) {
+            GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
+            String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
+            throw new ConflictException("Cannot create the artist: " + upstreamMessage);
+        }  catch (HttpClientErrorException e) {
+            throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
+        }
+
+        ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
+        artistRepository.save(createdArtist);
+        log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
+                request.getRequestedName(), request.getRequestingUser().getId(), request.getId());
+
+        return createdArtist;
+    }
+
+    /**
+     * Set the given request to ACCEPTED and create a new artist
+     * to affiliated to the requesting user.
+     *
+     * @param request The request to accept
+     *
+     * @return A dto containing the accepted artist request
+     */
+    private ArtistRequestResultDTO acceptForNewArtist(ArtistRequest request) {
         String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
 
-            ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
-                    .orElse(null);
+        ArtistAuthProjection createdArtist = createArtist(request);
 
-            if (duplicate != null)
-                return convertToExistingArtistRequest(request, duplicate);
-
-            log.info("Artist request with requestId={} got accepted by {} (userId={})",
-                    request.getId(), admin.getDisplayName(), admin.getId());
-            request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
-
-        if (request.getRequestedArtist() == null) {
-            // Artist does not exist and must be created
-
-            ArtistSummaryResponseDTO artistCreatedResponse;
-            try {
-                artistCreatedResponse = catalogComRestClient.post()
-                        .uri(artistCreationUri)
-                        .contentType(APPLICATION_JSON)
-                        .body(requestMapper.toArtistCreationRequest(request))
-                        .retrieve()
-                        .body(ArtistSummaryResponseDTO.class);
-            } catch (HttpClientErrorException.Conflict e) {
-                GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
-                String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
-                throw new ConflictException("Cannot create the artist: " + upstreamMessage);
-            }  catch (HttpClientErrorException e) {
-                throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
-            }
-
-            ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
-            artistRepository.save(createdArtist);
-            log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
-                    request.getRequestedName(), request.getRequestingUser().getId(), request.getId());
-
-            request.getRequestingUser().setAffiliatedArtist(createdArtist);
-            userRepository.save(request.getRequestingUser());
-            cognitoUserService.setAffiliatedArtist(sub, artistCreatedResponse.getId());
-        } else
-            return acceptForExistingArtist(request);
+        request.getRequestingUser().setAffiliatedArtist(createdArtist);
+        userRepository.save(request.getRequestingUser());
+        cognitoUserService.setAffiliatedArtist(sub, createdArtist.getId());
 
         ArtistRequest saved = requestRepository.save(request);
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
+    private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
+        ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
+                .orElse(null);
+
+        if (duplicate != null)
+            return convertToExistingArtistRequest(request, duplicate);
+
+        log.info("Artist request with requestId={} got accepted by {} (userId={})",
+                request.getId(), admin.getDisplayName(), admin.getId());
+        request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
+
+        if (request.getRequestedArtist() == null)
+            return acceptForNewArtist(request);
+        else
+            return acceptForExistingArtist(request);
     }
 
     @Override
