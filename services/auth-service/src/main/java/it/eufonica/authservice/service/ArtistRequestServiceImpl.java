@@ -231,7 +231,6 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         log.info("Linked userId={} to artistId={} after request with requestId={} got accepted by {}.",
                 request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId(), admin.getDisplayName());
-        request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
 
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
