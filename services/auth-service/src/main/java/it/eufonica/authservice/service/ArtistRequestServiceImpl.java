@@ -351,13 +351,13 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
+    public List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
         return doSearch(filters, pageNumber, pageSize);
     }
 
     @Override
     @PreAuthorize("hasRole('USER')")
-    public List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
+    public List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
         ArtistRequestFiltersDTO completeFilters = ArtistRequestFiltersDTO.builder()
                 .requestingUserId(currentUserProvider.getCurrentUser().getId())
                 .commonFilters(filters)

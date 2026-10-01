@@ -15,9 +15,9 @@ public interface ArtistRequestService {
 
     ArtistRequestResultDTO evaluateRequest(UUID requestId, boolean accepted);
 
-    List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize);
+    List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
 
-    List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize);
+    List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
 
     ArtistRequestFullResponseDTO findRequest(UUID requestId);
 }
