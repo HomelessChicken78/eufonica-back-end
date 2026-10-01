@@ -5,5 +5,5 @@ import lombok.*;
 @AllArgsConstructor @NoArgsConstructor
 @Data
 public class EvaluateArtistRequestDTO {
-    private boolean isAccepted = true;
+    private boolean accepted;
 }
