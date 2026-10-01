@@ -2,6 +2,7 @@ package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.authservice.dto.artistrequest.*;
+import it.eufonica.authservice.exception.client.BadRequestException;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
@@ -75,10 +76,17 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         // (and therefore be registered) to reach this point. No runtime check needed.
     }
 
-    private List<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, Integer pageNumber, Integer pageSize) {
+    private List<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
+        if (pageNumber < 1)
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+        if (pageSize < 1)
+            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+
+        pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
+
         Specification<ArtistRequest> spec = buildSpecification(filters);
 
-        return requestRepository.findAll(spec, PageRequest.of(pageNumber, pageSize, Sort.by(Sort.Direction.DESC, "timestamp")))
+        return requestRepository.findAll(spec, PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "timestamp")))
                 .stream()
                 .map(requestMapper::toShortResponse)
                 .toList();

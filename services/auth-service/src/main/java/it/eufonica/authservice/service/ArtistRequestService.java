@@ -1,6 +1,7 @@
 package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.artistrequest.*;
+import it.eufonica.authservice.exception.client.BadRequestException;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.model.ArtistRequest;
@@ -62,10 +63,11 @@ public interface ArtistRequestService {
      * Restricted to admins.
      *
      * @param filters the filters to apply, including an optional requesting user id
-     * @param pageNumber the zero-based page number to retrieve
-     * @param pageSize the number of results per page
+     * @param pageNumber the one-based page number to retrieve
+     * @param pageSize the number of results per page, capped at a configured maximum
      *
      * @return the matching artist requests, as short summaries
+     * @throws BadRequestException if pageNumber or pageSize is less than 1
      */
     List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
 
@@ -74,10 +76,11 @@ public interface ArtistRequestService {
      * matching the given filters.
      *
      * @param filters the filters to apply; the requesting user is always the current user
-     * @param pageNumber the zero-based page number to retrieve
-     * @param pageSize the number of results per page
+     * @param pageNumber the one-based page number to retrieve
+     * @param pageSize the number of results per page, capped at a configured maximum
      *
      * @return the matching artist requests, as short summaries
+     * @throws BadRequestException if pageNumber or pageSize is less than 1
      */
     List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
 
