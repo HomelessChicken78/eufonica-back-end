@@ -306,7 +306,20 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
-    // TODO Javadoc
+    /**
+     * Accepts the given request, affiliating the requesting user to the relevant artist.
+     * <p>If the request is for an existing artist, the user is affiliated to that artist directly.</p>
+     * <p>If the request is for a new artist, and another accepted request already created an artist
+     * with the same requested name, this request is converted into an existing-artist request instead
+     * of creating a duplicate artist.</p>
+     * <p>Otherwise, a new artist is created and the user is affiliated to it.</p>
+     *
+     * @param request The request to accept
+     * @param admin The admin that accepted the request - only used for logging
+     *
+     * @return A dto containing the result of the acceptance, which may represent either the
+     * accepted request or, in case of conversion, the newly created existing-artist request
+     */
     private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
         if (request.getRequestedArtist() != null)
             return acceptForExistingArtist(request, admin);
