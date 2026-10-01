@@ -44,7 +44,8 @@ public class ArtistRequestController {
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public List<ArtistRequestShortResponseDTO> searchAllRequests(@ModelAttribute @Valid ArtistRequestFiltersDTO filters,
-                                                          int pageNumber, int pageSize) {
+                                                                 @RequestParam(defaultValue = "1") int pageNumber,
+                                                                 @RequestParam(defaultValue = "${REQUEST_PAGE_DEFAULT_SIZE:10}") int pageSize) {
         List<ArtistRequestShortResponseDTO> requests = requestService.searchAllRequests(filters, pageNumber, pageSize);
         log.debug("Searched all requests with filters {}. Found {} results.", filters, requests.size());
         return requests;
@@ -52,7 +53,8 @@ public class ArtistRequestController {
 
     @GetMapping(value = "/me", produces = APPLICATION_JSON_VALUE)
     public List<ArtistRequestShortResponseDTO> searchOwnRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO filters,
-                                                          int pageNumber, int pageSize) {
+                                                                 @RequestParam(defaultValue = "1") int pageNumber,
+                                                                 @RequestParam(defaultValue = "${REQUEST_PAGE_DEFAULT_SIZE:10}") int pageSize) {
         List<ArtistRequestShortResponseDTO> requests = requestService.searchOwnRequests(filters, pageNumber, pageSize);
         log.debug("Searched own requests with filters {}. Found {} results.", filters, requests.size());
         return requests;
