@@ -202,9 +202,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         ArtistRequest saved = requestRepository.save(existingArtistRequest);
         requestRepository.delete(request);
 
-        log.info("Converted request {} into existing-artist request {} (artistId={}): " +
+        log.info("Converted request {} into existing-artist request {} (artistId={}) by {} (userId={}): " +
                         "the requested name was already taken by another accepted request.",
-                request.getId(), saved.getId(), saved.getRequestedArtist().getId()); // TODO add admin
+                request.getId(), saved.getId(), saved.getRequestedArtist().getId(), admin.getDisplayName(), admin.getId());
 
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
     }
