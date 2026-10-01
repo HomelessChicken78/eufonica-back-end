@@ -19,7 +19,6 @@ import it.eufonica.authservice.security.CurrentUserProvider;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.jspecify.annotations.NonNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -209,8 +208,30 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
     }
 
+    /**
+     * Set the given request to ACCEPTED and affiliate the requesting user to the existing artist in the request itself.
+     *
+     * @param request The request to accept
+     * @return A dto containing the accepted artist request
+     */
+    private ArtistRequestResultDTO acceptForExistingArtist(ArtistRequest request) {
+        String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+
+        request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
+        userRepository.save(request.getRequestingUser());
+        cognitoUserService.setAffiliatedArtist(sub, request.getRequestedArtist().getId());
+
+        ArtistRequest saved = requestRepository.save(request);
+
+        log.info("Linked userId={} to artistId={} after request with requestId={} got accepted.",
+                request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId());
+        request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
     private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
-            String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+        String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
 
             ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
                     .orElse(null);
@@ -249,16 +270,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             request.getRequestingUser().setAffiliatedArtist(createdArtist);
             userRepository.save(request.getRequestingUser());
             cognitoUserService.setAffiliatedArtist(sub, artistCreatedResponse.getId());
-        } else {
-            // Artist already exists
-
-            log.info("Linking userId={} to artistId={} after request with requestId={} got accepted.",
-                    request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId());
-            request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
-
-            userRepository.save(request.getRequestingUser());
-            cognitoUserService.setAffiliatedArtist(sub, request.getRequestedArtist().getId());
-        }
+        } else
+            return acceptForExistingArtist(request);
 
         ArtistRequest saved = requestRepository.save(request);
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
