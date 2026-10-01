@@ -157,6 +157,19 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     /**
+     * Affiliates the given user to the given artist, both locally and on Cognito.
+     *
+     * @param user The user to affiliate
+     * @param artist The artist to affiliate the user to
+     * @param sub The Cognito sub of the user
+     */
+    private void affiliateUser(AppUser user, ArtistAuthProjection artist, String sub) {
+        user.setAffiliatedArtist(artist);
+        userRepository.save(user);
+        cognitoUserService.setAffiliatedArtist(sub, artist.getId());
+    }
+
+    /**
      * Validate whether the given request has a PENDING status or not.
      *
      * @param request The request entity to check
@@ -223,9 +236,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
 
-        request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
-        userRepository.save(request.getRequestingUser());
-        cognitoUserService.setAffiliatedArtist(sub, request.getRequestedArtist().getId());
+        affiliateUser(request.getRequestingUser(), request.getRequestedArtist(), sub);
 
         ArtistRequest saved = requestRepository.save(request);
 
@@ -285,10 +296,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
 
         ArtistAuthProjection createdArtist = createArtist(request);
-
-        request.getRequestingUser().setAffiliatedArtist(createdArtist);
-        userRepository.save(request.getRequestingUser());
-        cognitoUserService.setAffiliatedArtist(sub, createdArtist.getId());
+        affiliateUser(request.getRequestingUser(), createdArtist, sub);
 
         ArtistRequest saved = requestRepository.save(request);
 
