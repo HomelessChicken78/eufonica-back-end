@@ -19,7 +19,23 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ArtistRequestController {
     private final ArtistRequestService requestService;
 
-    @PatchMapping(value = "/{requestId}/evaluate", consumes =  APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @PostMapping(value = "/new-artist",
+            consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ArtistRequestFullResponseDTO sendNewArtistRequest(@RequestBody @Valid SendNewArtistRequestDTO request) {
+        ArtistRequestFullResponseDTO response = requestService.sendNewArtistRequest(request);
+        log.info("Sent new-artist request with requestedName={}. Created requestId={}.", request.getRequestedName(), response.getId());
+        return response;
+    }
+
+    @PostMapping(value = "/existing-artist",
+            consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ArtistRequestFullResponseDTO sendExistingArtistRequest(@RequestBody @Valid SendExistingArtistRequestDTO request) {
+        ArtistRequestFullResponseDTO response = requestService.sendExistingArtistRequest(request);
+        log.info("Sent existing-artist request with artistId={}. Created requestId={}.", request.getArtistId(), response.getId());
+        return response;
+    }
+
+    @PatchMapping(value = "/{requestId}/evaluate", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ArtistRequestResultDTO evaluateRequest(@PathVariable UUID requestId, @RequestBody EvaluateArtistRequestDTO evaluation) {
         ArtistRequestResultDTO result = requestService.evaluateRequest(requestId, evaluation);
         log.debug("{} request with id {}. result {}", evaluation.isAccepted() ? "Accepted" : "Rejected", requestId, result);
