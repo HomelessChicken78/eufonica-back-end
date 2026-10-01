@@ -36,9 +36,9 @@ public class ArtistRequestController {
     }
 
     @PatchMapping(value = "/{requestId}/evaluate", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ArtistRequestResultDTO evaluateRequest(@PathVariable UUID requestId, @RequestBody EvaluateArtistRequestDTO evaluation) {
+    public ArtistRequestResultDTO evaluateRequest(@PathVariable UUID requestId, @RequestBody @Valid EvaluateArtistRequestDTO evaluation) {
         ArtistRequestResultDTO result = requestService.evaluateRequest(requestId, evaluation);
-        log.debug("{} request with id {}. result {}", evaluation.isAccepted() ? "Accepted" : "Rejected", requestId, result);
+        log.debug("{} request with id {}. result {}", evaluation.getAccepted() ? "Accepted" : "Rejected", requestId, result);
         return result;
     }
 

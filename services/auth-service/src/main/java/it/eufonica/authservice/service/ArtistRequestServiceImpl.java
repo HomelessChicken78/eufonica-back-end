@@ -353,7 +353,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         validateIsPending(artistRequest);
 
-        if (evaluation.isAccepted())
+        if (evaluation.getAccepted())
             return accept(artistRequest, evaluator);
 
         else
