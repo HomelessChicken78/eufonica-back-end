@@ -192,10 +192,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      *
      * @param request The request to transform into an existing-artist request
      * @param duplicate The duplicated creating-artist request, already ACCEPTED
+     * @param admin The admin that tried to accept the request - only used for logging
      *
      * @return A dto containing the newly created existing-artist request
      */
-    private ArtistRequestResultDTO convertToExistingArtistRequest(ArtistRequest request, ArtistRequest duplicate) {
+    private ArtistRequestResultDTO convertToExistingArtistRequest(ArtistRequest request, ArtistRequest duplicate, AppUser admin) {
         ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
         existingArtistRequest.setRequestedArtist(duplicate.getRequestedArtist());
 
@@ -204,7 +205,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         log.info("Converted request {} into existing-artist request {} (artistId={}): " +
                         "the requested name was already taken by another accepted request.",
-                request.getId(), saved.getId(), saved.getRequestedArtist().getId());
+                request.getId(), saved.getId(), saved.getRequestedArtist().getId()); // TODO add admin
 
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
     }
@@ -214,11 +215,14 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      * to the existing artist in the request itself.
      *
      * @param request The request to accept
+     * @param admin The admin that accepted the request - only used for logging
      *
      * @return A dto containing the accepted artist request
      */
-    private ArtistRequestResultDTO acceptForExistingArtist(ArtistRequest request) {
+    private ArtistRequestResultDTO acceptForExistingArtist(ArtistRequest request, AppUser admin) {
         String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+
+        request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
 
         request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
         userRepository.save(request.getRequestingUser());
@@ -226,8 +230,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         ArtistRequest saved = requestRepository.save(request);
 
-        log.info("Linked userId={} to artistId={} after request with requestId={} got accepted.",
-                request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId());
+        log.info("Linked userId={} to artistId={} after request with requestId={} got accepted by {}.",
+                request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId(), admin.getDisplayName());
         request.getRequestingUser().setAffiliatedArtist(request.getRequestedArtist());
 
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
@@ -273,11 +277,14 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      * to affiliated to the requesting user.
      *
      * @param request The request to accept
+     * @param admin The admin that accepted the request - only used for logging
      *
      * @return A dto containing the accepted artist request
      */
-    private ArtistRequestResultDTO acceptForNewArtist(ArtistRequest request) {
+    private ArtistRequestResultDTO acceptForNewArtist(ArtistRequest request, AppUser admin) {
         String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+
+        request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
 
         ArtistAuthProjection createdArtist = createArtist(request);
 
@@ -286,24 +293,25 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         cognitoUserService.setAffiliatedArtist(sub, createdArtist.getId());
 
         ArtistRequest saved = requestRepository.save(request);
+
+        log.info("Artist request with requestId={} got accepted by {} (userId={})",
+                request.getId(), admin.getDisplayName(), admin.getId());
+
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
     }
 
+    // TODO Javadoc
     private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
         ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
                 .orElse(null);
 
         if (duplicate != null)
-            return convertToExistingArtistRequest(request, duplicate);
-
-        log.info("Artist request with requestId={} got accepted by {} (userId={})",
-                request.getId(), admin.getDisplayName(), admin.getId());
-        request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
+            return convertToExistingArtistRequest(request, duplicate, admin);
 
         if (request.getRequestedArtist() == null)
-            return acceptForNewArtist(request);
+            return acceptForNewArtist(request, admin);
         else
-            return acceptForExistingArtist(request);
+            return acceptForExistingArtist(request, admin);
     }
 
     @Override
