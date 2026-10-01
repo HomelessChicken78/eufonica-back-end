@@ -59,6 +59,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Value("${ARTIST_CREATION_URI}")
     private String artistCreationUri;
 
+    @Value("${ARTIST_REQUEST_MAX_PAGE_SIZE:50}")
+    private int maxPageSize;
+
     private void validateArtistRequest(AppUser currentUser) {
         if (currentUser.getAffiliatedArtist() != null)
             throw new ConflictException("You appear to already be an artist.");
