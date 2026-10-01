@@ -285,7 +285,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         }
 
         ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
-        artistRepository.save(createdArtist);
+        artistRepository.saveAndFlush(createdArtist);
         log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
                 request.getRequestedName(), request.getRequestingUser().getId(), request.getId());
 
