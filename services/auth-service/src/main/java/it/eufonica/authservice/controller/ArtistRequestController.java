@@ -2,15 +2,12 @@ package it.eufonica.authservice.controller;
 
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
-import it.eufonica.authservice.security.CurrentUserProvider;
 import it.eufonica.authservice.service.ArtistRequestService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
