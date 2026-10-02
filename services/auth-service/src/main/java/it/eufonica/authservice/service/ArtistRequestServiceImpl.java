@@ -100,8 +100,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
             // Status
             if (commonFilters.getStatus() != null) {
-                predicates.add(criteriaBuilder.equal(root.get("status"), commonFilters.getStatus()));
-                log.trace("Added filter status = {}.", commonFilters.getStatus());
+                ArtistRequest.RequestStatus entityStatus = ArtistRequest.RequestStatus.valueOf(commonFilters.getStatus().name());
+                predicates.add(criteriaBuilder.equal(root.get("status"), entityStatus));
+                log.trace("Added filter status = {}.", entityStatus);
             }
 
             // Since
