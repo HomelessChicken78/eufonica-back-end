@@ -1,6 +1,7 @@
 package it.eufonica.authservice.repository;
 
 import it.eufonica.authservice.model.AppUser;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -13,5 +14,5 @@ import java.util.UUID;
 public interface AppUserRepository extends JpaRepository<AppUser, UUID> {
     boolean existsByDisplayName(String displayName);
 
-    List<AppUser> findAll(Specification<AppUser> spec, Pageable page);
+    Page<AppUser> findAll(Specification<AppUser> spec, Pageable page);
 }

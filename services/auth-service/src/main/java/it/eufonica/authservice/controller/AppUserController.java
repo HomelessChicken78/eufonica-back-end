@@ -3,6 +3,7 @@ package it.eufonica.authservice.controller;
 import it.eufonica.authservice.dto.appuser.AppUserFiltersDTO;
 import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
+import it.eufonica.authservice.dto.common.PageResponseDTO;
 import it.eufonica.authservice.service.AppUserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -19,9 +20,9 @@ public class AppUserController {
     private final AppUserService appUserService;
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<AppUserShortResponseDTO> findAll(@ModelAttribute @Valid AppUserFiltersDTO filters,
-                                                 @RequestParam(defaultValue = "1") int pageNumber,
-                                                 @RequestParam(defaultValue = "${USER_PAGE_DEFAULT_SIZE:10}") int pageSize) {
+    public PageResponseDTO<AppUserShortResponseDTO> findAll(@ModelAttribute @Valid AppUserFiltersDTO filters,
+                                                            @RequestParam(defaultValue = "1") int pageNumber,
+                                                            @RequestParam(defaultValue = "${USER_PAGE_DEFAULT_SIZE:10}") int pageSize) {
         return appUserService.findAll(filters, pageNumber, pageSize);
     }
 

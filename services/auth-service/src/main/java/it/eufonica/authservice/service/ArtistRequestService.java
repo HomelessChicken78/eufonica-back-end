@@ -1,12 +1,12 @@
 package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.artistrequest.*;
+import it.eufonica.authservice.dto.common.PageResponseDTO;
 import it.eufonica.authservice.exception.client.BadRequestException;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.model.ArtistRequest;
 
-import java.util.List;
 import java.util.UUID;
 
 public interface ArtistRequestService {
@@ -68,10 +68,10 @@ public interface ArtistRequestService {
      * @param pageNumber the one-based page number to retrieve
      * @param pageSize the number of results per page, capped at a configured maximum
      *
-     * @return the matching artist requests, as short summaries
+     * @return the paged matching artist requests, as short summaries
      * @throws BadRequestException if pageNumber or pageSize is less than 1
      */
-    List<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
+    PageResponseDTO<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
 
     /**
      * Searches the artist requests submitted by the currently authenticated user,
@@ -81,10 +81,10 @@ public interface ArtistRequestService {
      * @param pageNumber the one-based page number to retrieve
      * @param pageSize the number of results per page, capped at a configured maximum
      *
-     * @return the matching artist requests, as short summaries
+     * @return the paged matching artist requests, as short summaries
      * @throws BadRequestException if pageNumber or pageSize is less than 1
      */
-    List<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
+    PageResponseDTO<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize);
 
     /**
      * Finds the full detail of a single artist request.

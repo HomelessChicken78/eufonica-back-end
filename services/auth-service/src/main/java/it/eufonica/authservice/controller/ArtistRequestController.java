@@ -1,6 +1,7 @@
 package it.eufonica.authservice.controller;
 
 import it.eufonica.authservice.dto.artistrequest.*;
+import it.eufonica.authservice.dto.common.PageResponseDTO;
 import it.eufonica.authservice.security.CurrentUserProvider;
 import it.eufonica.authservice.service.ArtistRequestService;
 import jakarta.validation.Valid;
@@ -43,10 +44,10 @@ public class ArtistRequestController {
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
-    public List<ArtistRequestShortResponseDTO> searchAllRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO commonFilters,
-                                                                 @RequestParam(required = false) UUID requestingUserId,
-                                                                 @RequestParam(defaultValue = "1") int pageNumber,
-                                                                 @RequestParam(defaultValue = "${REQUEST_PAGE_DEFAULT_SIZE:10}") int pageSize) {
+    public PageResponseDTO<ArtistRequestShortResponseDTO> searchAllRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO commonFilters,
+                                                                            @RequestParam(required = false) UUID requestingUserId,
+                                                                            @RequestParam(defaultValue = "1") int pageNumber,
+                                                                            @RequestParam(defaultValue = "${REQUEST_PAGE_DEFAULT_SIZE:10}") int pageSize) {
         ArtistRequestFiltersDTO filters = ArtistRequestFiltersDTO.builder()
                 .commonFilters(commonFilters)
                 .requestingUserId(requestingUserId)
@@ -56,11 +57,11 @@ public class ArtistRequestController {
     }
 
     @GetMapping(value = "/me", produces = APPLICATION_JSON_VALUE)
-    public List<ArtistRequestShortResponseDTO> searchOwnRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO filters,
+    public PageResponseDTO<ArtistRequestShortResponseDTO> searchOwnRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO filters,
                                                                  @RequestParam(defaultValue = "1") int pageNumber,
                                                                  @RequestParam(defaultValue = "${REQUEST_PAGE_DEFAULT_SIZE:10}") int pageSize) {
-        List<ArtistRequestShortResponseDTO> requests = requestService.searchOwnRequests(filters, pageNumber, pageSize);
-        log.debug("Searched own requests with filters {}. Found {} results.", filters, requests.size());
+        PageResponseDTO<ArtistRequestShortResponseDTO> requests = requestService.searchOwnRequests(filters, pageNumber, pageSize);
+        log.debug("Searched own requests with filters {}. Found {} results.", filters, requests.getContent().size());
         return requests;
     }
 

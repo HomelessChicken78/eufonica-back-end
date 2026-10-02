@@ -2,6 +2,7 @@ package it.eufonica.authservice.repository;
 
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.model.ArtistRequest;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -19,5 +20,5 @@ public interface ArtistRequestRepository extends JpaRepository<ArtistRequest, UU
         return findOneByRequestedNameAndStatus(requestedName, ArtistRequest.RequestStatus.ACCEPTED);
     }
 
-    List<ArtistRequest> findAll(Specification<ArtistRequest> spec, Pageable page);
+    Page<ArtistRequest> findAll(Specification<ArtistRequest> spec, Pageable page);
 }

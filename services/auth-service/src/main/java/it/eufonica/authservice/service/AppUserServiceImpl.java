@@ -3,6 +3,7 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.appuser.AppUserFiltersDTO;
 import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
+import it.eufonica.authservice.dto.common.PageResponseDTO;
 import it.eufonica.authservice.exception.client.BadRequestException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.AppUserMapper;
@@ -13,6 +14,7 @@ import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -75,7 +77,7 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     @PreAuthorize("hasRole('ADMIN')")
-    public List<AppUserShortResponseDTO> findAll(AppUserFiltersDTO filters, int pageNumber, int pageSize) {
+    public PageResponseDTO<AppUserShortResponseDTO> findAll(AppUserFiltersDTO filters, int pageNumber, int pageSize) {
         if (pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.");
         if (pageSize < 1)
@@ -85,10 +87,19 @@ public class AppUserServiceImpl implements AppUserService {
 
         Specification<AppUser> spec = buildSpecification(filters);
 
-        return userRepository.findAll(spec, PageRequest.of(pageNumber - 1, pageSize))
-                .stream()
+        Page<AppUser> results = userRepository.findAll(spec, PageRequest.of(pageNumber - 1, pageSize));
+
+        List<AppUserShortResponseDTO> content = results.stream()
                 .map(userMapper::toShortResponse)
                 .toList();
+
+        return PageResponseDTO.<AppUserShortResponseDTO>builder()
+                .content(content)
+                .currentPage(pageNumber)
+                .totalPages(results.getTotalPages())
+                .totalElements(results.getTotalElements())
+                .pageSize(pageSize)
+                .build();
     }
 
     @Override
