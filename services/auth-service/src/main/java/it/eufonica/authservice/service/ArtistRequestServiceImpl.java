@@ -141,7 +141,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         ArtistRequest artistRequest = requestMapper.toEntity(request);
         artistRequest.setRequestingUser(currentUser);
 
-        ArtistRequest saved = requestRepository.save(artistRequest);
+        ArtistRequest saved = requestRepository.saveAndFlush(artistRequest);
         return requestMapper.toFullResponse(saved);
     }
 
@@ -163,7 +163,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         artistRequest.setRequestedArtist(artist);
         artistRequest.setRequestingUser(currentUser);
 
-        ArtistRequest saved = requestRepository.save(artistRequest);
+        ArtistRequest saved = requestRepository.saveAndFlush(artistRequest);
         return requestMapper.toFullResponse(saved);
     }
 
