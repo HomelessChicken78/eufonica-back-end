@@ -227,20 +227,20 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      * Used when there is already an accepted creating-artist request with status ACCEPTED.
      *
      * @param request The request to transform into an existing-artist request
-     * @param duplicate The duplicated creating-artist request, already ACCEPTED
+     * @param existingArtist The artist affiliated with the duplicated creating-artist request, already ACCEPTED
      * @param admin The admin that tried to accept the request - only used for logging
      *
      * @return A dto containing the newly created existing-artist request
      */
-    private ArtistRequestResultDTO convertToExistingArtistRequest(ArtistRequest request, ArtistRequest duplicate, AppUser admin) {
+    private ArtistRequestResultDTO convertToExistingArtistRequest(ArtistRequest request, ArtistAuthProjection existingArtist, AppUser admin) {
         ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
-        existingArtistRequest.setRequestedArtist(duplicate.getRequestedArtist());
+        existingArtistRequest.setRequestedArtist(existingArtist);
 
         ArtistRequest saved = requestRepository.save(existingArtistRequest);
         requestRepository.delete(request);
 
         log.info("Converted request {} into existing-artist request {} (artistId={}) by {} (userId={}): " +
-                        "the requested name was already taken by another accepted request.",
+                        "the requested name was already taken by another artist.",
                 request.getId(), saved.getId(), saved.getRequestedArtist().getId(), admin.getDisplayName(), admin.getId());
 
         return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
@@ -349,11 +349,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             return acceptForExistingArtist(request, admin);
 
         // At this point the request must be for a new artist
-        ArtistRequest duplicate = requestRepository.findOneAcceptedByRequestedName(request.getRequestedName())
+        ArtistAuthProjection existingArtist = artistRepository.findFirstByName(request.getRequestedName())
                 .orElse(null);
 
-        if (duplicate != null)
-            return convertToExistingArtistRequest(request, duplicate, admin);
+        if (existingArtist != null)
+            return convertToExistingArtistRequest(request, existingArtist, admin);
 
         return acceptForNewArtist(request, admin);
     }
