@@ -1,6 +1,7 @@
 package it.eufonica.authservice.consumer;
 
 import it.eufonica.authservice.event.artist.ArtistCreatedEvent;
+import it.eufonica.authservice.event.artist.ArtistUpdatedEvent;
 import it.eufonica.authservice.mapper.ArtistMapper;
 import it.eufonica.authservice.repository.ArtistRepository;
 import lombok.RequiredArgsConstructor;
@@ -35,7 +36,7 @@ public class ArtistEventConsumer {
             case "ArtistCreatedEvent" ->
                     handleArtistCreation(eventId, objectMapper.readValue(payload, ArtistCreatedEvent.class));
             case "ArtistUpdatedEvent" ->
-                    log.trace("Ignoring ArtistUpdatedEvent, projection has no mutable fields. eventId={}", eventId);
+                    handleArtistUpdate(eventId, objectMapper.readValue(payload, ArtistUpdatedEvent.class));
             default -> log.warn("Unknown event type received. eventType={}", eventType);
         }
     }
@@ -46,10 +47,40 @@ public class ArtistEventConsumer {
      * @param eventId The id of the event used for logging
      * @param event The deserialized event's payload
      */
+    // We don't need to check the version since all the events for the same aggregate end up in the same partistion.
+    /*
+    We don't need to check if the event is already processed since processing it twice with only one mutable field
+    (name) causes no harm.
+    */
     public void handleArtistCreation(UUID eventId, ArtistCreatedEvent event) {
         log.debug("Creating artist for event {}.", eventId);
 
         artistRepository.save(artistMapper.toEntity(event));
+    }
+
+    /*
+     * We don't need to check the version since all the events for the same aggregate end up in the same partition.
+     */
+    /*
+     * We don't need to check if the event is already processed since processing it twice with only one mutable field
+     * (name) causes no harm.
+     */
+    /**
+     * Handles the update of an artist after an ArtistUpdatedEvent is received.
+     *
+     * @param eventId The id of the event used for logging
+     * @param event The deserialized event's payload
+     */
+    public void handleArtistUpdate(UUID eventId, ArtistUpdatedEvent event) {
+        artistRepository.findById(event.getId()).ifPresentOrElse(
+                existing -> {
+                    existing.setName(event.getName());
+                    artistRepository.save(existing);
+                    log.debug("Updated name for artist {} after event {}.", event.getId(), eventId);
+                },
+                () -> log.warn("Received update for an artist not present in the projection. eventId={}, artistId={}",
+                        eventId, event.getId())
+        );
     }
 }
 

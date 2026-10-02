@@ -15,4 +15,7 @@ public class ArtistAuthProjection {
 
     @Column(nullable = false)
     private LocalDateTime registrationDate;
+
+    @Column(nullable = false)
+    private String name;
 }
