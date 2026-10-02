@@ -10,4 +10,6 @@ public interface ArtistMapper {
     ArtistAuthProjection toEntity(ArtistCreatedEvent event);
 
     ArtistAuthProjection toEntity(ArtistSummaryResponseDTO artistCreatedResponse);
+
+    ArtistSummaryResponseDTO toSummaryResponse(ArtistAuthProjection artistCreatedResponse);
 }
