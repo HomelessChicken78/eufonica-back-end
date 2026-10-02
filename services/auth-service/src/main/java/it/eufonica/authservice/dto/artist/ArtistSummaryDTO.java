@@ -1,4 +1,4 @@
-package it.eufonica.authservice.dto.appuser;
+package it.eufonica.authservice.dto.artist;
 
 import lombok.*;
 
