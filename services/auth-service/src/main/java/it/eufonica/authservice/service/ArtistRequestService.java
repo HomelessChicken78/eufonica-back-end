@@ -56,6 +56,7 @@ public interface ArtistRequestService {
      * @return a dto describing the outcome, including whether the original request
      * was converted into an existing-artist request due to a name conflict
      * @throws ConflictException if the request has already been evaluated
+     * or if the admin tries to approve their own request
      */
     ArtistRequestResultDTO evaluateRequest(UUID requestId, EvaluateArtistRequestDTO evaluation);
 

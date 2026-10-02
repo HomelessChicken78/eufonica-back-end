@@ -192,6 +192,19 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     /**
+     * Validate whether the evaluator is trying to approve themselves.
+     *
+     * @param request The request entity to check
+     * @param admin The admin that evaluates the request
+     *
+     * @throws ConflictException If the admin and the requesting user are the same
+     */
+    private void validateSelfEvaluate(ArtistRequest request, AppUser admin) {
+        if (admin.getId().equals(request.getRequestingUser().getId()))
+            throw new ConflictException("You can't approve your own request.");
+    }
+
+    /**
      * Set the given request to REJECTED
      *
      * @param request The artist request to reject
@@ -352,6 +365,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         ArtistRequest artistRequest = findByIdOrThrow(requestId);
 
         validateIsPending(artistRequest);
+        validateSelfEvaluate(artistRequest, evaluator);
 
         if (evaluation.getAccepted())
             return accept(artistRequest, evaluator);
