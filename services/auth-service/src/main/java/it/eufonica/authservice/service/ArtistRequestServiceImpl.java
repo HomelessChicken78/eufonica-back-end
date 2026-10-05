@@ -57,7 +57,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     private final AccessMethodService accessMethodService;
 
     // Messaging
-    private final RestClient catalogComRestClient;
+    private final RestClient catalogCommandRestClient;
 
     @Value("${ARTIST_CREATION_URI}")
     private String artistCreationUri;
@@ -294,7 +294,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     private ArtistAuthProjection createArtist(ArtistRequest request) {
         ArtistSummaryResponseDTO artistCreatedResponse;
         try {
-            artistCreatedResponse = catalogComRestClient.post()
+            artistCreatedResponse = catalogCommandRestClient.post()
                     .uri(artistCreationUri)
                     .contentType(APPLICATION_JSON)
                     .body(requestMapper.toArtistCreationRequest(request))
@@ -331,6 +331,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
 
         ArtistAuthProjection createdArtist = createArtist(request);
+
         affiliateUser(request.getRequestingUser(), createdArtist, sub);
 
         ArtistRequest saved = requestRepository.save(request);
