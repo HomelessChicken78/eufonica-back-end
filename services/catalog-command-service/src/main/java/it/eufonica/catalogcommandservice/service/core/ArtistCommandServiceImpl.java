@@ -3,6 +3,7 @@ package it.eufonica.catalogcommandservice.service.core;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
+import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.ArtistMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
@@ -57,7 +58,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
         // Check that the name doesn't already exist (unique)
         if (artistRepository.existsByName(creationRequestDTO.getName()))
-            throw new BadRequestException("Artist with name " + creationRequestDTO.getName() + " already exists.");
+            throw new ConflictException("Artist with name " + creationRequestDTO.getName() + " already exists.");
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
         artist.setRegistrationDate(LocalDateTime.now());

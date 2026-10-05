@@ -1,6 +1,5 @@
 package it.eufonica.catalogcommandservice.exception.handler;
 
-import it.eufonica.catalogcommandservice.exception.client.*;
 import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
 import it.eufonica.catalogcommandservice.exception.client.*;
 import it.eufonica.catalogcommandservice.exception.dto.GeneralErrorResponseDTO;

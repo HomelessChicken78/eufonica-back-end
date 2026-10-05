@@ -1,7 +1,5 @@
 package it.eufonica.catalogcommandservice.service.core;
 
-import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
-import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
 import it.eufonica.catalogcommandservice.event.song.CreditedArtistAddedEvent;
 import it.eufonica.catalogcommandservice.event.song.CreditedArtistRemovedEvent;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;

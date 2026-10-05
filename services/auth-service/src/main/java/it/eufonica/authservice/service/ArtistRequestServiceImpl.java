@@ -1,0 +1,426 @@
+package it.eufonica.authservice.service;
+
+import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
+import it.eufonica.authservice.dto.artistrequest.*;
+import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.authservice.exception.client.BadRequestException;
+import it.eufonica.authservice.exception.client.ConflictException;
+import it.eufonica.authservice.exception.client.NotFoundException;
+import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
+import it.eufonica.authservice.exception.server.InternalServerErrorException;
+import it.eufonica.authservice.mapper.ArtistMapper;
+import it.eufonica.authservice.mapper.ArtistRequestMapper;
+import it.eufonica.authservice.model.AppUser;
+import it.eufonica.authservice.model.ArtistAuthProjection;
+import it.eufonica.authservice.model.ArtistRequest;
+import it.eufonica.authservice.repository.AppUserRepository;
+import it.eufonica.authservice.repository.ArtistRepository;
+import it.eufonica.authservice.repository.ArtistRequestRepository;
+import it.eufonica.authservice.security.CognitoM2MTokenService;
+import it.eufonica.authservice.security.CognitoUserService;
+import it.eufonica.authservice.security.CurrentUserProvider;
+import jakarta.persistence.criteria.Predicate;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.RestClient;
+
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON;
+
+@Service @Transactional
+@RequiredArgsConstructor @Slf4j
+public class ArtistRequestServiceImpl implements ArtistRequestService {
+    // Repositories
+    private final ArtistRequestRepository requestRepository;
+    private final ArtistRepository artistRepository;
+    private final AppUserRepository userRepository;
+
+    // Mapper & Utility
+    private final ArtistRequestMapper requestMapper;
+    private final ArtistMapper artistMapper;
+    private final CurrentUserProvider currentUserProvider;
+
+    // Services
+    private final CognitoUserService cognitoUserService;
+    private final AccessMethodService accessMethodService;
+    private final CognitoM2MTokenService cognitoM2MTokenService;
+
+    // Messaging
+    private final RestClient catalogCommandRestClient;
+
+    @Value("${ARTIST_CREATION_URI}")
+    private String artistCreationUri;
+
+    @Value("${ARTIST_REQUEST_MAX_PAGE_SIZE:50}")
+    private int maxPageSize;
+
+    private void validateArtistRequest(AppUser currentUser) {
+        if (currentUser.getAffiliatedArtist() != null)
+            throw new ConflictException("You appear to already be an artist.");
+
+        if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
+            throw new ConflictException("You already have an artist request pending. Please wait for an admin to evaluate that first.");
+
+        // [V.ArtistRequest.richiesta_dopo_registrazione_ut] is structurally guaranteed:
+        // the request's timestamp is set by Hibernate (@CreationTimestamp) at save time,
+        // strictly after the current moment used here, and a user must already exist
+        // (and therefore be registered) to reach this point. No runtime check needed.
+    }
+
+    private PageResponseDTO<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
+        if (pageNumber < 1)
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+        if (pageSize < 1)
+            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+
+        pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
+
+        Specification<ArtistRequest> spec = buildSpecification(filters);
+
+        Page<ArtistRequest> results = requestRepository.findAll(spec, PageRequest.of(pageNumber - 1, pageSize, Sort.by(Sort.Direction.DESC, "timestamp")));
+        List<ArtistRequestShortResponseDTO> content = results.stream()
+                .map(requestMapper::toShortResponse)
+                .toList();
+
+        return PageResponseDTO.<ArtistRequestShortResponseDTO>builder()
+                .content(content)
+                .currentPage(pageNumber)
+                .totalPages(results.getTotalPages())
+                .totalElements(results.getTotalElements())
+                .pageSize(pageSize)
+                .build();
+    }
+
+    private Specification<ArtistRequest> buildSpecification(ArtistRequestFiltersDTO filters) {
+        return (root, query, criteriaBuilder) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            CommonArtistRequestFiltersDTO commonFilters = filters.getCommonFilters();
+
+            // Status
+            if (commonFilters.getStatus() != null) {
+                ArtistRequest.RequestStatus entityStatus = ArtistRequest.RequestStatus.valueOf(commonFilters.getStatus().name());
+                predicates.add(criteriaBuilder.equal(root.get("status"), entityStatus));
+                log.trace("Added filter status = {}.", entityStatus);
+            }
+
+            // Since
+            if (commonFilters.getSince() != null) {
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timestamp"), commonFilters.getSince().atStartOfDay()));
+                log.trace("Added filter timestamp >= {}.", commonFilters.getSince().atStartOfDay());
+            }
+
+            // Requesting user
+            if (filters.getRequestingUserId() != null) {
+                predicates.add(criteriaBuilder.equal(root.get("requestingUser").get("id"), filters.getRequestingUserId()));
+                log.trace("Added filter requestingUserId = {}.", filters.getRequestingUserId());
+            }
+
+            return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
+        };
+    }
+
+    @Override
+    public ArtistRequest findByIdOrThrow(UUID id) {
+        ArtistRequest found = requestRepository.findById(id)
+                .orElseThrow(
+                        () -> new NotFoundException("Artist request with the given id (" + id + ") does not exist.")
+                );
+
+        log.trace("findByIdOrThrow - found {}", found);
+        return found;
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public ArtistRequestFullResponseDTO sendNewArtistRequest(SendNewArtistRequestDTO request) {
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+
+        validateArtistRequest(currentUser);
+
+        ArtistRequest artistRequest = requestMapper.toEntity(request);
+        artistRequest.setRequestingUser(currentUser);
+
+        ArtistRequest saved = requestRepository.saveAndFlush(artistRequest);
+        return requestMapper.toFullResponse(saved);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public ArtistRequestFullResponseDTO sendExistingArtistRequest(SendExistingArtistRequestDTO request) {
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+
+        validateArtistRequest(currentUser);
+
+        ArtistAuthProjection artist = artistRepository.findById(request.getArtistId())
+                .orElseThrow(() -> new NotFoundException("Artist with the given id (" + request.getArtistId() + ") does not exist."));
+
+        // [V.ArtistRequest.richiesta_dopo_registrazione_art]
+        if (!artist.getRegistrationDate().isBefore(LocalDateTime.now()))
+            throw new ConflictException("A request cannot concern an artist who registered after the request itself.");
+
+        ArtistRequest artistRequest = requestMapper.toEntity(request);
+        artistRequest.setRequestedArtist(artist);
+        artistRequest.setRequestingUser(currentUser);
+
+        ArtistRequest saved = requestRepository.saveAndFlush(artistRequest);
+        return requestMapper.toFullResponse(saved);
+    }
+
+    /**
+     * Affiliates the given user to the given artist, both locally and on Cognito.
+     *
+     * @param user The user to affiliate
+     * @param artist The artist to affiliate the user to
+     * @param sub The Cognito sub of the user
+     */
+    private void affiliateUser(AppUser user, ArtistAuthProjection artist, String sub) {
+        user.setAffiliatedArtist(artist);
+        userRepository.save(user);
+        cognitoUserService.setAffiliatedArtist(sub, artist.getId());
+    }
+
+    /**
+     * Validate whether the given request has a PENDING status or not.
+     *
+     * @param request The request entity to check
+     * @throws ConflictException If the given request is not in status PENDING
+     */
+    private void validateIsPending(ArtistRequest request) {
+        if (request.getStatus() != ArtistRequest.RequestStatus.PENDING)
+            throw new ConflictException("This request has already been evaluated.");
+    }
+
+    /**
+     * Validate whether the evaluator is trying to approve themselves.
+     *
+     * @param request The request entity to check
+     * @param admin The admin that evaluates the request
+     *
+     * @throws ConflictException If the admin and the requesting user are the same
+     */
+    private void validateSelfEvaluate(ArtistRequest request, AppUser admin) {
+        if (admin.getId().equals(request.getRequestingUser().getId()))
+            throw new ConflictException("You can't approve your own request.");
+    }
+
+    /**
+     * Set the given request to REJECTED
+     *
+     * @param request The artist request to reject
+     * @param admin The admin that performed the request rejection - only used for logging
+     *
+     * @return A dto containing the rejected artist request
+     */
+    private ArtistRequestResultDTO reject(ArtistRequest request, AppUser admin) {
+        request.setStatus(ArtistRequest.RequestStatus.REJECTED);
+        ArtistRequest saved = requestRepository.save(request);
+
+        log.info("Artist request with requestId={} got rejected by {} (userId={})",
+                request.getId(), admin.getDisplayName(), admin.getId());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
+    /**
+     * Remove the creating-artist request and creates a new existing-artist request based on it.
+     * Used when there is already an accepted creating-artist request with status ACCEPTED.
+     *
+     * @param request The request to transform into an existing-artist request
+     * @param existingArtist The artist affiliated with the duplicated creating-artist request, already ACCEPTED
+     * @param admin The admin that tried to accept the request - only used for logging
+     *
+     * @return A dto containing the newly created existing-artist request
+     */
+    private ArtistRequestResultDTO convertToExistingArtistRequest(ArtistRequest request, ArtistAuthProjection existingArtist, AppUser admin) {
+        ArtistRequest existingArtistRequest = requestMapper.convertToExistingArtistRequest(request);
+        existingArtistRequest.setRequestedArtist(existingArtist);
+
+        ArtistRequest saved = requestRepository.save(existingArtistRequest);
+        requestRepository.delete(request);
+
+        log.info("Converted request {} into existing-artist request {} (artistId={}) by {} (userId={}): " +
+                        "the requested name was already taken by another artist.",
+                request.getId(), saved.getId(), saved.getRequestedArtist().getId(), admin.getDisplayName(), admin.getId());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), true);
+    }
+
+    /**
+     * Set the given request to ACCEPTED and affiliate the requesting user
+     * to the existing artist in the request itself.
+     *
+     * @param request The request to accept
+     * @param admin The admin that accepted the request - only used for logging
+     *
+     * @return A dto containing the accepted artist request
+     */
+    private ArtistRequestResultDTO acceptForExistingArtist(ArtistRequest request, AppUser admin) {
+        String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+
+        request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
+
+        affiliateUser(request.getRequestingUser(), request.getRequestedArtist(), sub);
+
+        ArtistRequest saved = requestRepository.save(request);
+
+        log.info("Linked userId={} to artistId={} after request with requestId={} got accepted by {}.",
+                request.getRequestingUser().getId(), request.getRequestedArtist().getId(), request.getId(), admin.getDisplayName());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
+    /**
+     * Calls catalog-command-service to request the creation of a new artist starting from an {@code ArtistRequest}.
+     * Then saves it in the auth's projection.
+     *
+     * @param request The {@code ArtistRequest} to create the artist from.
+     *
+     * @return The auth projection of the created artist
+     * @throws ConflictException if the command service returns a 409
+     * @throws InternalServerErrorException if the command service returns any other status code
+     */
+    private ArtistAuthProjection createArtist(ArtistRequest request) {
+        ArtistSummaryResponseDTO artistCreatedResponse;
+        try {
+            artistCreatedResponse = catalogCommandRestClient.post()
+                    .uri(artistCreationUri)
+                    .contentType(APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + cognitoM2MTokenService.getAccessToken())
+                    .body(requestMapper.toArtistCreationRequest(request))
+                    .retrieve()
+                    .body(ArtistSummaryResponseDTO.class);
+        } catch (HttpClientErrorException.Conflict e) {
+            GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
+            String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
+            throw new ConflictException("Cannot create the artist: " + upstreamMessage);
+        }  catch (HttpClientErrorException e) {
+            throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
+        }
+
+        ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
+        artistRepository.saveAndFlush(createdArtist);
+        log.info("Created new artist (name={}, affiliatedUserId={}) after request with requestId={} got accepted.",
+                request.getRequestedName(), request.getRequestingUser().getId(), request.getId());
+
+        return createdArtist;
+    }
+
+    /**
+     * Set the given request to ACCEPTED and create a new artist
+     * to affiliated to the requesting user.
+     *
+     * @param request The request to accept
+     * @param admin The admin that accepted the request - only used for logging
+     *
+     * @return A dto containing the accepted artist request
+     */
+    private ArtistRequestResultDTO acceptForNewArtist(ArtistRequest request, AppUser admin) {
+        String sub = accessMethodService.getSubFromUser(request.getRequestingUser());
+
+        request.setStatus(ArtistRequest.RequestStatus.ACCEPTED);
+
+        ArtistAuthProjection createdArtist = createArtist(request);
+
+        affiliateUser(request.getRequestingUser(), createdArtist, sub);
+
+        ArtistRequest saved = requestRepository.save(request);
+
+        log.info("Artist request with requestId={} got accepted by {} (userId={})",
+                request.getId(), admin.getDisplayName(), admin.getId());
+
+        return new ArtistRequestResultDTO(requestMapper.toFullResponse(saved), false);
+    }
+
+    /**
+     * Accepts the given request, affiliating the requesting user to the relevant artist.
+     * <p>If the request is for an existing artist, the user is affiliated to that artist directly.</p>
+     * <p>If the request is for a new artist, and another accepted request already created an artist
+     * with the same requested name, this request is converted into an existing-artist request instead
+     * of creating a duplicate artist.</p>
+     * <p>Otherwise, a new artist is created and the user is affiliated to it.</p>
+     *
+     * @param request The request to accept
+     * @param admin The admin that accepted the request - only used for logging
+     *
+     * @return A dto containing the result of the acceptance, which may represent either the
+     * accepted request or, in case of conversion, the newly created existing-artist request
+     */
+    private ArtistRequestResultDTO accept(ArtistRequest request, AppUser admin) {
+        if (request.getRequestedArtist() != null)
+            return acceptForExistingArtist(request, admin);
+
+        // At this point the request must be for a new artist
+        ArtistAuthProjection existingArtist = artistRepository.findFirstByName(request.getRequestedName())
+                .orElse(null);
+
+        if (existingArtist != null)
+            return convertToExistingArtistRequest(request, existingArtist, admin);
+
+        return acceptForNewArtist(request, admin);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public ArtistRequestResultDTO evaluateRequest(UUID requestId, EvaluateArtistRequestDTO evaluation) {
+        AppUser evaluator = currentUserProvider.getCurrentUser();
+        ArtistRequest artistRequest = findByIdOrThrow(requestId);
+
+        validateIsPending(artistRequest);
+        validateSelfEvaluate(artistRequest, evaluator);
+
+        if (evaluation.getAccepted())
+            return accept(artistRequest, evaluator);
+
+        else
+            return reject(artistRequest, evaluator);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('ADMIN')")
+    public PageResponseDTO<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
+        return doSearch(filters, pageNumber, pageSize);
+    }
+
+    @Override
+    @PreAuthorize("hasRole('USER')")
+    public PageResponseDTO<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
+        ArtistRequestFiltersDTO completeFilters = ArtistRequestFiltersDTO.builder()
+                .requestingUserId(currentUserProvider.getCurrentUser().getId())
+                .commonFilters(filters)
+                .build();
+
+        return doSearch(completeFilters, pageNumber, pageSize);
+    }
+
+    @Override
+    public ArtistRequestFullResponseDTO findRequest(UUID requestId) {
+        ArtistRequest request = findByIdOrThrow(requestId);
+        AppUser currentUser = currentUserProvider.getCurrentUser();
+
+        boolean isOwner = request.getRequestingUser().getId().equals(currentUser.getId());
+
+        if (!currentUserProvider.isAdmin() && !isOwner) {
+            log.debug("Access denied to artist request {}: user {} is neither the owner nor an admin.",
+                    requestId, currentUser.getId());
+            // Deliberately throw a 404 instead a 401 to not reveal the existence of the artist request
+            throw new NotFoundException("Artist request with the given id (" + requestId + ") does not exist.");
+        }
+
+        return requestMapper.toFullResponse(request);
+    }
+}
