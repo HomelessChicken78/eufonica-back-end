@@ -16,6 +16,7 @@ import it.eufonica.authservice.model.ArtistRequest;
 import it.eufonica.authservice.repository.AppUserRepository;
 import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
+import it.eufonica.authservice.security.CognitoM2MTokenService;
 import it.eufonica.authservice.security.CognitoUserService;
 import it.eufonica.authservice.security.CurrentUserProvider;
 import jakarta.persistence.criteria.Predicate;
@@ -26,6 +27,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpHeaders;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -55,6 +57,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     // Services
     private final CognitoUserService cognitoUserService;
     private final AccessMethodService accessMethodService;
+    private final CognitoM2MTokenService cognitoM2MTokenService;
 
     // Messaging
     private final RestClient catalogCommandRestClient;
@@ -297,6 +300,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             artistCreatedResponse = catalogCommandRestClient.post()
                     .uri(artistCreationUri)
                     .contentType(APPLICATION_JSON)
+                    .header(HttpHeaders.AUTHORIZATION, "Bearer " + cognitoM2MTokenService.getAccessToken())
                     .body(requestMapper.toArtistCreationRequest(request))
                     .retrieve()
                     .body(ArtistSummaryResponseDTO.class);
