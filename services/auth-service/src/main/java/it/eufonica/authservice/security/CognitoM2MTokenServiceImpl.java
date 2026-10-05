@@ -39,7 +39,7 @@ public class CognitoM2MTokenServiceImpl implements CognitoM2MTokenService {
                 .body(body)
                 .retrieve()
                 .body(CognitoTokenResponseDTO.class);
-        
+
         if (response == null) {
             log.warn("Cognito M2M token response is null.");
             return null;
