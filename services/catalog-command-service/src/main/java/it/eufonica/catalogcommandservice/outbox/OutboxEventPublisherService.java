@@ -12,5 +12,5 @@ public interface OutboxEventPublisherService {
      * @throws it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException
      * if the event's payload cannot be serialized into a JSON
      */
-    public void publish(String aggregateId, String eventType, String topic, Object event);
+    void publish(String aggregateId, String eventType, String topic, Object event);
 }
