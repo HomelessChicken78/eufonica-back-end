@@ -16,6 +16,7 @@ import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
+import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
 import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -43,6 +44,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     // Utility & Mappers
     private final AlbumMapper albumMapper;
     private final CurrentUserProvider currentUser;
+    private final ArtistAccessGuard accessGuard;
 
     @Value("${ALBUM_TOPIC_NAME:album.events}")
     private String albumTopicName;
@@ -133,9 +135,16 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
+        currentUser.requireUser();
+        UUID callerArtistId = accessGuard.requireArtist();
+
+        // Dedup: the caller is always a credited artist, regardless of what's in the DTO
+        Set<UUID> artistIds = new LinkedHashSet<>(request.getFeaturedArtists());
+        artistIds.add(callerArtistId);
+
         Album album = albumMapper.toEntity(request);
 
-        for (UUID artId : request.getArtists())
+        for (UUID artId : artistIds)
             mapArtistToAlbum(artId, album, LocalDateTime.now());
 
         for (UUID songId : request.getSongs())
@@ -166,7 +175,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         album.getArtists().clear();
         log.trace("Removed artists for album with id {}.", albumId);
 
-        for (UUID artId : request.getArtists())
+        for (UUID artId : request.getFeaturedArtists())
             mapArtistToAlbum(artId, album, LocalDateTime.now());
 
         for (UUID songId : request.getSongs())
