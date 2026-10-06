@@ -1,5 +1,6 @@
 package it.eufonica.authservice.security;
 
+import it.eufonica.authservice.exception.client.ForbiddenException;
 import it.eufonica.authservice.exception.client.UnauthorizedException;
 import it.eufonica.authservice.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.model.AccessMethod;
@@ -110,7 +111,7 @@ public class CurrentUserProvider {
     }
 
     /**
-     * Check if the current caller is an admin
+     * Check if the current caller is an admin.
      *
      * @return <ul>
      * <li>{@code true} if the token's holder is an admin</li>
@@ -120,4 +121,26 @@ public class CurrentUserProvider {
     public boolean isAdmin() {
         return getRoles().contains("ADMIN");
     }
+
+    /**
+     * Check if the current caller has the "user" role.
+     *
+     * @throws ForbiddenException if the caller does not have the "user" role
+     */
+    public void requireUser() {
+        if (!getRoles().contains("USER"))
+            throw new ForbiddenException("This action require an USER role.");
+    }
+
+    /**
+     * Check if the current caller is an admin.
+     *
+     * @throws ForbiddenException if the caller is not an admin
+     */
+    public void requireAdmin() {
+        if (!isAdmin())
+            throw new ForbiddenException("This action require an ADMIN role.");
+    }
+
+    // TODO getArtistId
 }
