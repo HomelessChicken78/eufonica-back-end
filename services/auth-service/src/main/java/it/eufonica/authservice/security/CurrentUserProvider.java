@@ -110,7 +110,7 @@ public class CurrentUserProvider {
     }
 
     /**
-     * Check if the current JWT's holder is an admin
+     * Check if the current caller is an admin
      *
      * @return <ul>
      * <li>{@code true} if the token's holder is an admin</li>
@@ -118,7 +118,6 @@ public class CurrentUserProvider {
      * </ul>
      */
     public boolean isAdmin() {
-        // TODO
-        return true;
+        return getRoles().contains("ADMIN");
     }
 }
