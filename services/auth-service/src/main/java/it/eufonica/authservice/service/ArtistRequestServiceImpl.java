@@ -28,7 +28,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpHeaders;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
@@ -146,8 +145,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
     public ArtistRequestFullResponseDTO sendNewArtistRequest(SendNewArtistRequestDTO request) {
+        currentUserProvider.requireUser();
+
         AppUser currentUser = currentUserProvider.getCurrentUser();
 
         validateArtistRequest(currentUser);
@@ -160,8 +160,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
     public ArtistRequestFullResponseDTO sendExistingArtistRequest(SendExistingArtistRequestDTO request) {
+        currentUserProvider.requireUser();
+
         AppUser currentUser = currentUserProvider.getCurrentUser();
 
         validateArtistRequest(currentUser);
@@ -375,8 +376,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public ArtistRequestResultDTO evaluateRequest(UUID requestId, EvaluateArtistRequestDTO evaluation) {
+        currentUserProvider.requireAdmin();
+
         AppUser evaluator = currentUserProvider.getCurrentUser();
         ArtistRequest artistRequest = findByIdOrThrow(requestId);
 
@@ -391,14 +393,16 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public PageResponseDTO<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
+        currentUserProvider.requireAdmin();
+
         return doSearch(filters, pageNumber, pageSize);
     }
 
     @Override
-    @PreAuthorize("hasRole('USER')")
     public PageResponseDTO<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
+        currentUserProvider.requireUser();
+
         ArtistRequestFiltersDTO completeFilters = ArtistRequestFiltersDTO.builder()
                 .requestingUserId(currentUserProvider.getCurrentUser().getId())
                 .commonFilters(filters)

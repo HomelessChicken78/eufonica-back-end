@@ -76,8 +76,9 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public PageResponseDTO<AppUserShortResponseDTO> findAll(AppUserFiltersDTO filters, int pageNumber, int pageSize) {
+        currentUserProvider.requireAdmin();
+
         if (pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.");
         if (pageSize < 1)
@@ -103,8 +104,9 @@ public class AppUserServiceImpl implements AppUserService {
     }
 
     @Override
-    @PreAuthorize("hasRole('ADMIN')")
     public AppUserFullResponseDTO findById(UUID userId) {
+        currentUserProvider.requireAdmin();
+
         AppUser user = findByIdOrThrow(userId);
         return userMapper.toFullResponse(user);
     }
