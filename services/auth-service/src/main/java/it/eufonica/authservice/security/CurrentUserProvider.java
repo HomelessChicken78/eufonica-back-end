@@ -142,5 +142,12 @@ public class CurrentUserProvider {
             throw new ForbiddenException("This action require an ADMIN role.");
     }
 
-    // TODO getArtistId
+    /**
+     * Gets the artist id present in the headers.
+     *
+     * @return A string containing the artist id or {@code null} if there is no {@code X-Artist-Id} header
+     */
+    public String getArtistId() {
+        return getCurrentRequest().getHeader("X-Artist-Id");
+    }
 }
