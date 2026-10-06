@@ -14,6 +14,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.context.request.RequestContextHolder;
 import org.springframework.web.context.request.ServletRequestAttributes;
 
+import java.util.Arrays;
+import java.util.List;
+
 @Component @RequiredArgsConstructor @Slf4j
 public class CurrentUserProvider {
     private final AccessMethodRepository accessMethodRepository;
@@ -86,6 +89,24 @@ public class CurrentUserProvider {
         log.debug("Retrieved user from the current security context. user={}", user);
 
         return user;
+    }
+
+    /**
+     * Gets the roles present in the headers.
+     *
+     * @return A list of uppercase strings containing all the roles
+     */
+    public List<String> getRoles() {
+        String rolesHeader = getCurrentRequest().getHeader("X-User-Roles");
+        if (rolesHeader == null || rolesHeader.isBlank()) return List.of();
+
+        List<String> roles = Arrays.stream(rolesHeader.split(","))
+                .map(String::trim)
+                .map(String::toUpperCase)
+                .toList();
+
+        log.debug("User has the following roles={} ({} roles present)", roles, roles.size());
+        return roles;
     }
 
     /**
