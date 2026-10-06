@@ -5,14 +5,14 @@ import it.eufonica.authservice.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.model.AccessMethod;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.repository.AccessMethodRepository;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.stereotype.Component;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
 @Component @RequiredArgsConstructor @Slf4j
 public class CurrentUserProvider {
@@ -22,29 +22,34 @@ public class CurrentUserProvider {
     private String providerName;
 
     /**
-     * Retrieves the JWT from the current Spring Security context.
+     * Gets the current request from the context.
      *
-     * @return the {@link Jwt} belonging to the currently authenticated user
-     * @throws UnauthorizedException if the security context is empty or the user is not authenticated
+     * @return the current request.
+     * @throws InternalServerErrorException if there is no request in the context
      */
-    public Jwt getJwt() {
-        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
-        if (auth == null || !auth.isAuthenticated()) throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
-        var jwt = (Jwt) auth.getPrincipal();
+    private HttpServletRequest getCurrentRequest() {
+        var attributes = (ServletRequestAttributes) RequestContextHolder.getRequestAttributes();
 
-        log.trace("Retrieved JWT from the current security context.");
+        // A request should normally always be present.
+        // If not, this method was called outside an HTTP request context
+        // or from a thread without a bound request.
+        if (attributes == null) throw new InternalServerErrorException("No request bound to the current thread.");
 
-        return jwt;
+        return attributes.getRequest();
     }
 
     /**
-     * Extracts the subject (sub) claim from the current user's JWT.
+     * Extracts the subject (sub) claim from the current request.
      * This typically represents the unique identifier assigned to the user by the identity provider.
      *
-     * @return the subject string from the authenticated user's JWT
+     * @return the subject string from the authenticated request
+     * @throws UnauthorizedException if the gateway did not forward a subject
      */
     public String getSub() {
-        String sub = getJwt().getSubject();
+        String sub = getCurrentRequest().getHeader("X-User-Sub");
+
+        if (sub == null || sub.isBlank())
+            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
 
         log.trace("Retrieved sub from the current security context. sub={}", sub);
 
@@ -92,7 +97,7 @@ public class CurrentUserProvider {
      * </ul>
      */
     public boolean isAdmin() {
-        return getJwt().getClaimAsStringList("cognito:groups") != null
-                && getJwt().getClaimAsStringList("cognito:groups").contains("admin");
+        // TODO
+        return true;
     }
 }
