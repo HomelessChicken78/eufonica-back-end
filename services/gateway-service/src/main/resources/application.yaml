@@ -17,54 +17,54 @@ spring:
             - id: auth-service-artist-requests
               uri: ${AUTH_SERVICE}
               predicates:
-                - Path=/artists/requests/**
+                - Path=/api/artists/requests/**
 
             - id: auth-service-auth
               uri: ${AUTH_SERVICE}
               predicates:
-                - Path=/auth/**
+                - Path=/api/auth/**
 
             - id: auth-service-users
               uri: ${AUTH_SERVICE}
               predicates:
-                - Path=/users/**
+                - Path=/api/users/**
 
             # Query Service Routes - use the GET method
             - id: catalog-query-songs
               uri: ${CATALOG_QUERY_SERVICE}
               predicates:
-                - Path=/songs/**
+                - Path=/api/songs/**
                 - Method=GET
 
             - id: catalog-query-artists
               uri: ${CATALOG_QUERY_SERVICE}
               predicates:
-                - Path=/artists/**
+                - Path=/api/artists/**
                 - Method=GET
 
             - id: catalog-query-albums
               uri: ${CATALOG_QUERY_SERVICE}
               predicates:
-                - Path=/albums/**
+                - Path=/api/albums/**
                 - Method=GET
 
             # Command Service Routes - use the POST, PUT, PATCH, DELETE methods
             - id: catalog-command-songs
               uri: ${CATALOG_COMMAND_SERVICE}
               predicates:
-                - Path=/songs/**
+                - Path=/api/songs/**
                 - Method=POST,PUT,PATCH,DELETE
 
             - id: catalog-command-artists
               uri: ${CATALOG_COMMAND_SERVICE}
               predicates:
-                - Path=/artists/**
+                - Path=/api/artists/**
                 - Method=POST,PUT,PATCH,DELETE
 
             - id: catalog-command-albums
               uri: ${CATALOG_COMMAND_SERVICE}
               predicates:
-                - Path=/albums/**
+                - Path=/api/albums/**
                 - Method=POST,PUT,PATCH,DELETE
 
             # Internal endpoints not exposed to the public
