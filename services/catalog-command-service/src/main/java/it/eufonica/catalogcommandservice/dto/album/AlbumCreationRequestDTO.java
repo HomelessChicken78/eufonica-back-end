@@ -25,7 +25,7 @@ public class AlbumCreationRequestDTO {
 
     @NotEmpty(message = "An Album should have at least one Artist.")
     @Size(max = 2, message = "An album can have at most 2 additional featured artists besides the creator.")
-    private Set<@NotNull(message = "Artist ID cannot be null.") UUID> artists;
+    private Set<@NotNull(message = "Artist ID cannot be null.") UUID> featuredArtists;
 
     private Set<@NotNull(message = "Song ID cannot be null.") UUID> songs;
 }
