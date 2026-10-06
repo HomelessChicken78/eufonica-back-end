@@ -6,13 +6,17 @@ import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
 import it.eufonica.catalogcommandservice.event.album.DeletedAlbumEvent;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
+import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
 import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
+import it.eufonica.catalogcommandservice.repository.ArtistRepository;
+import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,16 +24,25 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.LinkedHashSet;
+import java.util.Set;
 import java.util.UUID;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
 public class AlbumCommandServiceImpl implements AlbumCommandService {
-    private final AlbumRepository albumRepository;
+    // Service
     private final SongCommandService songCommandService;
     private final ArtistCommandService artistCommandService;
-    private final AlbumMapper albumMapper;
     private final OutboxEventPublisherService eventPublisher;
+
+    // Repository
+    private final AlbumRepository albumRepository;
+    private final ArtistRepository artistRepository;
+
+    // Utility & Mappers
+    private final AlbumMapper albumMapper;
+    private final CurrentUserProvider currentUser;
 
     @Value("${ALBUM_TOPIC_NAME:album.events}")
     private String albumTopicName;
