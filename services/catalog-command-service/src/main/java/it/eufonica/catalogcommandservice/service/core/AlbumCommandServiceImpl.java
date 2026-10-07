@@ -203,7 +203,11 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public void deleteAlbum(UUID albumId) {
+        currentUser.requireUser();
+        UUID callerArtistId = accessGuard.requireArtist();
+
         Album album = findByIdOrThrow(albumId);
+        requireCredited(album, callerArtistId);
 
         album.getArtists().clear();
         album.getSongs().clear();
