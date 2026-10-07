@@ -133,6 +133,20 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         return song;
     }
 
+    /**
+     * Check if the caller is one of the credited artists of the album.
+     *
+     * @param album The album to check the authorizations
+     * @param callerArtistId The artist that wants to perform an action on that album
+     * @throws ForbiddenException If the artist is not credited in the album
+     */
+    private void requireCredited(Album album, UUID callerArtistId) {
+        boolean isCredited = album.getArtists().stream()
+                .anyMatch(artist -> artist.getId().equals(callerArtistId));
+        if (!isCredited)
+            throw new ForbiddenException("Only an artist credited on this album can perform this action.");
+    }
+
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
         currentUser.requireUser();
@@ -163,10 +177,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         Album album = findByIdOrThrow(albumId);
 
-        boolean isCredited = album.getArtists().stream()
-                .anyMatch(artist -> artist.getId().equals(callerArtistId));
-        if (!isCredited)
-            throw new ForbiddenException("Only an artist credited on this album can update it.");
+        requireCredited(album, callerArtistId);
 
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
