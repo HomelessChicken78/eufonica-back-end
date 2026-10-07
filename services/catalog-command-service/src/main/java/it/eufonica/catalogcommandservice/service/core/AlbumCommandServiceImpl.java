@@ -259,7 +259,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId) {
-        Album album = findByIdOrThrow(albumId);
+        Album album = requireCreditedAlbum(albumId);
 
         // Remove the song directly by id to avoid querying the Song table
         boolean removed = album.getSongs().removeIf(s -> s.getId().equals(songId));
