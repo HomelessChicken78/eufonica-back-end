@@ -147,6 +147,28 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             throw new ForbiddenException("Only an artist credited on this album can perform this action.");
     }
 
+    /**
+     * Retrieves the album and ensures the current caller is authorized to act on it.
+     *
+     * <p>The caller must be an authenticated user with artist access, and must be
+     * credited as one of the album's artists.
+     *
+     * @param albumId the id of the album to retrieve
+     * @return the album, if the caller is credited on it
+     *
+     * @throws NotFoundException if no album with the given id exists
+     * @throws ForbiddenException if the caller is not credited on the album
+     */
+    private Album requireCreditedAlbum(UUID albumId) {
+        currentUser.requireUser();
+        UUID callerArtistId = accessGuard.requireArtist();
+
+        Album album = findByIdOrThrow(albumId);
+        requireCredited(album, callerArtistId);
+
+        return album;
+    }
+
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
         currentUser.requireUser();
@@ -172,12 +194,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request) {
-        currentUser.requireUser();
-        UUID callerArtistId = accessGuard.requireArtist();
-
-        Album album = findByIdOrThrow(albumId);
-
-        requireCredited(album, callerArtistId);
+        Album album = requireCreditedAlbum(albumId);
 
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
@@ -203,11 +220,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public void deleteAlbum(UUID albumId) {
-        currentUser.requireUser();
-        UUID callerArtistId = accessGuard.requireArtist();
-
-        Album album = findByIdOrThrow(albumId);
-        requireCredited(album, callerArtistId);
+        Album album = requireCreditedAlbum(albumId);
 
         album.getArtists().clear();
         album.getSongs().clear();
