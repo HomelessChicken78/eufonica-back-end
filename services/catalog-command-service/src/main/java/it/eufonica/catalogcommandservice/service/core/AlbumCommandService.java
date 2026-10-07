@@ -18,7 +18,7 @@ public interface AlbumCommandService {
 
     AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request);
 
-    AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumCreationRequestDTO request);
+    AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request);
 
     void deleteAlbum(UUID albumId);
 

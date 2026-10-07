@@ -2,6 +2,7 @@ package it.eufonica.catalogcommandservice.mapper;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumCreatedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumUpdatedEvent;
 import it.eufonica.catalogcommandservice.model.Album;
@@ -26,7 +27,7 @@ public interface AlbumMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "artists", ignore = true)
     @Mapping(target = "songs", ignore = true)
-    void updateEntityFromDto(AlbumCreationRequestDTO request, @MappingTarget Album album);
+    void updateEntityFromDto(AlbumUpdateRequestDTO request, @MappingTarget Album album);
 
     @AfterMapping
     default void mapNumberOfSongs(Album entity, @MappingTarget AlbumSummaryResponseDTO dto) {

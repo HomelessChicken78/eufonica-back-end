@@ -2,6 +2,7 @@ package it.eufonica.catalogcommandservice.controller.external;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.service.core.AlbumCommandService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -27,7 +28,7 @@ public class AlbumController {
     }
 
     @PutMapping(path = "/{albumId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public AlbumSummaryResponseDTO updateAlbum(@PathVariable UUID albumId, @RequestBody @Valid AlbumCreationRequestDTO requestDTO) {
+    public AlbumSummaryResponseDTO updateAlbum(@PathVariable UUID albumId, @RequestBody @Valid AlbumUpdateRequestDTO requestDTO) {
         AlbumSummaryResponseDTO album = albumCommandService.updateAlbum(albumId, requestDTO);
         log.info("Album updated: {}.", album);
         return album;

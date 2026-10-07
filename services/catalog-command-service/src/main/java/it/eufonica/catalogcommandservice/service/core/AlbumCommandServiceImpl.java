@@ -2,6 +2,7 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
 import it.eufonica.catalogcommandservice.event.album.DeletedAlbumEvent;
@@ -157,7 +158,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     }
 
     @Override
-    public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumCreationRequestDTO request) {
+    public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request) {
         Album album = findByIdOrThrow(albumId);
 
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
@@ -174,9 +175,6 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         log.trace("Removed songs for album with id {}.", albumId);
         album.getArtists().clear();
         log.trace("Removed artists for album with id {}.", albumId);
-
-        for (UUID artId : request.getFeaturedArtists())
-            mapArtistToAlbum(artId, album, LocalDateTime.now());
 
         for (UUID songId : request.getSongs())
             mapSongToAlbum(songId, album);
