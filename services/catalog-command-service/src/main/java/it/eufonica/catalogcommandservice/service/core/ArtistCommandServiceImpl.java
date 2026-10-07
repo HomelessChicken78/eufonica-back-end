@@ -4,11 +4,14 @@ import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
+import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.ArtistMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
+import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
+import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +33,8 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     // Utility & Mappers
     private final ArtistMapper artistMapper;
+    private final CurrentUserProvider currentUser;
+    private final ArtistAccessGuard accessGuard;
 
     @Value("${ARTIST_TOPIC_NAME:artist.events}")
     private String artistTopicName;
@@ -78,6 +83,9 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     @Override
     public ArtistSummaryResponseDTO updateArtist(UUID artistId, ArtistCreationRequestDTO creationRequestDTO) {
+        currentUser.requireUser();
+        accessGuard.requireArtist(artistId);
+
         log.info("Updating artist with id {}.", artistId);
         validateArtistRequest(creationRequestDTO);
 
