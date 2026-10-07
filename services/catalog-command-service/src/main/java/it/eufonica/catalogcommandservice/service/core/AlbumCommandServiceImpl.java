@@ -233,7 +233,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO addSongToAlbum(UUID albumId, UUID songId) {
-        Album album = findByIdOrThrow(albumId);
+        Album album = requireCreditedAlbum(albumId);
 
         Song addedSong = mapSongToAlbum(songId, album);
 
