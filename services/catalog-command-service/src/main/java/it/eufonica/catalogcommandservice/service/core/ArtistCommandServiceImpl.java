@@ -22,9 +22,14 @@ import java.util.UUID;
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
 public class ArtistCommandServiceImpl implements ArtistCommandService {
-    private final ArtistRepository artistRepository;
-    private final ArtistMapper artistMapper;
+    // Service
     private final OutboxEventPublisherService eventPublisher;
+
+    // Repository
+    private final ArtistRepository artistRepository;
+
+    // Utility & Mappers
+    private final ArtistMapper artistMapper;
 
     @Value("${ARTIST_TOPIC_NAME:artist.events}")
     private String artistTopicName;
