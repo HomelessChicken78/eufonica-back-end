@@ -15,7 +15,6 @@ import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
-import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
 import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
@@ -39,7 +38,6 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     // Repository
     private final AlbumRepository albumRepository;
-    private final ArtistRepository artistRepository;
 
     // Utility & Mappers
     private final AlbumMapper albumMapper;
