@@ -33,4 +33,21 @@ public class ArtistAccessGuard {
 
         return callerArtistId;
     }
+
+    /**
+     * Ensures the caller is authenticated as the artist identified by the given id.
+     *
+     * @param artistId the artist id the caller must match
+     * @return the caller's own artist id
+     * @throws ForbiddenException if the caller has no artist affiliation, or is not that artist
+     * @throws InternalServerErrorException if the affiliated artist does not exist
+     */
+    public UUID requireArtist(UUID artistId) {
+        UUID callerArtistId = requireArtist();
+
+        if (!artistId.equals(callerArtistId))
+            throw new ForbiddenException("You can only perform this action on your own artist profile.");
+
+        return callerArtistId;
+    }
 }
