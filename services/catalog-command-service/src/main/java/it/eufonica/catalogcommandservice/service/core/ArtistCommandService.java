@@ -2,6 +2,7 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
+import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.model.Artist;
 
@@ -26,11 +27,13 @@ public interface ArtistCommandService {
     ArtistSummaryResponseDTO createArtist(ArtistCreationRequestDTO creationRequestDTO);
 
     /**
-     * Updates Artist's data.
+     * Updates the data of the artist matching the caller's own artist affiliation.
      *
-     * @param artistId the unique id of the artist
-     * @param creationRequestDTO the request to create an artist
+     * @param artistId the unique id of the artist to update
+     * @param creationRequestDTO the updated artist data
+     *
      * @return the updated artist
+     * @throws ForbiddenException if the caller is not the artist identified by {@code artistId}
      */
     ArtistSummaryResponseDTO updateArtist(UUID artistId, ArtistCreationRequestDTO creationRequestDTO);
 }
