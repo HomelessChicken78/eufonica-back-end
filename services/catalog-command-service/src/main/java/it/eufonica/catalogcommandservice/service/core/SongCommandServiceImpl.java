@@ -24,12 +24,17 @@ import java.util.UUID;
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
 public class SongCommandServiceImpl implements SongCommandService {
+    // Service
     private final ArtistCommandService artistService;
-    private final SongMapper songMapper;
     private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
-    private final SongRepository songRepository;
     private final OutboxEventPublisherService eventPublisher;
+
+    // Repository
+    private final SongRepository songRepository;
+
+    // Utility & Mapper
+    private final SongMapper songMapper;
 
     @Value("${SONG_TOPIC_NAME:song.events}")
     private String songTopicName;
