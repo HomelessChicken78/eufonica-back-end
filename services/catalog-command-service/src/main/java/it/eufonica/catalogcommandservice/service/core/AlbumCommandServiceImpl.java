@@ -9,7 +9,6 @@ import it.eufonica.catalogcommandservice.event.album.DeletedAlbumEvent;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
-import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
 import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
@@ -159,7 +158,15 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request) {
+        currentUser.requireUser();
+        UUID callerArtistId = accessGuard.requireArtist();
+
         Album album = findByIdOrThrow(albumId);
+
+        boolean isCredited = album.getArtists().stream()
+                .anyMatch(artist -> artist.getId().equals(callerArtistId));
+        if (!isCredited)
+            throw new ForbiddenException("Only an artist credited on this album can update it.");
 
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
@@ -173,8 +180,6 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         // Clear and rebuild the collections
         album.getSongs().clear();
         log.trace("Removed songs for album with id {}.", albumId);
-        album.getArtists().clear();
-        log.trace("Removed artists for album with id {}.", albumId);
 
         for (UUID songId : request.getSongs())
             mapSongToAlbum(songId, album);
