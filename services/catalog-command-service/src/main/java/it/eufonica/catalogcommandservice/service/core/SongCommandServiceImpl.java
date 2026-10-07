@@ -10,6 +10,8 @@ import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.SongRepository;
+import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
+import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import it.eufonica.catalogcommandservice.service.media.AudioMetadataService;
 import it.eufonica.catalogcommandservice.service.media.AudioStorageService;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +37,8 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     // Utility & Mapper
     private final SongMapper songMapper;
+    private final CurrentUserProvider currentUser;
+    private final ArtistAccessGuard accessGuard;
 
     @Value("${SONG_TOPIC_NAME:song.events}")
     private String songTopicName;
@@ -130,7 +134,11 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Override
     public SongResponseDTO addCreditedArtist(UUID idSong, UUID idArtist) {
+        currentUser.requireUser();
+
         Song song = findByIdOrElseThrow(idSong);
+        accessGuard.requireArtist(song.getArtistOwner().getId());
+
         Artist creditedArtist = artistService.findByIdOrThrow(idArtist);
 
         addCreditedArtist(song, creditedArtist);
@@ -149,7 +157,11 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Override
     public SongResponseDTO removeCreditedArtist(UUID idSong, UUID idArtist) {
+        currentUser.requireUser();
+
         Song song = findByIdOrElseThrow(idSong);
+        accessGuard.requireArtist(song.getArtistOwner().getId());
+
         Artist creditedArtist = artistService.findByIdOrThrow(idArtist);
 
         // Guarantee [V.song_owner.IS_A_song_credit]
