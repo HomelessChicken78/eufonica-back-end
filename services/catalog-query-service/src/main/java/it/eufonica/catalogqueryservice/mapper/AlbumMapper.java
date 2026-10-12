@@ -21,4 +21,6 @@ public interface AlbumMapper {
     AlbumFullResponseDTO toFullResponse(AlbumRead found);
 
     AlbumShortResponseDTO toShortResponse(AlbumRead albumRead);
-}
+
+    @Mapping(target = "pubDate", ignore = true)
+    void updateEntityFromUpdateEvent(AlbumUpdatedEvent event, @MappingTarget AlbumRead album);}

@@ -107,6 +107,7 @@ public class AlbumEventConsumer {
 
         // Remove all the links between the album and the artists to guarantee a clean new state
         artAlbumRepository.deleteByAlbumId(event.getId());
+        artAlbumRepository.flush();
 
         // Add all the links between the album and the artists back
         for (AlbumCreatedEvent.Artist art : event.getArtists())
@@ -114,6 +115,7 @@ public class AlbumEventConsumer {
 
         // Remove all the links between the album and the songs to guarantee a clean new state
         albumContainsRepository.deleteByAlbumId(event.getId());
+        albumContainsRepository.flush();
 
         // Add all the links between the album and the songs back
         for (AlbumCreatedEvent.Song song : event.getSongs())
@@ -198,15 +200,19 @@ public class AlbumEventConsumer {
 
         AlbumRead existingAlbum = albumRepository.findById(event.getId()).orElse(null);
 
-        if (existingAlbum == null)
+        if (existingAlbum == null) {
             log.warn("Trying to update an album that doesn't exist in the projection. Creating it instead. " +
                     "eventId={}, albumId={}, albumName={}", eventId, event.getId(), event.getName());
-        else
+
+            albumRepository.save(albumMapper.toEntity(event));
+        } else {
             // Check if the version of the event is lower than or equal to the current. If it is, ignore the event
             if (versionChecker.isStateRepresentationEventOutdated(event.getVersion(), existingAlbum.getVersion()))
                 return;
 
-        albumRepository.save(albumMapper.toEntity(event));
+            albumMapper.updateEntityFromUpdateEvent(event, existingAlbum);
+            albumRepository.save(existingAlbum);
+        }
 
         // Remove all the links between the album and the artists to guarantee a clean new state
         // Flush to force the order of delete-recreate
