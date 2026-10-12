@@ -75,3 +75,4 @@ server:
 logging:
   level:
     org.springframework.cloud.gateway: ${GATEWAY_LOG_LEVEL:INFO}
+    it.eufonica.gatewayservice.security: ${SECURITY_LOG_LEVEL:INFO}
