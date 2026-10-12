@@ -19,7 +19,6 @@ public interface SongCommandService {
      */
     Song findByIdOrElseThrow(UUID id);
 
-    // TODO ownerId should be taken from the jwt.
     /**
      * Publishes a new song for the artist present in the jwt.
      * <p>
@@ -35,7 +34,7 @@ public interface SongCommandService {
      * @throws ConflictException if a song with the same title already exists for the owner,
      * or if a credited artist was founded after the song's publication date
      */
-    SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile);
+    SongResponseDTO publishSong(PublishSongRequestDTO request, MultipartFile audioFile);
 
     /**
      * Adds an artist to the credited artists of a song.

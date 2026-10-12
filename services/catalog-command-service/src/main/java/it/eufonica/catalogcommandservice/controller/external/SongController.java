@@ -20,16 +20,13 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 public class SongController {
     private final SongCommandService songCommandService;
 
-    @PostMapping(path = "/{artistId}",
-            consumes = MULTIPART_FORM_DATA_VALUE,
-            produces = APPLICATION_JSON_VALUE)
+    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
     public SongResponseDTO publishSong(
             @RequestPart("creationRequest") @Valid PublishSongRequestDTO creationRequestDTO,
-            @PathVariable UUID artistId,
             @RequestPart("audioFile") MultipartFile audioFile
     ) {
-        SongResponseDTO song = songCommandService.publishSong(creationRequestDTO, artistId, audioFile);
+        SongResponseDTO song = songCommandService.publishSong(creationRequestDTO, audioFile);
         log.info("Song published: {}.", song);
         return song;
     }

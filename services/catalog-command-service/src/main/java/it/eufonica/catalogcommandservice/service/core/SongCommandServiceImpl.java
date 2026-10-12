@@ -74,11 +74,13 @@ public class SongCommandServiceImpl implements SongCommandService {
     }
 
     @Override
-    public SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile) {
+    public SongResponseDTO publishSong(PublishSongRequestDTO request, MultipartFile audioFile) {
+        currentUser.requireUser();
+        UUID ownerId = accessGuard.requireArtist();
+
         Song song = songMapper.toEntity(request);
 
         // Add the Artist owner
-        // TODO this currently uses artistId. It should use the jwt instead
         Artist owner = artistService.findByIdOrThrow(ownerId);
         song.setArtistOwner(owner);
 
