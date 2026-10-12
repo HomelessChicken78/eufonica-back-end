@@ -18,10 +18,15 @@ import java.util.List;
 @RequiredArgsConstructor @Slf4j
 public class JwtClaimsToHeadersFilter implements WebFilter {
     private final ReactiveJwtDecoder jwtDecoder;
-    private static final String GROUPS_CLAIM = "cognito:groups";
 
-    @Value("${ARTIST_ID_CLAIM:artist_id}")
-    private String artistIdClaim;
+    // Claims
+    private static final String GROUPS_CLAIM = "cognito:groups";
+    @Value("${ARTIST_ID_CLAIM:artist_id}") private String artistIdClaim;
+
+    // Header names
+    private static final String USER_SUB = "X-User-Sub";
+    private static final String USER_ROLES = "X-User-Roles";
+    private static final String ARTIST_ID = "X-Artist-Id";
 
     @Override @NullMarked
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -31,13 +36,14 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
         ServerHttpRequest strippedHeaders = exchange.getRequest()
                 .mutate()
                 .headers(h -> {
-                    h.remove("X-User-Sub");
-                    h.remove("X-User-Roles");
-                    h.remove("X-Artist-Id");
+                    h.remove(USER_SUB);
+                    h.remove(USER_ROLES);
+                    h.remove(ARTIST_ID);
                 })
                 .build();
         var strippedExchange = exchange.mutate().request(strippedHeaders).build();
-        log.trace("Headers X-User-Sub, X-User-Roles, and X-Artist-Id might have been removed from the original request.");
+        log.trace("Headers {}, {}, and {} might have been removed from the original request.",
+                USER_SUB, USER_ROLES, ARTIST_ID);
 
         // Search for the jwt
         if (headerAuth == null || !headerAuth.startsWith("Bearer ")) {
@@ -58,17 +64,17 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
                     ServerHttpRequest newReq = strippedExchange.getRequest()
                             .mutate()
                             .headers(h -> {
-                                h.set("X-User-Sub", sub);
+                                h.set(USER_SUB, sub);
 
                                 // Avoid putting the headers if the given data is null
                                 if (groups != null && !groups.isEmpty())
-                                    h.set("X-User-Roles", String.join(",", groups));
+                                    h.set(USER_ROLES, String.join(",", groups));
                                 else
-                                    log.trace("No groups claims found in the request. Forwarding request without X-User-Roles header.");
+                                    log.trace("No groups claims found in the request. Forwarding request without {} header.", USER_ROLES);
                                 if (artistId != null)
-                                    h.set("X-Artist-Id", artistId);
+                                    h.set(ARTIST_ID, artistId);
                                 else
-                                    log.trace("No {} claims found in the request. Forwarding request without X-Artist-Id header.", artistIdClaim);
+                                    log.trace("No {} claims found in the request. Forwarding request without {} header.", artistIdClaim, ARTIST_ID);
                             })
                             .build();
 
