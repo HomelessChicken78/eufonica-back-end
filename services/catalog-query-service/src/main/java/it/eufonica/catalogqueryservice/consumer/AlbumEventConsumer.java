@@ -67,7 +67,7 @@ public class AlbumEventConsumer {
             case "AlbumSongAddedEvent" -> handleAlbumSongAdded(eventId, objectMapper.readValue(payload, AlbumSongAddedEvent.class));
             case "AlbumSongRemovedEvent" -> handleAlbumSongRemoved(eventId, objectMapper.readValue(payload, AlbumSongRemovedEvent.class));
             case "AlbumUpdatedEvent" -> handleAlbumUpdatedEvent(eventId, objectMapper.readValue(payload, AlbumUpdatedEvent.class));
-            case "DeletedAlbumEvent" -> handleAlbumDeletion(eventId, objectMapper.readValue(payload, AlbumDeletedEvent.class));
+            case "AlbumDeletedEvent" -> handleAlbumDeletion(eventId, objectMapper.readValue(payload, AlbumDeletedEvent.class));
             default -> log.warn("Unknown event type received. eventType={}", eventType);
         }
     }
@@ -226,7 +226,7 @@ public class AlbumEventConsumer {
     }
 
     /**
-     * Handles the removal of an album after a DeletedAlbumEvent is received.
+     * Handles the removal of an album after a AlbumDeletedEvent is received.
      * <p>If the album doesn't exist, this does nothing aside from a
      * debug log, since deletion is idempotent by nature.</p>
      *
@@ -234,7 +234,7 @@ public class AlbumEventConsumer {
      * @param event The deserialized event's payload
      */
     public void handleAlbumDeletion(UUID eventId, AlbumDeletedEvent event) {
-        if (!processingService.saveOrIgnore(eventId, "DeletedAlbumEvent", event.getId().toString())) return;
+        if (!processingService.saveOrIgnore(eventId, "AlbumDeletedEvent", event.getId().toString())) return;
 
         // Delete the many-to-many link tables, since there is no
         // cascade configured - orphaned rows would otherwise be left
