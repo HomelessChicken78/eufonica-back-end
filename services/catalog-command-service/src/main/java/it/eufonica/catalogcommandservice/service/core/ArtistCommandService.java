@@ -29,11 +29,10 @@ public interface ArtistCommandService {
     /**
      * Updates the data of the artist matching the caller's own artist affiliation.
      *
-     * @param artistId the unique id of the artist to update
      * @param creationRequestDTO the updated artist data
      *
      * @return the updated artist
-     * @throws ForbiddenException if the caller is not the artist identified by {@code artistId}
+     * @throws ForbiddenException if the caller has no artist affiliation
      */
-    ArtistSummaryResponseDTO updateArtist(UUID artistId, ArtistCreationRequestDTO creationRequestDTO);
+    ArtistSummaryResponseDTO updateArtist(ArtistCreationRequestDTO creationRequestDTO);
 }

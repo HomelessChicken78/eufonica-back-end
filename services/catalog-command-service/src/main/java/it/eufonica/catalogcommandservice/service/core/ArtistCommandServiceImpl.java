@@ -82,9 +82,9 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
     }
 
     @Override
-    public ArtistSummaryResponseDTO updateArtist(UUID artistId, ArtistCreationRequestDTO creationRequestDTO) {
+    public ArtistSummaryResponseDTO updateArtist(ArtistCreationRequestDTO creationRequestDTO) {
         currentUser.requireUser();
-        accessGuard.requireArtist(artistId);
+        UUID artistId = accessGuard.requireArtist();
 
         log.info("Updating artist with id {}.", artistId);
         validateArtistRequest(creationRequestDTO);

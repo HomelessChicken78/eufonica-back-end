@@ -8,8 +8,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.UUID;
-
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController @RequestMapping("/artists")
@@ -17,10 +15,9 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ArtistController {
     private final ArtistCommandService artistCommandService;
 
-    @PutMapping(path = "/{artistId}", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    public ArtistSummaryResponseDTO updateArtist(@PathVariable UUID artistId,
-                                                 @RequestBody @Valid ArtistCreationRequestDTO creationRequestDTO) {
-        ArtistSummaryResponseDTO artist = artistCommandService.updateArtist(artistId, creationRequestDTO);
+    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    public ArtistSummaryResponseDTO updateArtist(@RequestBody @Valid ArtistCreationRequestDTO creationRequestDTO) {
+        ArtistSummaryResponseDTO artist = artistCommandService.updateArtist(creationRequestDTO);
         log.info("Artist updated: {}.", artist);
         return artist;
     }
