@@ -2,6 +2,7 @@ package it.eufonica.gatewayservice.security;
 
 import lombok.RequiredArgsConstructor;
 import org.jspecify.annotations.NullMarked;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.oauth2.jwt.ReactiveJwtDecoder;
 import org.springframework.stereotype.Component;
@@ -17,6 +18,9 @@ import java.util.List;
 public class JwtClaimsToHeadersFilter implements WebFilter {
     private final ReactiveJwtDecoder jwtDecoder;
     private static final String GROUPS_CLAIM = "cognito:groups";
+
+    @Value("${ARTIST_ID_CLAIM:artist_id}")
+    private String artistIdClaim;
 
     @Override @NullMarked
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
@@ -42,7 +46,7 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
                 .flatMap(jwt -> {
                     String sub = jwt.getSubject();
                     List<String> groups = jwt.getClaimAsStringList(GROUPS_CLAIM);
-                    String artistId = jwt.getClaimAsString("custom:artist_id");
+                    String artistId = jwt.getClaimAsString(artistIdClaim);
 
                     ServerHttpRequest newReq = strippedExchange.getRequest()
                             .mutate()
