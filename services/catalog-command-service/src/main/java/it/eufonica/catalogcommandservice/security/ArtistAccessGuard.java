@@ -5,11 +5,13 @@ import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorExc
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 
 import java.util.UUID;
 
-@Component @RequiredArgsConstructor
+@Component
+@RequiredArgsConstructor @Slf4j
 public class ArtistAccessGuard {
     private final CurrentUserProvider currentUser;
     private final ArtistRepository artistRepository;
@@ -23,14 +25,19 @@ public class ArtistAccessGuard {
      */
     public UUID requireArtist() {
         String artistIdHeader = currentUser.getArtistId();
-        if (artistIdHeader == null || artistIdHeader.isBlank())
+        if (artistIdHeader == null || artistIdHeader.isBlank()) {
+            log.debug("requireArtist failed: no X-Artist-Id header present.");
             throw new ForbiddenException("Only an artist can perform this action.");
+        }
 
         UUID callerArtistId = UUID.fromString(artistIdHeader);
 
-        if (!artistRepository.existsById(callerArtistId))
+        if (!artistRepository.existsById(callerArtistId)) {
+            log.debug("requireArtist failed: artist {} not found in DB.", callerArtistId);
             throw new InternalServerErrorException("Authenticated artist " + callerArtistId + " not found.");
+        }
 
+        log.debug("requireArtist succeeded for artist {}.", callerArtistId);
         return callerArtistId;
     }
 
