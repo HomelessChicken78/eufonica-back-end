@@ -5,7 +5,7 @@ import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
-import it.eufonica.catalogcommandservice.event.album.DeletedAlbumEvent;
+import it.eufonica.catalogcommandservice.event.album.AlbumDeletedEvent;
 import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
@@ -226,7 +226,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         albumRepository.deleteById(albumId);
 
         eventPublisher.publish(album.getId().toString(), "AlbumDeletedEvent",
-                albumTopicName, new DeletedAlbumEvent(album.getVersion(), album.getId()));
+                albumTopicName, new AlbumDeletedEvent(album.getVersion(), album.getId()));
     }
 
     @Override
