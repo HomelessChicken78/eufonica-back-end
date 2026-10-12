@@ -1,6 +1,7 @@
 package it.eufonica.gatewayservice.security;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.jspecify.annotations.NullMarked;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -14,7 +15,7 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 @Component
-@RequiredArgsConstructor
+@RequiredArgsConstructor @Slf4j
 public class JwtClaimsToHeadersFilter implements WebFilter {
     private final ReactiveJwtDecoder jwtDecoder;
     private static final String GROUPS_CLAIM = "cognito:groups";
@@ -36,10 +37,13 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
                 })
                 .build();
         var strippedExchange = exchange.mutate().request(strippedHeaders).build();
+        log.trace("Headers X-User-Sub, X-User-Roles, and X-Artist-Id might have been removed from the original request.");
 
         // Search for the jwt
-        if (headerAuth == null || !headerAuth.startsWith("Bearer "))
+        if (headerAuth == null || !headerAuth.startsWith("Bearer ")) {
+            log.trace("No Bearer token present, forwarding request without identity headers.");
             return chain.filter(strippedExchange);
+        }
 
         // Try to put the jwt, the roles and the artist id as headers
         return jwtDecoder.decode(headerAuth.substring("Bearer ".length()))
@@ -47,6 +51,9 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
                     String sub = jwt.getSubject();
                     List<String> groups = jwt.getClaimAsStringList(GROUPS_CLAIM);
                     String artistId = jwt.getClaimAsString(artistIdClaim);
+
+                    log.debug("Decoded JWT claims. sub={}, groups={}, artistIdClaim={}, artistId={}",
+                            sub, groups, artistIdClaim, artistId);
 
                     ServerHttpRequest newReq = strippedExchange.getRequest()
                             .mutate()
@@ -56,8 +63,12 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
                                 // Avoid putting the headers if the given data is null
                                 if (groups != null && !groups.isEmpty())
                                     h.set("X-User-Roles", String.join(",", groups));
+                                else
+                                    log.trace("No groups claims found in the request. Forwarding request without X-User-Roles header.");
                                 if (artistId != null)
                                     h.set("X-Artist-Id", artistId);
+                                else
+                                    log.trace("No {} claims found in the request. Forwarding request without X-Artist-Id header.", artistIdClaim);
                             })
                             .build();
 
@@ -66,7 +77,11 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
 
                 // If it fails, continue with the filters without doing anything
                 .onErrorResume(
-                        throwable -> chain.filter(strippedExchange)
+                        throwable -> {
+                            log.warn("JWT decoding failed, forwarding request without identity headers. reason={}",
+                                    throwable.getMessage());
+                            return chain.filter(strippedExchange);
+                        }
                 );
     }
 }
