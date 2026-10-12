@@ -2,6 +2,7 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
+import it.eufonica.catalogcommandservice.exception.client.ConflictException;
 import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.model.Song;
 import org.springframework.web.multipart.MultipartFile;
@@ -30,8 +31,8 @@ public interface SongCommandService {
      * @param audioFile the audio file associated with the song
      *
      * @return the DTO representing the published song
-     * @throws it.eufonica.catalogcommandservice.exception.client.NotFoundException if the owner or one of the credited artists does not exist
-     * @throws it.eufonica.catalogcommandservice.exception.client.ConflictException if a song with the same title already exists for the owner,
+     * @throws NotFoundException if the owner or one of the credited artists does not exist
+     * @throws ConflictException if a song with the same title already exists for the owner,
      * or if a credited artist was founded after the song's publication date
      */
     SongResponseDTO publishSong(PublishSongRequestDTO request, UUID ownerId, MultipartFile audioFile);
@@ -43,7 +44,7 @@ public interface SongCommandService {
      * @param idArtist the unique id of the artist to credit
      *
      * @return the DTO representing the updated song
-     * @throws it.eufonica.catalogcommandservice.exception.client.NotFoundException if the song or artist does not exist
+     * @throws NotFoundException if the song or artist does not exist
      */
     SongResponseDTO addCreditedArtist(UUID idSong, UUID idArtist);
 
@@ -54,8 +55,8 @@ public interface SongCommandService {
      * @param idArtist the unique id of the artist to remove
      *
      * @return the DTO representing the updated song
-     * @throws it.eufonica.catalogcommandservice.exception.client.NotFoundException if the song or artist does not exist
-     * @throws it.eufonica.catalogcommandservice.exception.client.ConflictException if the artist to remove is the primary owner of the song
+     * @throws NotFoundException if the song or artist does not exist
+     * @throws ConflictException if the artist to remove is the primary owner of the song
      */
     SongResponseDTO removeCreditedArtist(UUID idSong, UUID idArtist);
 }
