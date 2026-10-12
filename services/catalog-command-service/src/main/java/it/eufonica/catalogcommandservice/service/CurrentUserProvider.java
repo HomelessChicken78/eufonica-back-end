@@ -107,6 +107,8 @@ public class CurrentUserProvider {
      * @return A string containing the artist id or {@code null} if there is no {@code X-Artist-Id} header
      */
     public String getArtistId() {
-        return getCurrentRequest().getHeader("X-Artist-Id");
+        String artistId = getCurrentRequest().getHeader("X-Artist-Id");
+        log.debug("X-Artist-Id header: {}", artistId);
+        return artistId;
     }
 }
