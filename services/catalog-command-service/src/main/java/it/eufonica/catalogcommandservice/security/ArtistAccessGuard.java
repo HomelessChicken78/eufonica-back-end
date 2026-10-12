@@ -16,6 +16,9 @@ public class ArtistAccessGuard {
     private final CurrentUserProvider currentUser;
     private final ArtistRepository artistRepository;
 
+    // Header names
+    private static final String ARTIST_ID = "X-Artist-Id";
+
     /**
      * Ensures the caller is authenticated as an existing artist.
      *
@@ -26,7 +29,7 @@ public class ArtistAccessGuard {
     public UUID requireArtist() {
         String artistIdHeader = currentUser.getArtistId();
         if (artistIdHeader == null || artistIdHeader.isBlank()) {
-            log.debug("requireArtist failed: no X-Artist-Id header present.");
+            log.debug("requireArtist failed: no {} header present.", ARTIST_ID);
             throw new ForbiddenException("Only an artist can perform this action.");
         }
 
