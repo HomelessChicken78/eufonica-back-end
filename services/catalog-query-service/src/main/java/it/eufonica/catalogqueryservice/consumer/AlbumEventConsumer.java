@@ -209,14 +209,18 @@ public class AlbumEventConsumer {
         albumRepository.save(albumMapper.toEntity(event));
 
         // Remove all the links between the album and the artists to guarantee a clean new state
+        // Flush to force the order of delete-recreate
         artAlbumRepository.deleteByAlbumId(event.getId());
+        artAlbumRepository.flush();
 
         // Add all the links between the album and the artists back
         for (AlbumUpdatedEvent.Artist art : event.getArtists())
             artAlbumRepository.save(new ArtAlbumRead(null, event.getId(), art.getId()));
 
         // Remove all the links between the album and the songs to guarantee a clean new state
+        // Flush to force the order of delete-recreate
         albumContainsRepository.deleteByAlbumId(event.getId());
+        albumContainsRepository.flush();
 
         // Add all the links between the album and the songs back
         for (AlbumUpdatedEvent.Song song : event.getSongs())
