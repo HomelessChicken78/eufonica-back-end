@@ -41,4 +41,6 @@ logging:
   level:
     root: ${ROOT_LOG_LEVEL:INFO}
     it.eufonica.catalogcommandservice.service: ${SERVICE_LOG_LEVEL:INFO}
+    it.eufonica.catalogcommandservice.controller: ${CONTROLLER_LOG_LEVEL:INFO}
+    it.eufonica.catalogcommandservice.security: ${SECURITY_LOG_LEVEL:INFO}
     it.eufonica.catalogcommandservice.outbox: ${OUTBOX_LOG_LEVEL:INFO}
