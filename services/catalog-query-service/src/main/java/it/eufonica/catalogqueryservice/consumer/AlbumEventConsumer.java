@@ -5,7 +5,6 @@ import it.eufonica.catalogqueryservice.mapper.AlbumMapper;
 import it.eufonica.catalogqueryservice.model.AlbumContainsRead;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
 import it.eufonica.catalogqueryservice.model.ArtAlbumRead;
-import it.eufonica.catalogqueryservice.model.ArtistRead;
 import it.eufonica.catalogqueryservice.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.AlbumContainsRepository;
 import it.eufonica.catalogqueryservice.repository.AlbumRepository;
@@ -68,7 +67,7 @@ public class AlbumEventConsumer {
             case "AlbumSongAddedEvent" -> handleAlbumSongAdded(eventId, objectMapper.readValue(payload, AlbumSongAddedEvent.class));
             case "AlbumSongRemovedEvent" -> handleAlbumSongRemoved(eventId, objectMapper.readValue(payload, AlbumSongRemovedEvent.class));
             case "AlbumUpdatedEvent" -> handleAlbumUpdatedEvent(eventId, objectMapper.readValue(payload, AlbumUpdatedEvent.class));
-            case "DeletedAlbumEvent" -> handleAlbumDeletion(eventId, objectMapper.readValue(payload, DeletedAlbumEvent.class));
+            case "DeletedAlbumEvent" -> handleAlbumDeletion(eventId, objectMapper.readValue(payload, AlbumDeletedEvent.class));
             default -> log.warn("Unknown event type received. eventType={}", eventType);
         }
     }
@@ -234,7 +233,7 @@ public class AlbumEventConsumer {
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
      */
-    public void handleAlbumDeletion(UUID eventId, DeletedAlbumEvent event) {
+    public void handleAlbumDeletion(UUID eventId, AlbumDeletedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "DeletedAlbumEvent", event.getId().toString())) return;
 
         // Delete the many-to-many link tables, since there is no

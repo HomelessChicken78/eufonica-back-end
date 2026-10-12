@@ -8,7 +8,7 @@ import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor
 @Data
-public class DeletedAlbumEvent {
+public class AlbumDeletedEvent {
     private Integer version;
     private UUID id;
 }
