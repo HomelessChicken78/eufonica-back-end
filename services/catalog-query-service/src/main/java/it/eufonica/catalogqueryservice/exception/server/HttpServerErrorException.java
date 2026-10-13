@@ -1,14 +1,15 @@
 package it.eufonica.catalogqueryservice.exception.server;
 
+import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import it.eufonica.catalogqueryservice.exception.HttpException;
 
 public class HttpServerErrorException extends HttpException {
-    public HttpServerErrorException(String message) {
-        super(message);
-    }
-
     public HttpServerErrorException() {
         super();
+    }
+
+    public HttpServerErrorException(String message) {
+        super(message);
     }
 
     public HttpServerErrorException(String message, Throwable cause) {
@@ -17,6 +18,14 @@ public class HttpServerErrorException extends HttpException {
 
     public HttpServerErrorException(Throwable cause) {
         super(cause);
+    }
+
+    public HttpServerErrorException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
+    public HttpServerErrorException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 
     protected HttpServerErrorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
