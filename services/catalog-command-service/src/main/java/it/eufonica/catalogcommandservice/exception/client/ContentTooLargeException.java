@@ -1,12 +1,14 @@
 package it.eufonica.catalogcommandservice.exception.client;
 
-public class ContentTooLargeException extends HttpClientErrorException {
-    public ContentTooLargeException(String message) {
-        super(message);
-    }
+import it.eufonica.catalogcommandservice.exception.ErrorReason;
 
+public class ContentTooLargeException extends HttpClientErrorException {
     public ContentTooLargeException() {
         super();
+    }
+
+    public ContentTooLargeException(String message) {
+        super(message);
     }
 
     public ContentTooLargeException(String message, Throwable cause) {
@@ -15,6 +17,14 @@ public class ContentTooLargeException extends HttpClientErrorException {
 
     public ContentTooLargeException(Throwable cause) {
         super(cause);
+    }
+
+    public ContentTooLargeException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
+    public ContentTooLargeException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 
     protected ContentTooLargeException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

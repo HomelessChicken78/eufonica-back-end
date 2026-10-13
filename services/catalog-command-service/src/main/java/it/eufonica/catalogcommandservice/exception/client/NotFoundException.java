@@ -1,5 +1,7 @@
 package it.eufonica.catalogcommandservice.exception.client;
 
+import it.eufonica.catalogcommandservice.exception.ErrorReason;
+
 public class NotFoundException extends HttpClientErrorException {
     public NotFoundException() {
         super();
@@ -15,6 +17,14 @@ public class NotFoundException extends HttpClientErrorException {
 
     public NotFoundException(Throwable cause) {
         super(cause);
+    }
+
+    public NotFoundException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
+    public NotFoundException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 
     protected NotFoundException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
