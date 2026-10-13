@@ -1,12 +1,14 @@
 package it.eufonica.authservice.exception.server;
 
-public class NotImplementedException extends HttpServerErrorException  {
-    public NotImplementedException(String message) {
-        super(message);
-    }
+import it.eufonica.authservice.exception.ErrorReason;
 
+public class NotImplementedException extends HttpServerErrorException  {
     public NotImplementedException() {
         super();
+    }
+
+    public NotImplementedException(String message) {
+        super(message);
     }
 
     public NotImplementedException(String message, Throwable cause) {
@@ -17,7 +19,15 @@ public class NotImplementedException extends HttpServerErrorException  {
         super(cause);
     }
 
+    public NotImplementedException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
     protected NotImplementedException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
         super(message, cause, enableSuppression, writableStackTrace);
+    }
+
+    public NotImplementedException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 }

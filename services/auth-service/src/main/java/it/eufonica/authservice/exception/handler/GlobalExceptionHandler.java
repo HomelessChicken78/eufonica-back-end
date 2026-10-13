@@ -1,11 +1,9 @@
 package it.eufonica.authservice.exception.handler;
 
 import it.eufonica.authservice.exception.client.*;
-import it.eufonica.authservice.exception.server.InternalServerErrorException;
-import it.eufonica.authservice.exception.client.*;
 import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.authservice.exception.dto.ValidationErrorResponseDTO;
-import it.eufonica.authservice.exception.server.NotImplementedException;
+import it.eufonica.authservice.exception.server.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.OptimisticLockingFailureException;

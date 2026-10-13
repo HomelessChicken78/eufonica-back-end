@@ -1,5 +1,7 @@
 package it.eufonica.authservice.exception.client;
 
+import it.eufonica.authservice.exception.ErrorReason;
+
 public class BadRequestException extends HttpClientErrorException {
     public BadRequestException() {
         super();
@@ -15,6 +17,14 @@ public class BadRequestException extends HttpClientErrorException {
 
     public BadRequestException(Throwable cause) {
         super(cause);
+    }
+
+    public BadRequestException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
+    public BadRequestException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 
     protected BadRequestException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

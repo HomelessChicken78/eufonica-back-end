@@ -1,12 +1,14 @@
 package it.eufonica.authservice.exception.server;
 
-public class InternalServerErrorException extends HttpServerErrorException {
-    public InternalServerErrorException(String message) {
-        super(message);
-    }
+import it.eufonica.authservice.exception.ErrorReason;
 
+public class InternalServerErrorException extends HttpServerErrorException {
     public InternalServerErrorException() {
         super();
+    }
+
+    public InternalServerErrorException(String message) {
+        super(message);
     }
 
     public InternalServerErrorException(String message, Throwable cause) {
@@ -15,6 +17,14 @@ public class InternalServerErrorException extends HttpServerErrorException {
 
     public InternalServerErrorException(Throwable cause) {
         super(cause);
+    }
+
+    public InternalServerErrorException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
+    public InternalServerErrorException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 
     protected InternalServerErrorException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {

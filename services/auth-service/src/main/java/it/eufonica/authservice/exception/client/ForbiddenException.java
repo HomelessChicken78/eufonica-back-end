@@ -1,12 +1,14 @@
 package it.eufonica.authservice.exception.client;
 
-public class ForbiddenException extends HttpClientErrorException {
-    public ForbiddenException(String message) {
-        super(message);
-    }
+import it.eufonica.authservice.exception.ErrorReason;
 
+public class ForbiddenException extends HttpClientErrorException {
     public ForbiddenException() {
         super();
+    }
+
+    public ForbiddenException(String message) {
+        super(message);
     }
 
     public ForbiddenException(String message, Throwable cause) {
@@ -15,6 +17,14 @@ public class ForbiddenException extends HttpClientErrorException {
 
     public ForbiddenException(Throwable cause) {
         super(cause);
+    }
+
+    public ForbiddenException(String message, ErrorReason reason) {
+        super(message, reason);
+    }
+
+    public ForbiddenException(String message, ErrorReason reason, Throwable cause) {
+        super(message, reason, cause);
     }
 
     protected ForbiddenException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
