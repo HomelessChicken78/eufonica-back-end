@@ -1,5 +1,6 @@
 package it.eufonica.catalogqueryservice.exception.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -20,6 +21,7 @@ public class ValidationErrorResponseDTO {
 
     private Integer status = 400;
 
+    @JsonInclude(JsonInclude.Include.NON_NULL)
     private ErrorReason reason = ErrorReason.VALIDATION_ERROR;
 
     public ValidationErrorResponseDTO(Map<String, String> errors) {
