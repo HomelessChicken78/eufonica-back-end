@@ -1,5 +1,6 @@
 package it.eufonica.catalogqueryservice.exception.handler;
 
+import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import it.eufonica.catalogqueryservice.exception.client.*;
 import it.eufonica.catalogqueryservice.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.catalogqueryservice.exception.dto.ValidationErrorResponseDTO;
@@ -26,7 +27,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .badRequest()
-                .body(new GeneralErrorResponseDTO(err400.getMessage(), 400));
+                .body(new GeneralErrorResponseDTO(err400.getMessage(), 400, err400.getReason()));
     }
 
     @ExceptionHandler
@@ -35,7 +36,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.UNAUTHORIZED)
-                .body(new GeneralErrorResponseDTO(err401.getMessage(), 401));
+                .body(new GeneralErrorResponseDTO(err401.getMessage(), 401, err401.getReason()));
     }
 
     @ExceptionHandler
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.PAYMENT_REQUIRED)
-                .body(new GeneralErrorResponseDTO(err402.getMessage(), 402));
+                .body(new GeneralErrorResponseDTO(err402.getMessage(), 402, err402.getReason()));
     }
 
     @ExceptionHandler
@@ -53,7 +54,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.FORBIDDEN)
-                .body(new GeneralErrorResponseDTO(err403.getMessage(), 403));
+                .body(new GeneralErrorResponseDTO(err403.getMessage(), 403, err403.getReason()));
     }
 
     @ExceptionHandler
@@ -62,7 +63,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(new GeneralErrorResponseDTO(err404.getMessage(), 404));
+                .body(new GeneralErrorResponseDTO(err404.getMessage(), 404, err404.getReason()));
     }
 
     @ExceptionHandler
@@ -71,7 +72,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.CONFLICT)
-                .body(new GeneralErrorResponseDTO(err409.getMessage(), 409));
+                .body(new GeneralErrorResponseDTO(err409.getMessage(), 409, err409.getReason()));
     }
 
     @ExceptionHandler
@@ -86,10 +87,10 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.CONFLICT)
                 .body(new GeneralErrorResponseDTO(
                         "Resource was modified by another request. Please reload and try again.",
-                        409
+                        409,
+                        ErrorReason.INTERNAL_ERROR
                 ));
     }
-
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error413(ContentTooLargeException err413) {
@@ -97,7 +98,7 @@ public class GlobalExceptionHandler {
 
         return ResponseEntity
                 .status(HttpStatus.CONTENT_TOO_LARGE)
-                .body(new GeneralErrorResponseDTO(err413.getMessage(), 413));
+                .body(new GeneralErrorResponseDTO(err413.getMessage(), 413, err413.getReason()));
     }
 
     @ExceptionHandler
@@ -136,7 +137,8 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new GeneralErrorResponseDTO(
                         "An unexpected error occurred.",
-                        500
+                        500,
+                        err500.getReason()
                 ));
     }
 
@@ -148,7 +150,8 @@ public class GlobalExceptionHandler {
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(new GeneralErrorResponseDTO(
                         err501.getMessage(),
-                        501
+                        501,
+                        err501.getReason()
                 ));
     }
 }

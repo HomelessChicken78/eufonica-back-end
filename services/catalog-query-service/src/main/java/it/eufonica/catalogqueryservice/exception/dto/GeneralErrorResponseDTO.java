@@ -1,5 +1,7 @@
 package it.eufonica.catalogqueryservice.exception.dto;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
+import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -16,11 +18,14 @@ public class GeneralErrorResponseDTO {
 
     private Integer status = 400;
 
-    public GeneralErrorResponseDTO(String message) {
+    @JsonInclude(JsonInclude.Include.NON_NULL)
+    private ErrorReason reason;
+
+    public GeneralErrorResponseDTO(String message, ErrorReason reason) {
         this.message = message;
     }
 
-    public GeneralErrorResponseDTO(String message, Integer status) {
+    public GeneralErrorResponseDTO(String message, Integer status, ErrorReason reason) {
         this.message = message;
         this.status = status;
     }
