@@ -10,6 +10,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service @Transactional
 @RequiredArgsConstructor
 public class AccessMethodServiceImpl implements AccessMethodService {
+    private final AccessMethodRepository accessMethodRepository;
+
     @Override
     public String getSubFromUser(AppUser user) {
         return accessMethodRepository.findByUser(user)
@@ -18,8 +20,4 @@ public class AccessMethodServiceImpl implements AccessMethodService {
                         new InternalServerErrorException("User " + user.getId() + " has no associated access method."))
                 .getProviderUserId();
     }
-
-    private final AccessMethodRepository accessMethodRepository;
-
-
 }
