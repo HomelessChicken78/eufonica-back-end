@@ -34,7 +34,7 @@ public class CurrentUserProvider {
         // A request should normally always be present.
         // If not, this method was called outside an HTTP request context
         // or from a thread without a bound request.
-        if (attributes == null) throw new InternalServerErrorException("No request bound to the current thread.", ErrorReason.INTERNAL_ERROR);
+        if (attributes == null) throw new IllegalStateException("No request bound to the current thread.");
 
         return attributes.getRequest();
     }
