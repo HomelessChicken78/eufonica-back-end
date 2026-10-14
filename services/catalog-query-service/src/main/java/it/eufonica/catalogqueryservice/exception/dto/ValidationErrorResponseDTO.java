@@ -25,7 +25,7 @@ public class ValidationErrorResponseDTO {
 
     public ValidationErrorResponseDTO(List<String> fields, List<String> messages) {
         if (fields.size() != messages.size())
-            throw new IllegalArgumentException("Number of fields must match number of messages"); // Inglese perché è un errore lato programmazione, non lato API/applicazione
+            throw new IllegalArgumentException("Number of fields must match number of messages");
 
         this.errors = new LinkedHashMap<>();
 
