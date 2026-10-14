@@ -1,5 +1,6 @@
 package it.eufonica.catalogcommandservice.service;
 
+import it.eufonica.catalogcommandservice.exception.ErrorReason;
 import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
 import it.eufonica.catalogcommandservice.exception.client.UnauthorizedException;
 import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
@@ -33,7 +34,7 @@ public class CurrentUserProvider {
         // A request should normally always be present.
         // If not, this method was called outside an HTTP request context
         // or from a thread without a bound request.
-        if (attributes == null) throw new InternalServerErrorException("No request bound to the current thread.");
+        if (attributes == null) throw new InternalServerErrorException("No request bound to the current thread.", ErrorReason.INTERNAL_ERROR);
 
         return attributes.getRequest();
     }
@@ -49,7 +50,7 @@ public class CurrentUserProvider {
         String sub = getCurrentRequest().getHeader(USER_SUB);
 
         if (sub == null || sub.isBlank())
-            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), ErrorReason.UNAUTHENTICATED);
 
         log.trace("Retrieved sub from the current security context. sub={}", sub);
 
@@ -93,7 +94,7 @@ public class CurrentUserProvider {
      */
     public void requireUser() {
         if (!getRoles().contains("USER"))
-            throw new ForbiddenException("This action require an USER role.");
+            throw new ForbiddenException("This action require an USER role.", ErrorReason.NOT_AN_USER);
     }
 
     /**
@@ -103,7 +104,7 @@ public class CurrentUserProvider {
      */
     public void requireAdmin() {
         if (!isAdmin())
-            throw new ForbiddenException("This action require an ADMIN role.");
+            throw new ForbiddenException("This action require an ADMIN role.", ErrorReason.NOT_AN_ADMIN);
     }
 
     /**

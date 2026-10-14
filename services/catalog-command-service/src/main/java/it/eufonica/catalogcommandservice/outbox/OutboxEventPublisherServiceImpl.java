@@ -1,5 +1,6 @@
 package it.eufonica.catalogcommandservice.outbox;
 
+import it.eufonica.catalogcommandservice.exception.ErrorReason;
 import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,7 +21,7 @@ public class OutboxEventPublisherServiceImpl implements OutboxEventPublisherServ
         try {
             payload = objectMapper.writeValueAsString(event);
         } catch (JacksonException e) {
-            throw new InternalServerErrorException("Failed to serialize " + eventType + ".", e);
+            throw new InternalServerErrorException("Failed to serialize " + eventType + ".", ErrorReason.INTERNAL_ERROR, e);
         }
 
         OutboxEvent outboxEvent = OutboxEvent.builder()

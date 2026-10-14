@@ -1,4 +1,57 @@
 package it.eufonica.catalogcommandservice.exception;
 
 public enum ErrorReason {
+    // 4XX
+    // 400 Equivalent
+    FUTURE_FOUNDATION_DATE,
+    MISSING_REQUIRED_FIELD,
+
+    // MIME & Files
+    MIME_NOT_ALLOWED,
+    MISSING_MIME_TYPE,
+    MISSING_AUDIO_FILE,
+
+    // 401 Equivalent
+    UNAUTHENTICATED,
+
+    // 403 Equivalent
+    NOT_AN_ARTIST,
+    ARTIST_OWNERSHIP_MISMATCH,
+    NOT_AN_USER,
+    NOT_AN_ADMIN,
+    NOT_RESOURCE_OWNER,
+
+    // 404 Equivalent
+    RESOURCE_NOT_FOUND,
+
+    // 409 Equivalent
+    // Artists
+    ARTIST_NAME_ALREADY_EXISTS,
+    ARTIST_FOUNDED_AFTER_ALBUM_RELEASE,
+    ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION,
+    ARTIST_FOUNDED_AFTER_ALBUM_PUBLICATION,
+
+    // Song
+    SONG_NAME_ALREADY_EXISTS_FOR_ARTIST,
+
+    // Song-Artist (song_credit)
+    CANNOT_REMOVE_PRIMARY_OWNER_CREDIT,
+    INVALID_CREDITED_ARTIST_FOUNDATION_DATE,
+
+    // Album
+    ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE,
+
+    // Album-Song (album_contains)
+    SONG_NOT_IN_ALBUM,
+
+    // 413 Equivalent
+    AUDIO_FILE_TOO_LARGE,
+
+    // 5XX
+    // 500 Equivalent
+    INTERNAL_ERROR,
+    UNREADABLE_AUDIO_FILE,
+
+    // Misc
+    UNEXPECTED_ERROR
 }
