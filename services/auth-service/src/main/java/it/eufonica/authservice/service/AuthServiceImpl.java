@@ -1,6 +1,7 @@
 package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.auth.SignUpRequestDTO;
+import it.eufonica.authservice.exception.ErrorReason;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.mapper.AppUserMapper;
 import it.eufonica.authservice.model.AccessMethod;
@@ -36,13 +37,17 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public void signUp(SignUpRequestDTO request, String sub) {
         if (currentUserKeyword.equals(request.getDisplayName()))
-            throw new ConflictException("The username \"" + currentUserKeyword + "\" is reserved. Please choose a different one.");
+            throw new ConflictException("The username \"" + currentUserKeyword + "\" is reserved. Please choose a different one.",
+                    ErrorReason.RESERVED_DISPLAY_NAME);
 
         if (accessMethodRepository.existsByProviderNameAndProviderUserId(providerName, sub))
-            throw new ConflictException("You have already signed up. Try to login instead.");
+            throw new ConflictException("You have already signed up. Try to login instead.", ErrorReason.ALREADY_SIGNED_UP);
 
         if (userRepository.existsByDisplayName(request.getDisplayName()))
-            throw new ConflictException(String.format("The username %s is already in use. Try a different one.", request.getDisplayName()));
+            throw new ConflictException(
+                    String.format("The username %s is already in use. Try a different one.", request.getDisplayName()),
+                    ErrorReason.DISPLAY_NAME_ALREADY_IN_USE
+            );
 
         AppUser user = userRepository.save(userMapper.toEntity(request));
         accessMethodRepository.save(new AccessMethod(null, providerName, sub, user));

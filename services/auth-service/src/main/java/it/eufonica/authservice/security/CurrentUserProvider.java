@@ -1,5 +1,6 @@
 package it.eufonica.authservice.security;
 
+import it.eufonica.authservice.exception.ErrorReason;
 import it.eufonica.authservice.exception.client.ForbiddenException;
 import it.eufonica.authservice.exception.client.UnauthorizedException;
 import it.eufonica.authservice.exception.server.InternalServerErrorException;
@@ -37,7 +38,7 @@ public class CurrentUserProvider {
         // A request should normally always be present.
         // If not, this method was called outside an HTTP request context
         // or from a thread without a bound request.
-        if (attributes == null) throw new InternalServerErrorException("No request bound to the current thread.");
+        if (attributes == null) throw new IllegalStateException("No request bound to the current thread.");
 
         return attributes.getRequest();
     }
@@ -53,7 +54,7 @@ public class CurrentUserProvider {
         String sub = getCurrentRequest().getHeader("X-User-Sub");
 
         if (sub == null || sub.isBlank())
-            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase());
+            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), ErrorReason.UNAUTHENTICATED);
 
         log.trace("Retrieved sub from the current security context. sub={}", sub);
 
@@ -71,7 +72,8 @@ public class CurrentUserProvider {
         // implies signup already completed, which always creates an AccessMethod.
         AccessMethod accessMethod = accessMethodRepository.findByProviderNameAndProviderUserId(providerName, getSub())
                 .orElseThrow(() -> new InternalServerErrorException(
-                        "Authenticated user with sub " + getSub() + " has no associated access method."));
+                        "Authenticated user with sub " + getSub() + " has no associated access method.",
+                        ErrorReason.INTERNAL_ERROR));
 
         log.debug("Retrieved access method from the current security context. accessMethod={}", accessMethod);
 
@@ -129,7 +131,7 @@ public class CurrentUserProvider {
      */
     public void requireUser() {
         if (!getRoles().contains("USER"))
-            throw new ForbiddenException("This action require an USER role.");
+            throw new ForbiddenException("This action require an USER role.", ErrorReason.NOT_AN_USER);
     }
 
     /**
@@ -139,7 +141,7 @@ public class CurrentUserProvider {
      */
     public void requireAdmin() {
         if (!isAdmin())
-            throw new ForbiddenException("This action require an ADMIN role.");
+            throw new ForbiddenException("This action require an ADMIN role.", ErrorReason.NOT_AN_ADMIN);
     }
 
     /**

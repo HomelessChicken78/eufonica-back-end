@@ -1,12 +1,15 @@
 package it.eufonica.authservice.security;
 
+import it.eufonica.authservice.exception.ErrorReason;
 import it.eufonica.authservice.exception.server.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AttributeType;
+import software.amazon.awssdk.services.cognitoidentityprovider.model.CognitoIdentityProviderException;
 
 import java.util.UUID;
 
@@ -38,10 +41,11 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .userPoolId(cognitoUserPoolId)
                     .userAttributes(artistIdAttribute)
             );
-        } catch (RuntimeException e) {
+        } catch (CognitoIdentityProviderException | SdkClientException e) {
             log.error("Unexpected error while trying to affiliate an user to an artist.", e);
             throw new InternalServerErrorException(
-                    "Unknown error while setting the user as an artist. It might be a connection problem. Please try again later.");
+                    "Unknown error while setting the user as an artist. It might be a connection problem. Please try again later.",
+                    ErrorReason.INTERNAL_ERROR);
         }
     }
 
@@ -57,10 +61,11 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .userPoolId(cognitoUserPoolId)
                     .userAttributes(artistIdAttribute)
             );
-        } catch (RuntimeException e) {
+        } catch (CognitoIdentityProviderException | SdkClientException e) {
             log.error("Unexpected error while trying to remove the artist affiliation for a user.", e);
             throw new InternalServerErrorException(
-                    "Unknown error while removing the user's artist affiliation. It might be a connection problem. Please try again later.");
+                    "Unknown error while removing the user's artist affiliation. It might be a connection problem. Please try again later.",
+                    ErrorReason.INTERNAL_ERROR);
         }
     }
 
@@ -73,10 +78,11 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .username(sub)
                     .groupName(userGroupName)
             );
-        } catch (RuntimeException e) {
+        } catch (CognitoIdentityProviderException | SdkClientException e) {
             log.error("Unexpected error while adding user to the user group. sub={}", sub, e);
             throw new InternalServerErrorException(
-                    "Unknown error while completing the signup. It might be a connection problem. Please try again later.");
+                    "Unknown error while completing the signup. It might be a connection problem. Please try again later.",
+                    ErrorReason.INTERNAL_ERROR);
         }
     }
 }

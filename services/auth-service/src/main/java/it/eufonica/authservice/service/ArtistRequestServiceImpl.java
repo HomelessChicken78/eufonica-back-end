@@ -3,6 +3,7 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.authservice.exception.ErrorReason;
 import it.eufonica.authservice.exception.client.BadRequestException;
 import it.eufonica.authservice.exception.client.ConflictException;
 import it.eufonica.authservice.exception.client.NotFoundException;
@@ -69,10 +70,13 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     private void validateArtistRequest(AppUser currentUser) {
         if (currentUser.getAffiliatedArtist() != null)
-            throw new ConflictException("You appear to already be an artist.");
+            throw new ConflictException("You appear to already be an artist.", ErrorReason.ALREADY_AN_ARTIST);
 
         if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
-            throw new ConflictException("You already have an artist request pending. Please wait for an admin to evaluate that first.");
+            throw new ConflictException(
+                    "You already have an artist request pending. Please wait for an admin to evaluate that first.",
+                    ErrorReason.ARTIST_REQUEST_ALREADY_PENDING
+            );
 
         // [V.ArtistRequest.richiesta_dopo_registrazione_ut] is structurally guaranteed:
         // the request's timestamp is set by Hibernate (@CreationTimestamp) at save time,
@@ -82,9 +86,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     private PageResponseDTO<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
         if (pageNumber < 1)
-            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.",
+                    ErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize < 1)
-            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+            throw new BadRequestException("pageSize must be greater than or equal to 1.",
+                    ErrorReason.INVALID_PAGINATION_PARAMETER);
 
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
@@ -137,7 +143,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     public ArtistRequest findByIdOrThrow(UUID id) {
         ArtistRequest found = requestRepository.findById(id)
                 .orElseThrow(
-                        () -> new NotFoundException("Artist request with the given id (" + id + ") does not exist.")
+                        () -> new NotFoundException(
+                                "Artist request with the given id (" + id + ") does not exist.",
+                                ErrorReason.RESOURCE_NOT_FOUND
+                        )
                 );
 
         log.trace("findByIdOrThrow - found {}", found);
@@ -168,11 +177,17 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         validateArtistRequest(currentUser);
 
         ArtistAuthProjection artist = artistRepository.findById(request.getArtistId())
-                .orElseThrow(() -> new NotFoundException("Artist with the given id (" + request.getArtistId() + ") does not exist."));
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Artist with the given id (" + request.getArtistId() + ") does not exist.",
+                                ErrorReason.RESOURCE_NOT_FOUND
+                        )
+                );
 
         // [V.ArtistRequest.richiesta_dopo_registrazione_art]
         if (!artist.getRegistrationDate().isBefore(LocalDateTime.now()))
-            throw new ConflictException("A request cannot concern an artist who registered after the request itself.");
+            throw new ConflictException(
+                    "A request cannot concern an artist who registered after the request itself.", ErrorReason.ARTIST_REGISTERED_AFTER_REQUEST);
 
         ArtistRequest artistRequest = requestMapper.toEntity(request);
         artistRequest.setRequestedArtist(artist);
@@ -203,7 +218,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      */
     private void validateIsPending(ArtistRequest request) {
         if (request.getStatus() != ArtistRequest.RequestStatus.PENDING)
-            throw new ConflictException("This request has already been evaluated.");
+            throw new ConflictException("This request has already been evaluated.", ErrorReason.REQUEST_ALREADY_EVALUATED);
     }
 
     /**
@@ -216,7 +231,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      */
     private void validateSelfEvaluate(ArtistRequest request, AppUser admin) {
         if (admin.getId().equals(request.getRequestingUser().getId()))
-            throw new ConflictException("You can't approve your own request.");
+            throw new ConflictException("You can't approve your own request.", ErrorReason.SELF_EVALUATION_NOT_ALLOWED);
     }
 
     /**
@@ -422,7 +437,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
             log.debug("Access denied to artist request {}: user {} is neither the owner nor an admin.",
                     requestId, currentUser.getId());
             // Deliberately throw a 404 instead a 401 to not reveal the existence of the artist request
-            throw new NotFoundException("Artist request with the given id (" + requestId + ") does not exist.");
+            throw new NotFoundException("Artist request with the given id (" + requestId + ") does not exist.",
+                    ErrorReason.RESOURCE_NOT_FOUND);
         }
 
         return requestMapper.toFullResponse(request);

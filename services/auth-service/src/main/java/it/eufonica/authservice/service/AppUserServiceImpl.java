@@ -4,6 +4,7 @@ import it.eufonica.authservice.dto.appuser.AppUserFiltersDTO;
 import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.authservice.exception.ErrorReason;
 import it.eufonica.authservice.exception.client.BadRequestException;
 import it.eufonica.authservice.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.AppUserMapper;
@@ -36,7 +37,8 @@ public class AppUserServiceImpl implements AppUserService {
 
     private AppUser findByIdOrThrow(UUID userId) {
         return userRepository.findById(userId)
-                .orElseThrow(() -> new NotFoundException("User with the given id (" + userId + ") does not exist."));
+                .orElseThrow(() -> new NotFoundException("User with the given id (" + userId + ") does not exist.",
+                        ErrorReason.RESOURCE_NOT_FOUND));
     }
 
     private Specification<AppUser> buildSpecification(AppUserFiltersDTO filters) {
@@ -79,9 +81,9 @@ public class AppUserServiceImpl implements AppUserService {
         currentUserProvider.requireAdmin();
 
         if (pageNumber < 1)
-            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.", ErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize < 1)
-            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+            throw new BadRequestException("pageSize must be greater than or equal to 1.", ErrorReason.INVALID_PAGINATION_PARAMETER);
 
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
