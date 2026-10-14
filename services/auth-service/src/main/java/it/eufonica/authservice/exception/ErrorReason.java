@@ -4,6 +4,7 @@ public enum ErrorReason {
     // 4XX
     // 400 Equivalent
     // Pages
+    VALIDATION_ERROR,
     INVALID_PAGINATION_PARAMETER,
 
     // 401 Equivalent

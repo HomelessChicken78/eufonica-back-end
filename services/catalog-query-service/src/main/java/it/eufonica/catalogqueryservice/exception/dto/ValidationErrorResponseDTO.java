@@ -1,5 +1,6 @@
 package it.eufonica.catalogqueryservice.exception.dto;
 
+import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -18,6 +19,8 @@ public class ValidationErrorResponseDTO {
     private LocalDateTime timestamp = LocalDateTime.now();
 
     private Integer status = 400;
+
+    private ErrorReason reason = ErrorReason.VALIDATION_ERROR;
 
     public ValidationErrorResponseDTO(Map<String, String> errors) {
         this.errors = errors;
