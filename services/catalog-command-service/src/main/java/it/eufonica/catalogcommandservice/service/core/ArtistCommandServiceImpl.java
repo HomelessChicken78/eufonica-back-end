@@ -52,7 +52,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
         // Constraint [V.Artist.registrato_dopo_fondazione]
         if (creationRequestDTO.getFoundationDate().isAfter(LocalDate.now()))
-            throw new BadRequestException("Foundation date should be before registration date.", ErrorReason.FUTURE_FOUNDATION_DATE);
+            throw new BadRequestException("Foundation date should be before registration date.", ErrorReason.VALIDATION_ERROR);
     }
 
     @Override

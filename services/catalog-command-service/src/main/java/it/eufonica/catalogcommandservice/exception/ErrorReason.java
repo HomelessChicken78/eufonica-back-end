@@ -3,7 +3,7 @@ package it.eufonica.catalogcommandservice.exception;
 public enum ErrorReason {
     // 4XX
     // 400 Equivalent
-    FUTURE_FOUNDATION_DATE,
+    VALIDATION_ERROR,
     MISSING_REQUIRED_FIELD,
 
     // MIME & Files
