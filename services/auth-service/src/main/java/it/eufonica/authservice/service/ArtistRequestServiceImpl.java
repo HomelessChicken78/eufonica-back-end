@@ -32,6 +32,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 
 import java.time.LocalDateTime;
@@ -301,6 +302,29 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     }
 
     /**
+     * Attempts to parse the error body of a failed response from catalog-command-service
+     * into a {@link GeneralErrorResponseDTO}, so its {@code message} and {@code reason}
+     * can be propagated to the caller of this service.
+     *
+     * @param e the exception thrown for the failed upstream call
+     *
+     * @return the parsed error body, or {@code null} if the body is missing or could not be parsed
+     */
+    @SuppressWarnings("DataFlowIssue")
+    private GeneralErrorResponseDTO parseUpstreamError(HttpStatusCodeException e) {
+        GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
+
+        if (errorResponse == null)
+            log.warn("catalog-command-service returned status {} with no parseable error body.", e.getStatusCode());
+        if (errorResponse.getMessage() == null || errorResponse.getMessage().isEmpty()) {
+            log.info("catalog-command-service returned status {} with empty or null message in the body.", e.getStatusCode());
+            errorResponse.setMessage("unknown error.");
+        }
+
+        return errorResponse;
+    }
+
+    /**
      * Calls catalog-command-service to request the creation of a new artist starting from an {@code ArtistRequest}.
      * Then saves it in the auth's projection.
      *
@@ -321,10 +345,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                     .retrieve()
                     .body(ArtistSummaryResponseDTO.class);
         } catch (HttpClientErrorException.Conflict e) {
-            GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
-            String upstreamMessage = errorResponse != null ? errorResponse.getMessage() : "unknown error";
-            throw new ConflictException("Cannot create the artist: " + upstreamMessage);
-        }  catch (HttpClientErrorException e) {
+            GeneralErrorResponseDTO upstream = parseUpstreamError(e);
+            throw new ConflictException(
+                    "Cannot create the artist: " + upstream.getMessage(), ErrorReason.INTERNAL_ERROR);
+        } catch (HttpStatusCodeException e) {
             throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
         }
 
