@@ -88,7 +88,7 @@ public class GlobalExceptionHandler {
                 .body(new GeneralErrorResponseDTO(
                         "Resource was modified by another request. Please reload and try again.",
                         409,
-                        ErrorReason.INTERNAL_ERROR
+                        ErrorReason.OPTIMISTIC_LOCKING_FAILURE
                 ));
     }
 

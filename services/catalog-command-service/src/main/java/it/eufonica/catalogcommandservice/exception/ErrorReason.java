@@ -25,6 +25,9 @@ public enum ErrorReason {
     RESOURCE_NOT_FOUND,
 
     // 409 Equivalent
+    // Optimistic Locking
+    OPTIMISTIC_LOCKING_FAILURE,
+
     // Artists
     ARTIST_NAME_ALREADY_EXISTS,
     ARTIST_FOUNDED_AFTER_ALBUM_RELEASE,

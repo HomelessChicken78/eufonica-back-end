@@ -10,6 +10,10 @@ public enum ErrorReason {
     // 404 Equivalent
     RESOURCE_NOT_FOUND,
 
+    // 409 Equivalent
+    // Optimistic Locking
+    OPTIMISTIC_LOCKING_FAILURE,
+
     // 5XX
     // 500 Equivalent
     INTERNAL_ERROR,
