@@ -331,6 +331,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      * @param request The {@code ArtistRequest} to create the artist from.
      *
      * @return The auth projection of the created artist
+     * @throws BadRequestException if the command service returns a 400
      * @throws ConflictException if the command service returns a 409
      * @throws InternalServerErrorException if the command service returns any other status code
      */
@@ -344,6 +345,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                     .body(requestMapper.toArtistCreationRequest(request))
                     .retrieve()
                     .body(ArtistSummaryResponseDTO.class);
+        } catch (HttpClientErrorException.BadRequest e) {
+            GeneralErrorResponseDTO upstream = parseUpstreamError(e);
+            throw new BadRequestException(
+                    "Cannot create the artist: " + upstream.getMessage(), ErrorReason.INTERNAL_ERROR);
         } catch (HttpClientErrorException.Conflict e) {
             GeneralErrorResponseDTO upstream = parseUpstreamError(e);
             throw new ConflictException(
