@@ -4,6 +4,7 @@ import it.eufonica.catalogqueryservice.dto.album.AlbumFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import it.eufonica.catalogqueryservice.exception.client.BadRequestException;
 import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
 import it.eufonica.catalogqueryservice.mapper.AlbumMapper;
@@ -103,7 +104,8 @@ public class AlbumQueryServiceImpl implements AlbumQueryService {
     public AlbumFullResponseDTO findAlbumById(UUID albumId) {
         AlbumRead found = albumRepository.findById(albumId)
                 .orElseThrow(
-                        () -> new NotFoundException("Could not find any album with the given id " + albumId + ".")
+                        () -> new NotFoundException("Could not find any album with the given id " + albumId + ".",
+                                ErrorReason.RESOURCE_NOT_FOUND)
                 );
         log.trace("Found album {}.", found);
 
@@ -128,9 +130,9 @@ public class AlbumQueryServiceImpl implements AlbumQueryService {
     public PageResponseDTO<AlbumShortResponseDTO> searchAlbums(AlbumSearchFiltersDTO filters,
                                                                Integer pageNumber, Integer pageSize) {
         if (pageNumber == null || pageNumber < 1)
-            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.", ErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize == null || pageSize < 1)
-            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+            throw new BadRequestException("pageSize must be greater than or equal to 1.", ErrorReason.INVALID_PAGINATION_PARAMETER);
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
         Specification<AlbumRead> spec = buildSpecification(filters);

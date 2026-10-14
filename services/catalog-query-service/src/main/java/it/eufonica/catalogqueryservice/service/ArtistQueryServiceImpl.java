@@ -4,6 +4,7 @@ import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.catalogqueryservice.exception.ErrorReason;
 import it.eufonica.catalogqueryservice.exception.client.BadRequestException;
 import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
 import it.eufonica.catalogqueryservice.mapper.ArtistMapper;
@@ -35,7 +36,8 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
     public ArtistFullResponseDTO findArtistById(UUID artistId) {
         ArtistRead found = artistRepository.findById(artistId)
                 .orElseThrow(
-                        () -> new NotFoundException("Could not find any artist with the given id " + artistId + ".")
+                        () -> new NotFoundException("Could not find any artist with the given id " + artistId + ".",
+                                ErrorReason.RESOURCE_NOT_FOUND)
                 );
         log.trace("Found artist {}.", found);
 
@@ -49,9 +51,11 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
     @Cacheable("artist-search")
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(ArtistSearchFiltersDTO filters, Integer pageNumber, Integer pageSize) {
         if (pageNumber == null || pageNumber < 1)
-            throw new BadRequestException("pageNumber must be greater than or equal to 1.");
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.",
+                    ErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize == null || pageSize < 1)
-            throw new BadRequestException("pageSize must be greater than or equal to 1.");
+            throw new BadRequestException("pageSize must be greater than or equal to 1.",
+                    ErrorReason.INVALID_PAGINATION_PARAMETER);
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
         Page<ArtistRead> results;
