@@ -21,7 +21,13 @@ import java.util.List;
 
 @Component @RequiredArgsConstructor @Slf4j
 public class CurrentUserProvider {
+    // Repository
     private final AccessMethodRepository accessMethodRepository;
+
+    // Header names
+    private static final String USER_SUB = "X-User-Sub";
+    private static final String USER_ROLES = "X-User-Roles";
+    private static final String ARTIST_ID = "X-Artist-Id";
 
     @Value("${PROVIDER_NAME:cognito}")
     private String providerName;
@@ -51,7 +57,7 @@ public class CurrentUserProvider {
      * @throws UnauthorizedException if the gateway did not forward a subject
      */
     public String getSub() {
-        String sub = getCurrentRequest().getHeader("X-User-Sub");
+        String sub = getCurrentRequest().getHeader(USER_SUB);
 
         if (sub == null || sub.isBlank())
             throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), ErrorReason.UNAUTHENTICATED);
@@ -100,7 +106,7 @@ public class CurrentUserProvider {
      * @return A list of uppercase strings containing all the roles
      */
     public List<String> getRoles() {
-        String rolesHeader = getCurrentRequest().getHeader("X-User-Roles");
+        String rolesHeader = getCurrentRequest().getHeader(USER_ROLES);
         if (rolesHeader == null || rolesHeader.isBlank()) return List.of();
 
         List<String> roles = Arrays.stream(rolesHeader.split(","))
@@ -150,6 +156,6 @@ public class CurrentUserProvider {
      * @return A string containing the artist id or {@code null} if there is no {@code X-Artist-Id} header
      */
     public String getArtistId() {
-        return getCurrentRequest().getHeader("X-Artist-Id");
+        return getCurrentRequest().getHeader(ARTIST_ID);
     }
 }
