@@ -310,18 +310,21 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      *
      * @return the parsed error body, or {@code null} if the body is missing or could not be parsed
      */
-    @SuppressWarnings("DataFlowIssue")
     private GeneralErrorResponseDTO parseUpstreamError(HttpStatusCodeException e) {
         GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
 
-        if (errorResponse == null)
+        if (errorResponse == null) {
             log.warn("catalog-command-service returned status {} with no parseable error body.", e.getStatusCode());
+            return new GeneralErrorResponseDTO();
+        }
         if (errorResponse.getMessage() == null || errorResponse.getMessage().isEmpty()) {
             log.info("catalog-command-service returned status {} with empty or null message in the body.", e.getStatusCode());
             errorResponse.setMessage("unknown error.");
         }
-
-        // TODO Add reason here
+        if (errorResponse.getReason() == null) {
+            log.warn("catalog-command-service returned status {} with null reason in the body.", e.getStatusCode());
+            errorResponse.setReason(ErrorReason.UNEXPECTED_ERROR);
+        }
 
         return errorResponse;
     }
