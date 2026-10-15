@@ -2,15 +2,14 @@ package it.eufonica.authservice.exception.dto;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import it.eufonica.authservice.exception.ErrorReason;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Data
-@NoArgsConstructor
-@AllArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PRIVATE)
 public class GeneralErrorResponseDTO {
     private String message;
 
