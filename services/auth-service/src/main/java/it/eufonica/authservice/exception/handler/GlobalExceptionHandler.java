@@ -1,6 +1,7 @@
 package it.eufonica.authservice.exception.handler;
 
 import it.eufonica.authservice.exception.ErrorReason;
+import it.eufonica.authservice.exception.HttpException;
 import it.eufonica.authservice.exception.client.*;
 import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.authservice.exception.dto.ValidationErrorResponseDTO;
@@ -21,58 +22,55 @@ import java.util.stream.Collectors;
 
 @RestControllerAdvice @Slf4j
 public class GlobalExceptionHandler {
+    private ResponseEntity<GeneralErrorResponseDTO> buildErrorResponse(ErrorReason reason, String message, HttpStatus status) {
+        GeneralErrorResponseDTO body = new GeneralErrorResponseDTO(message, status.value(), reason);
+        return ResponseEntity.status(status).body(body);
+    }
+
+    private ResponseEntity<GeneralErrorResponseDTO> buildErrorResponse(HttpException e, HttpStatus status) {
+        return buildErrorResponse(e.getReason(), e.getMessage(), status);
+    }
+
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error400(BadRequestException err400) {
         log.warn("Bad request: {}", err400.getMessage());
 
-        return ResponseEntity
-                .badRequest()
-                .body(new GeneralErrorResponseDTO(err400.getMessage(), 400, err400.getReason()));
+        return buildErrorResponse(err400, HttpStatus.BAD_REQUEST);
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error401(UnauthorizedException err401) {
         log.warn("Unauthorized request: {}", err401.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.UNAUTHORIZED)
-                .body(new GeneralErrorResponseDTO(err401.getMessage(), 401, err401.getReason()));
+        return buildErrorResponse(err401, HttpStatus.UNAUTHORIZED);
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error402(PaymentRequiredException err402) {
         log.warn("Payment required: {}", err402.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.PAYMENT_REQUIRED)
-                .body(new GeneralErrorResponseDTO(err402.getMessage(), 402, err402.getReason()));
+        return buildErrorResponse(err402, HttpStatus.PAYMENT_REQUIRED);
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error403(ForbiddenException err403) {
         log.warn("Forbidden request: {}", err403.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body(new GeneralErrorResponseDTO(err403.getMessage(), 403, err403.getReason()));
+        return buildErrorResponse(err403, HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error404Handler(NotFoundException err404) {
         log.warn("Resource not found: {}", err404.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new GeneralErrorResponseDTO(err404.getMessage(), 404, err404.getReason()));
+        return buildErrorResponse(err404, HttpStatus.NOT_FOUND);
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error409(ConflictException err409) {
         log.warn("Conflict: {}", err409.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new GeneralErrorResponseDTO(err409.getMessage(), 409, err409.getReason()));
+        return buildErrorResponse(err409, HttpStatus.CONFLICT);
     }
 
     @ExceptionHandler
@@ -83,22 +81,18 @@ public class GlobalExceptionHandler {
         log.warn("Optimistic locking failure: method={}, uri={}, message={}",
                 request.getMethod(), request.getRequestURI(), exc.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.CONFLICT)
-                .body(new GeneralErrorResponseDTO(
-                        "Resource was modified by another request. Please reload and try again.",
-                        409,
-                        ErrorReason.OPTIMISTIC_LOCKING_FAILURE
-                ));
+        return buildErrorResponse(
+                ErrorReason.OPTIMISTIC_LOCKING_FAILURE,
+                "Resource was modified by another request. Please reload and try again.",
+                HttpStatus.CONFLICT
+        );
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error413(ContentTooLargeException err413) {
         log.warn("Content too large: {}", err413.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.CONTENT_TOO_LARGE)
-                .body(new GeneralErrorResponseDTO(err413.getMessage(), 413, err413.getReason()));
+        return buildErrorResponse(err413, HttpStatus.CONTENT_TOO_LARGE);
     }
 
     @ExceptionHandler
@@ -133,25 +127,13 @@ public class GlobalExceptionHandler {
     public ResponseEntity<GeneralErrorResponseDTO> error500(InternalServerErrorException err500) {
         log.error("Unexpected error while processing request.", err500);
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new GeneralErrorResponseDTO(
-                        "An unexpected error occurred.",
-                        500,
-                        err500.getReason()
-                ));
+        return buildErrorResponse(err500.getReason(), "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     @ExceptionHandler
     public ResponseEntity<GeneralErrorResponseDTO> error501(NotImplementedException err501) {
         log.error("NotImplemented: {}", err501.getMessage());
 
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(new GeneralErrorResponseDTO(
-                        err501.getMessage(),
-                        501,
-                        err501.getReason()
-                ));
+        return buildErrorResponse(err501, HttpStatus.NOT_IMPLEMENTED);
     }
 }
