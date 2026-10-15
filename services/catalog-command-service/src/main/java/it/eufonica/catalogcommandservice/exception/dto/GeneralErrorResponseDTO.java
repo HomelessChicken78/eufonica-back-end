@@ -15,7 +15,7 @@ public class GeneralErrorResponseDTO {
 
     private LocalDateTime timestamp = LocalDateTime.now();
 
-    private Integer status = 400;
+    private int status = 400;
 
     @JsonInclude(JsonInclude.Include.NON_NULL)
     private ErrorReason reason;
@@ -25,7 +25,7 @@ public class GeneralErrorResponseDTO {
         this.reason = reason;
     }
 
-    public GeneralErrorResponseDTO(String message, Integer status, ErrorReason reason) {
+    public GeneralErrorResponseDTO(String message, int status, ErrorReason reason) {
         this.message = message;
         this.status = status;
         this.reason = reason;
