@@ -22,10 +22,12 @@ public class GeneralErrorResponseDTO {
 
     public GeneralErrorResponseDTO(String message, ErrorReason reason) {
         this.message = message;
+        this.reason = reason;
     }
 
     public GeneralErrorResponseDTO(String message, Integer status, ErrorReason reason) {
         this.message = message;
         this.status = status;
+        this.reason = reason;
     }
 }
