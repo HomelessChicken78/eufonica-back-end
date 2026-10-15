@@ -1,10 +1,11 @@
 package it.eufonica.authservice.exception;
 
-public enum ErrorReason {
+import it.eufonica.exception.ErrorReason;
+
+public enum AuthErrorReason implements ErrorReason {
     // 4XX
     // 400 Equivalent
     // Pages
-    VALIDATION_ERROR,
     INVALID_PAGINATION_PARAMETER,
 
     // 401 Equivalent
@@ -17,10 +18,6 @@ public enum ErrorReason {
     // 404 Equivalent
     RESOURCE_NOT_FOUND,
 
-    // 409 Equivalent
-    // Optimistic Locking
-    OPTIMISTIC_LOCKING_FAILURE,
-
     // Signup
     RESERVED_DISPLAY_NAME,
     ALREADY_SIGNED_UP,
@@ -31,12 +28,5 @@ public enum ErrorReason {
     ARTIST_REQUEST_ALREADY_PENDING,
     ARTIST_REGISTERED_AFTER_REQUEST,
     REQUEST_ALREADY_EVALUATED,
-    SELF_EVALUATION_NOT_ALLOWED,
-
-    // 5XX
-    // 500 Equivalent
-    INTERNAL_ERROR,
-
-    // Misc
-    UNEXPECTED_ERROR
+    SELF_EVALUATION_NOT_ALLOWED
 }

@@ -1,7 +1,7 @@
 package it.eufonica.authservice.security;
 
-import it.eufonica.authservice.exception.ErrorReason;
-import it.eufonica.authservice.exception.server.InternalServerErrorException;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.server.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -45,7 +45,7 @@ public class CognitoUserServiceImpl implements CognitoUserService {
             log.error("Unexpected error while trying to affiliate an user to an artist.", e);
             throw new InternalServerErrorException(
                     "Unknown error while setting the user as an artist. It might be a connection problem. Please try again later.",
-                    ErrorReason.INTERNAL_ERROR);
+                    CommonErrorReason.INTERNAL_ERROR);
         }
     }
 
@@ -65,7 +65,7 @@ public class CognitoUserServiceImpl implements CognitoUserService {
             log.error("Unexpected error while trying to remove the artist affiliation for a user.", e);
             throw new InternalServerErrorException(
                     "Unknown error while removing the user's artist affiliation. It might be a connection problem. Please try again later.",
-                    ErrorReason.INTERNAL_ERROR);
+                    CommonErrorReason.INTERNAL_ERROR);
         }
     }
 
@@ -82,7 +82,7 @@ public class CognitoUserServiceImpl implements CognitoUserService {
             log.error("Unexpected error while adding user to the user group. sub={}", sub, e);
             throw new InternalServerErrorException(
                     "Unknown error while completing the signup. It might be a connection problem. Please try again later.",
-                    ErrorReason.INTERNAL_ERROR);
+                    CommonErrorReason.INTERNAL_ERROR);
         }
     }
 }

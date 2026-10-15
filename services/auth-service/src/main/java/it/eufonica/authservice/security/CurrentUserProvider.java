@@ -1,9 +1,10 @@
 package it.eufonica.authservice.security;
 
-import it.eufonica.authservice.exception.ErrorReason;
-import it.eufonica.authservice.exception.client.ForbiddenException;
-import it.eufonica.authservice.exception.client.UnauthorizedException;
-import it.eufonica.authservice.exception.server.InternalServerErrorException;
+import it.eufonica.authservice.exception.AuthErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.ForbiddenException;
+import it.eufonica.exception.client.UnauthorizedException;
+import it.eufonica.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.model.AccessMethod;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.repository.AccessMethodRepository;
@@ -60,7 +61,7 @@ public class CurrentUserProvider {
         String sub = getCurrentRequest().getHeader(USER_SUB);
 
         if (sub == null || sub.isBlank())
-            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), ErrorReason.UNAUTHENTICATED);
+            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), AuthErrorReason.UNAUTHENTICATED);
 
         log.trace("Retrieved sub from the current security context. sub={}", sub);
 
@@ -79,7 +80,7 @@ public class CurrentUserProvider {
         AccessMethod accessMethod = accessMethodRepository.findByProviderNameAndProviderUserId(providerName, getSub())
                 .orElseThrow(() -> new InternalServerErrorException(
                         "Authenticated user with sub " + getSub() + " has no associated access method.",
-                        ErrorReason.INTERNAL_ERROR));
+                        CommonErrorReason.INTERNAL_ERROR));
 
         log.debug("Retrieved access method from the current security context. accessMethod={}", accessMethod);
 
@@ -137,7 +138,7 @@ public class CurrentUserProvider {
      */
     public void requireUser() {
         if (!getRoles().contains("USER"))
-            throw new ForbiddenException("This action require an USER role.", ErrorReason.NOT_AN_USER);
+            throw new ForbiddenException("This action require an USER role.", AuthErrorReason.NOT_AN_USER);
     }
 
     /**
@@ -147,7 +148,7 @@ public class CurrentUserProvider {
      */
     public void requireAdmin() {
         if (!isAdmin())
-            throw new ForbiddenException("This action require an ADMIN role.", ErrorReason.NOT_AN_ADMIN);
+            throw new ForbiddenException("This action require an ADMIN role.", AuthErrorReason.NOT_AN_ADMIN);
     }
 
     /**

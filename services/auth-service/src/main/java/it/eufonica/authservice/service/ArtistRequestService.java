@@ -2,9 +2,9 @@ package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
-import it.eufonica.authservice.exception.client.BadRequestException;
-import it.eufonica.authservice.exception.client.ConflictException;
-import it.eufonica.authservice.exception.client.NotFoundException;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.authservice.model.ArtistRequest;
 
 import java.util.UUID;

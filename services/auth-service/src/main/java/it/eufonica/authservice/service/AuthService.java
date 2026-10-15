@@ -1,7 +1,7 @@
 package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.auth.SignUpRequestDTO;
-import it.eufonica.authservice.exception.client.ConflictException;
+import it.eufonica.exception.client.ConflictException;
 
 public interface AuthService {
     /**

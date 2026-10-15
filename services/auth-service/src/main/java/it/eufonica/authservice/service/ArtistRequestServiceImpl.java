@@ -3,12 +3,13 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
-import it.eufonica.authservice.exception.ErrorReason;
-import it.eufonica.authservice.exception.client.BadRequestException;
-import it.eufonica.authservice.exception.client.ConflictException;
-import it.eufonica.authservice.exception.client.NotFoundException;
-import it.eufonica.authservice.exception.dto.GeneralErrorResponseDTO;
-import it.eufonica.authservice.exception.server.InternalServerErrorException;
+import it.eufonica.authservice.exception.AuthErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.NotFoundException;
+import it.eufonica.exception.dto.GeneralErrorResponseDTO;
+import it.eufonica.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.mapper.ArtistMapper;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
 import it.eufonica.authservice.model.AppUser;
@@ -71,12 +72,12 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     private void validateArtistRequest(AppUser currentUser) {
         if (currentUser.getAffiliatedArtist() != null)
-            throw new ConflictException("You appear to already be an artist.", ErrorReason.ALREADY_AN_ARTIST);
+            throw new ConflictException("You appear to already be an artist.", AuthErrorReason.ALREADY_AN_ARTIST);
 
         if (requestRepository.existsByRequestingUserAndStatus(currentUser, ArtistRequest.RequestStatus.PENDING))
             throw new ConflictException(
                     "You already have an artist request pending. Please wait for an admin to evaluate that first.",
-                    ErrorReason.ARTIST_REQUEST_ALREADY_PENDING
+                    AuthErrorReason.ARTIST_REQUEST_ALREADY_PENDING
             );
 
         // [V.ArtistRequest.richiesta_dopo_registrazione_ut] is structurally guaranteed:
@@ -88,10 +89,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     private PageResponseDTO<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
         if (pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.",
-                    ErrorReason.INVALID_PAGINATION_PARAMETER);
+                    AuthErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize < 1)
             throw new BadRequestException("pageSize must be greater than or equal to 1.",
-                    ErrorReason.INVALID_PAGINATION_PARAMETER);
+                    AuthErrorReason.INVALID_PAGINATION_PARAMETER);
 
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
@@ -146,7 +147,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                 .orElseThrow(
                         () -> new NotFoundException(
                                 "Artist request with the given id (" + id + ") does not exist.",
-                                ErrorReason.RESOURCE_NOT_FOUND
+                                AuthErrorReason.RESOURCE_NOT_FOUND
                         )
                 );
 
@@ -181,14 +182,14 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                 .orElseThrow(
                         () -> new NotFoundException(
                                 "Artist with the given id (" + request.getArtistId() + ") does not exist.",
-                                ErrorReason.RESOURCE_NOT_FOUND
+                                AuthErrorReason.RESOURCE_NOT_FOUND
                         )
                 );
 
         // [V.ArtistRequest.richiesta_dopo_registrazione_art]
         if (!artist.getRegistrationDate().isBefore(LocalDateTime.now()))
             throw new ConflictException(
-                    "A request cannot concern an artist who registered after the request itself.", ErrorReason.ARTIST_REGISTERED_AFTER_REQUEST);
+                    "A request cannot concern an artist who registered after the request itself.", AuthErrorReason.ARTIST_REGISTERED_AFTER_REQUEST);
 
         ArtistRequest artistRequest = requestMapper.toEntity(request);
         artistRequest.setRequestedArtist(artist);
@@ -219,7 +220,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      */
     private void validateIsPending(ArtistRequest request) {
         if (request.getStatus() != ArtistRequest.RequestStatus.PENDING)
-            throw new ConflictException("This request has already been evaluated.", ErrorReason.REQUEST_ALREADY_EVALUATED);
+            throw new ConflictException("This request has already been evaluated.", AuthErrorReason.REQUEST_ALREADY_EVALUATED);
     }
 
     /**
@@ -232,7 +233,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
      */
     private void validateSelfEvaluate(ArtistRequest request, AppUser admin) {
         if (admin.getId().equals(request.getRequestingUser().getId()))
-            throw new ConflictException("You can't approve your own request.", ErrorReason.SELF_EVALUATION_NOT_ALLOWED);
+            throw new ConflictException("You can't approve your own request.", AuthErrorReason.SELF_EVALUATION_NOT_ALLOWED);
     }
 
     /**
@@ -315,7 +316,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
         if (errorResponse == null) {
             log.warn("catalog-command-service returned status {} with no parseable error body.", e.getStatusCode());
-            return new GeneralErrorResponseDTO("unknown error.", e.getStatusCode().value(), ErrorReason.UNEXPECTED_ERROR);
+            return new GeneralErrorResponseDTO("unknown error.", e.getStatusCode().value(), CommonErrorReason.UNEXPECTED_ERROR);
         }
         if (errorResponse.getMessage() == null || errorResponse.getMessage().isEmpty()) {
             log.info("catalog-command-service returned status {} with empty or null message in the body.", e.getStatusCode());
@@ -323,7 +324,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         }
         if (errorResponse.getReason() == null) {
             log.warn("catalog-command-service returned status {} with null reason in the body.", e.getStatusCode());
-            errorResponse.setReason(ErrorReason.UNEXPECTED_ERROR);
+            errorResponse.setReason(CommonErrorReason.UNEXPECTED_ERROR);
         }
 
         return errorResponse;
@@ -353,11 +354,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         } catch (HttpClientErrorException.BadRequest e) {
             GeneralErrorResponseDTO upstream = parseUpstreamError(e);
             throw new BadRequestException(
-                    "Cannot create the artist: " + upstream.getMessage(), ErrorReason.INTERNAL_ERROR);
+                    "Cannot create the artist: " + upstream.getMessage(), CommonErrorReason.INTERNAL_ERROR);
         } catch (HttpClientErrorException.Conflict e) {
             GeneralErrorResponseDTO upstream = parseUpstreamError(e);
             throw new ConflictException(
-                    "Cannot create the artist: " + upstream.getMessage(), ErrorReason.INTERNAL_ERROR);
+                    "Cannot create the artist: " + upstream.getMessage(), CommonErrorReason.INTERNAL_ERROR);
         } catch (HttpStatusCodeException e) {
             // Any other status (4xx we didn't anticipate, or 5xx) is treated as an
             // unexpected failure of the upstream call, not a business outcome.
@@ -475,7 +476,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                     requestId, currentUser.getId());
             // Deliberately throw a 404 instead a 401 to not reveal the existence of the artist request
             throw new NotFoundException("Artist request with the given id (" + requestId + ") does not exist.",
-                    ErrorReason.RESOURCE_NOT_FOUND);
+                    AuthErrorReason.RESOURCE_NOT_FOUND);
         }
 
         return requestMapper.toFullResponse(request);
