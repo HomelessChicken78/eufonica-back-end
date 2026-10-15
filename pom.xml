@@ -21,7 +21,7 @@
     </properties>
 
     <modules>
-        <!-- <module>services/common-exceptions</module> -->
+        <module>services/common-exceptions</module>
         <module>services/auth-service</module>
         <module>services/catalog-command-service</module>
         <module>services/catalog-query-service</module>
