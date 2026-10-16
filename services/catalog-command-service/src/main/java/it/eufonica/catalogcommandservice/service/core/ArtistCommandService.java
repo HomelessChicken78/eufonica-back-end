@@ -2,8 +2,8 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
-import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
-import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.exception.client.ForbiddenException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.model.Artist;
 
 import java.util.UUID;

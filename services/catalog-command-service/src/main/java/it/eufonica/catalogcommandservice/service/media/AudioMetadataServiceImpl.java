@@ -1,10 +1,11 @@
 package it.eufonica.catalogcommandservice.service.media;
 
 import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
-import it.eufonica.catalogcommandservice.exception.ErrorReason;
-import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
-import it.eufonica.catalogcommandservice.exception.client.ContentTooLargeException;
-import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
+import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.ContentTooLargeException;
+import it.eufonica.exception.server.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tika.Tika;
@@ -62,16 +63,16 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
     private void validateMimeType(MimeType mimeType, List<String> allowedExtensions) {
         if (allowedExtensions == null || allowedExtensions.isEmpty()) {
             throw new InternalServerErrorException("No MIME type has been allowed for song uploading. " +
-                    "Please provide at least one allowed extension in the env MUSIC_FORMATS.", ErrorReason.INTERNAL_ERROR);
+                    "Please provide at least one allowed extension in the env MUSIC_FORMATS.", CommonErrorReason.INTERNAL_ERROR);
         }
 
         if (mimeType == null)
-            throw new BadRequestException("No MIME type was provided for the uploaded file.", ErrorReason.MISSING_MIME_TYPE);
+            throw new BadRequestException("No MIME type was provided for the uploaded file.", CatalogErrorReason.MISSING_MIME_TYPE);
 
         if (!allowedExtensions.contains(mimeType.toString())) {
             throw new BadRequestException(
                     "MIME type '" + mimeType + "' is not allowed. Allowed MIME types: "
-                            + allowedExtensions, ErrorReason.MIME_NOT_ALLOWED);
+                            + allowedExtensions, CatalogErrorReason.MIME_NOT_ALLOWED);
         }
 
         log.debug("MIME type validation successful. mimeType={}", mimeType);
@@ -102,9 +103,9 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
 
             return mimeType;
         } catch (IOException e) {
-            throw new InternalServerErrorException("Failed to process audio file format.", ErrorReason.INTERNAL_ERROR, e);
+            throw new InternalServerErrorException("Failed to process audio file format.", CommonErrorReason.INTERNAL_ERROR, e);
         } catch (MimeTypeException e) {
-            throw new InternalServerErrorException("Unable to determine the audio file's format.", ErrorReason.UNREADABLE_AUDIO_FILE, e);
+            throw new InternalServerErrorException("Unable to determine the audio file's format.", CatalogErrorReason.UNREADABLE_AUDIO_FILE, e);
         }
     }
 
@@ -121,13 +122,13 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
     private void validateFileMetadata(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             log.warn("File is empty.");
-            throw new BadRequestException("Audio file must not be empty.", ErrorReason.MISSING_AUDIO_FILE);
+            throw new BadRequestException("Audio file must not be empty.", CatalogErrorReason.MISSING_AUDIO_FILE);
         }
 
         if (file.getSize() > maxAudioSize.toBytes()) {
             log.warn("File is too large. fileSize={} maxAllowedSize={}", file.getSize(),  maxAudioSize.toBytes());
             throw new ContentTooLargeException(
-                    String.format("File size exceeds maximum limit of %s.", maxAudioSize.toString()), ErrorReason.AUDIO_FILE_TOO_LARGE
+                    String.format("File size exceeds maximum limit of %s.", maxAudioSize.toString()), CatalogErrorReason.AUDIO_FILE_TOO_LARGE
             );
         }
         log.debug("Audio file validation successful. fileSize={} maxAllowedSize={}",
@@ -188,9 +189,9 @@ public class AudioMetadataServiceImpl implements AudioMetadataService {
             log.debug("Duration found: {}s", audioDuration);
             return audioDuration;
         } catch (IOException | ReadOnlyFileException e) {
-            throw new InternalServerErrorException("Failed to process audio file.", ErrorReason.INTERNAL_ERROR, e);
+            throw new InternalServerErrorException("Failed to process audio file.", CommonErrorReason.INTERNAL_ERROR, e);
         } catch (CannotReadException | TagException | InvalidAudioFrameException  e) {
-            throw new InternalServerErrorException("Failed to process audio file.", ErrorReason.UNREADABLE_AUDIO_FILE, e);
+            throw new InternalServerErrorException("Failed to process audio file.", CatalogErrorReason.UNREADABLE_AUDIO_FILE, e);
         } finally {
             // Remove the temporary file that has been just created
             if (tempFile != null) {

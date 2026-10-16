@@ -6,10 +6,11 @@ import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumDeletedEvent;
-import it.eufonica.catalogcommandservice.exception.ErrorReason;
-import it.eufonica.catalogcommandservice.exception.client.ConflictException;
-import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
-import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.ForbiddenException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
@@ -52,7 +53,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public Album findByIdOrThrow(UUID id) {
         return albumRepository.findById(id)
                 .orElseThrow(
-                        () -> new NotFoundException("Album with id " + id + " not found.", ErrorReason.RESOURCE_NOT_FOUND)
+                        () -> new NotFoundException("Album with id " + id + " not found.", CommonErrorReason.RESOURCE_NOT_FOUND)
                 );
     }
 
@@ -77,19 +78,19 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         // artist.foundation_date <= album.original_release_date
         if (artist.getFoundationDate().isAfter(album.getOriginalReleaseDate()))
             throw new ConflictException("Artist's foundation date must be before or equal to the Album's original release date.",
-                    ErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_RELEASE);
+                    CatalogErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_RELEASE);
 
         // [V.art_album.artista_registrato_prima_pubblicazione_album]
         // artist.registration_timestamp < album.pub_date
         if (!artist.getRegistrationDate().isBefore(pubDate))
             throw new ConflictException("Artist's registration timestamp must be before the Album's publication date.",
-                    ErrorReason.ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION);
+                    CatalogErrorReason.ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION);
 
         // [V.art_album.artista_fondato_prima_pubblicazione_album]
         // artist.foundation_date < album.pub_date
         if (!artist.getFoundationDate().isBefore(pubDate.toLocalDate()))
             throw new ConflictException("Artist's foundation date must be before the Album's publication date.",
-                    ErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_PUBLICATION);
+                    CatalogErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_PUBLICATION);
 
         log.debug("Correctly validated the relation between artist and album.");
     }
@@ -146,7 +147,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         boolean isCredited = album.getArtists().stream()
                 .anyMatch(artist -> artist.getId().equals(callerArtistId));
         if (!isCredited)
-            throw new ForbiddenException("Only an artist credited on this album can perform this action.", ErrorReason.NOT_RESOURCE_OWNER);
+            throw new ForbiddenException("Only an artist credited on this album can perform this action.", CatalogErrorReason.NOT_RESOURCE_OWNER);
     }
 
     /**
@@ -202,7 +203,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         // album.original_release_date <= album.pub_date
         if (request.getOriginalReleaseDate().isAfter(album.getPubDate().toLocalDate()))
             throw new ConflictException("Album's original release date must be before or equal to its publication date.",
-                    ErrorReason.ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE);
+                    CatalogErrorReason.ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE);
 
         // Update the album with the new information
         // Keep album.id and album.pubDate intact
@@ -268,7 +269,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         boolean removed = album.getSongs().removeIf(s -> s.getId().equals(songId));
 
         if (!removed)
-            throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId, ErrorReason.SONG_NOT_IN_ALBUM);
+            throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId, CatalogErrorReason.SONG_NOT_IN_ALBUM);
 
         // Modifying a @ManyToMany collection only touches the join table, not any
         // scalar column on the Album row itself. Hibernate therefore won't emit an

@@ -1,7 +1,7 @@
 package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.*;
-import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.model.Album;
 
 import java.util.UUID;

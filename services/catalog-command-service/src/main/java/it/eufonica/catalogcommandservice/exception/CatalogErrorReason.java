@@ -1,9 +1,10 @@
 package it.eufonica.catalogcommandservice.exception;
 
-public enum ErrorReason {
+import it.eufonica.exception.ErrorReason;
+
+public enum CatalogErrorReason implements ErrorReason {
     // 4XX
     // 400 Equivalent
-    VALIDATION_ERROR,
     MISSING_REQUIRED_FIELD,
 
     // MIME & Files
@@ -11,23 +12,12 @@ public enum ErrorReason {
     MISSING_MIME_TYPE,
     MISSING_AUDIO_FILE,
 
-    // 401 Equivalent
-    UNAUTHENTICATED,
-
     // 403 Equivalent
     NOT_AN_ARTIST,
     ARTIST_OWNERSHIP_MISMATCH,
-    NOT_AN_USER,
-    NOT_AN_ADMIN,
     NOT_RESOURCE_OWNER,
 
-    // 404 Equivalent
-    RESOURCE_NOT_FOUND,
-
     // 409 Equivalent
-    // Optimistic Locking
-    OPTIMISTIC_LOCKING_FAILURE,
-
     // Artists
     ARTIST_NAME_ALREADY_EXISTS,
     ARTIST_FOUNDED_AFTER_ALBUM_RELEASE,
@@ -52,9 +42,5 @@ public enum ErrorReason {
 
     // 5XX
     // 500 Equivalent
-    INTERNAL_ERROR,
     UNREADABLE_AUDIO_FILE,
-
-    // Misc
-    UNEXPECTED_ERROR
 }

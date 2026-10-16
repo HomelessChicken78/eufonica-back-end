@@ -1,8 +1,9 @@
 package it.eufonica.catalogcommandservice.security;
 
-import it.eufonica.catalogcommandservice.exception.ErrorReason;
-import it.eufonica.catalogcommandservice.exception.client.ForbiddenException;
-import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
+import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.ForbiddenException;
+import it.eufonica.exception.server.InternalServerErrorException;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import lombok.RequiredArgsConstructor;
@@ -31,14 +32,14 @@ public class ArtistAccessGuard {
         String artistIdHeader = currentUser.getArtistId();
         if (artistIdHeader == null || artistIdHeader.isBlank()) {
             log.debug("requireArtist failed: no {} header present.", ARTIST_ID);
-            throw new ForbiddenException("Only an artist can perform this action.", ErrorReason.NOT_AN_ARTIST);
+            throw new ForbiddenException("Only an artist can perform this action.", CatalogErrorReason.NOT_AN_ARTIST);
         }
 
         UUID callerArtistId = UUID.fromString(artistIdHeader);
 
         if (!artistRepository.existsById(callerArtistId)) {
             log.debug("requireArtist failed: artist {} not found in DB.", callerArtistId);
-            throw new InternalServerErrorException("Authenticated artist " + callerArtistId + " not found.", ErrorReason.INTERNAL_ERROR);
+            throw new InternalServerErrorException("Authenticated artist " + callerArtistId + " not found.", CommonErrorReason.INTERNAL_ERROR);
         }
 
         log.debug("requireArtist succeeded for artist {}.", callerArtistId);
@@ -57,7 +58,7 @@ public class ArtistAccessGuard {
         UUID callerArtistId = requireArtist();
 
         if (!artistId.equals(callerArtistId))
-            throw new ForbiddenException("You can only perform this action on your own artist profile.", ErrorReason.ARTIST_OWNERSHIP_MISMATCH);
+            throw new ForbiddenException("You can only perform this action on your own artist profile.", CatalogErrorReason.ARTIST_OWNERSHIP_MISMATCH);
 
         return callerArtistId;
     }

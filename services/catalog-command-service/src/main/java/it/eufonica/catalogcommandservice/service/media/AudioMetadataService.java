@@ -1,8 +1,8 @@
 package it.eufonica.catalogcommandservice.service.media;
 
 import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
-import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
-import it.eufonica.catalogcommandservice.exception.client.ContentTooLargeException;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.ContentTooLargeException;
 import org.springframework.web.multipart.MultipartFile;
 
 public interface AudioMetadataService {

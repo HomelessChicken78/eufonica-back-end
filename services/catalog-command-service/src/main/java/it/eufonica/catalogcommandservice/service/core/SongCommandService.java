@@ -2,8 +2,8 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
-import it.eufonica.catalogcommandservice.exception.client.ConflictException;
-import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.model.Song;
 import org.springframework.web.multipart.MultipartFile;
 

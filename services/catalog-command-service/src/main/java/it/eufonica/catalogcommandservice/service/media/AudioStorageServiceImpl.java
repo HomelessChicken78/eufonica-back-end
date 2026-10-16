@@ -1,7 +1,7 @@
 package it.eufonica.catalogcommandservice.service.media;
 
 import it.eufonica.catalogcommandservice.dto.song.AudioMetadataDTO;
-import it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException;
+import it.eufonica.exception.server.InternalServerErrorException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;

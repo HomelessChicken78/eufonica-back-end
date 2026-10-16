@@ -2,10 +2,11 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
-import it.eufonica.catalogcommandservice.exception.ErrorReason;
-import it.eufonica.catalogcommandservice.exception.client.BadRequestException;
-import it.eufonica.catalogcommandservice.exception.client.ConflictException;
-import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.ArtistMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
@@ -48,17 +49,17 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
      */
     private void validateArtistRequest(ArtistCreationRequestDTO creationRequestDTO) {
         if (creationRequestDTO.getFoundationDate() == null)
-            throw new BadRequestException("Foundation date is null.", ErrorReason.MISSING_REQUIRED_FIELD);
+            throw new BadRequestException("Foundation date is null.", CatalogErrorReason.MISSING_REQUIRED_FIELD);
 
         // Constraint [V.Artist.registrato_dopo_fondazione]
         if (creationRequestDTO.getFoundationDate().isAfter(LocalDate.now()))
-            throw new BadRequestException("Foundation date should be before registration date.", ErrorReason.VALIDATION_ERROR);
+            throw new BadRequestException("Foundation date should be before registration date.", CommonErrorReason.VALIDATION_ERROR);
     }
 
     @Override
     public Artist findByIdOrThrow(UUID id) {
        return artistRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Artist not found with id: " + id + ".", ErrorReason.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Artist not found with id: " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND));
     }
 
     @Override
@@ -68,7 +69,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
         // Check that the name doesn't already exist (unique)
         if (artistRepository.existsByName(creationRequestDTO.getName()))
-            throw new ConflictException("Artist with name " + creationRequestDTO.getName() + " already exists.", ErrorReason.ARTIST_NAME_ALREADY_EXISTS);
+            throw new ConflictException("Artist with name " + creationRequestDTO.getName() + " already exists.", CatalogErrorReason.ARTIST_NAME_ALREADY_EXISTS);
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
         artist.setRegistrationDate(LocalDateTime.now());

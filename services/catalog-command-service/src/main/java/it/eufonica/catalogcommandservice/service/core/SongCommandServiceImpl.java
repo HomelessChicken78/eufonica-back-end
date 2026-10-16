@@ -2,9 +2,10 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.event.song.CreditedArtistAddedEvent;
 import it.eufonica.catalogcommandservice.event.song.CreditedArtistRemovedEvent;
-import it.eufonica.catalogcommandservice.exception.ErrorReason;
-import it.eufonica.catalogcommandservice.exception.client.ConflictException;
-import it.eufonica.catalogcommandservice.exception.client.NotFoundException;
+import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.dto.song.*;
 import it.eufonica.catalogcommandservice.mapper.SongMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
@@ -47,7 +48,7 @@ public class SongCommandServiceImpl implements SongCommandService {
     @Override
     public Song findByIdOrElseThrow(UUID id) {
         return songRepository.findById(id)
-                .orElseThrow(() -> new NotFoundException("Song not found with id " + id + ".", ErrorReason.RESOURCE_NOT_FOUND));
+                .orElseThrow(() -> new NotFoundException("Song not found with id " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND));
     }
 
     /**
@@ -87,7 +88,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         // Check that the song with that title of the same author does not exist
         if (songRepository.existsByTitleAndArtistOwner(request.getTitle(), owner))
-            throw new ConflictException(String.format("Song %s for artist %s already exists.", request.getTitle(), owner.getName()), ErrorReason.SONG_NAME_ALREADY_EXISTS_FOR_ARTIST);
+            throw new ConflictException(String.format("Song %s for artist %s already exists.", request.getTitle(), owner.getName()), CatalogErrorReason.SONG_NAME_ALREADY_EXISTS_FOR_ARTIST);
 
         // Guarantees that the constraint [V.song_owner.IS_A_song_credit] is always satisfied
         request.getCreditedArtists().add(ownerId);
@@ -112,7 +113,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
                 throw new ConflictException(
                         String.format("Credited Artist %s foundation date must be before or equal to Song published date.", creditedArtist.getId()),
-                        ErrorReason.INVALID_CREDITED_ARTIST_FOUNDATION_DATE
+                        CatalogErrorReason.INVALID_CREDITED_ARTIST_FOUNDATION_DATE
                 );
             }
         }
@@ -170,7 +171,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         // Guarantee [V.song_owner.IS_A_song_credit]
         if (song.getArtistOwner().getId().equals(idArtist))
-            throw new ConflictException("Cannot remove the primary owner from the song's credited artists.", ErrorReason.CANNOT_REMOVE_PRIMARY_OWNER_CREDIT);
+            throw new ConflictException("Cannot remove the primary owner from the song's credited artists.", CatalogErrorReason.CANNOT_REMOVE_PRIMARY_OWNER_CREDIT);
 
         removeCreditedArtist(song, creditedArtist);
 

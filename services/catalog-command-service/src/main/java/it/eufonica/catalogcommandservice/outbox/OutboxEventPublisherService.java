@@ -1,5 +1,7 @@
 package it.eufonica.catalogcommandservice.outbox;
 
+import it.eufonica.exception.server.InternalServerErrorException;
+
 public interface OutboxEventPublisherService {
     /**
      * Publishes an event by persisting it to the outbox.
@@ -9,7 +11,7 @@ public interface OutboxEventPublisherService {
      * @param topic the destination topic to which the event will be published
      * @param event the event payload
      *
-     * @throws it.eufonica.catalogcommandservice.exception.server.InternalServerErrorException
+     * @throws InternalServerErrorException
      * if the event's payload cannot be serialized into a JSON
      */
     void publish(String aggregateId, String eventType, String topic, Object event);
