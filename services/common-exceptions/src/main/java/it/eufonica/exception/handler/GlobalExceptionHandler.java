@@ -137,4 +137,10 @@ public class GlobalExceptionHandler {
 
         return buildErrorResponse(err501, HttpStatus.NOT_IMPLEMENTED);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<GeneralErrorResponseDTO> errorUnexpected(Exception exc) {
+        log.error("Unhandled exception while processing request.", exc);
+        return buildErrorResponse(CommonErrorReason.UNEXPECTED_ERROR, "An unexpected error occurred.", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
 }
