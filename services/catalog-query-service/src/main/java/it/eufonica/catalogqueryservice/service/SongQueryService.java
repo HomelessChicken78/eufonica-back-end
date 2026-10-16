@@ -5,7 +5,7 @@ import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
-import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
+import it.eufonica.exception.client.NotFoundException;
 
 import java.util.UUID;
 

@@ -4,9 +4,9 @@ import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
-import it.eufonica.catalogqueryservice.exception.ErrorReason;
-import it.eufonica.catalogqueryservice.exception.client.BadRequestException;
-import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogqueryservice.mapper.ArtistMapper;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
 import it.eufonica.catalogqueryservice.repository.ArtistRepository;
@@ -37,7 +37,7 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
         ArtistRead found = artistRepository.findById(artistId)
                 .orElseThrow(
                         () -> new NotFoundException("Could not find any artist with the given id " + artistId + ".",
-                                ErrorReason.RESOURCE_NOT_FOUND)
+                                CommonErrorReason.RESOURCE_NOT_FOUND)
                 );
         log.trace("Found artist {}.", found);
 
@@ -52,10 +52,10 @@ public class ArtistQueryServiceImpl implements ArtistQueryService {
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(ArtistSearchFiltersDTO filters, Integer pageNumber, Integer pageSize) {
         if (pageNumber == null || pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.",
-                    ErrorReason.INVALID_PAGINATION_PARAMETER);
+                    CommonErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize == null || pageSize < 1)
             throw new BadRequestException("pageSize must be greater than or equal to 1.",
-                    ErrorReason.INVALID_PAGINATION_PARAMETER);
+                    CommonErrorReason.INVALID_PAGINATION_PARAMETER);
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
         Page<ArtistRead> results;

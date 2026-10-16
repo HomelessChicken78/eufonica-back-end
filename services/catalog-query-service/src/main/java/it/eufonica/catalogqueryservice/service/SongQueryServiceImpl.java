@@ -2,9 +2,9 @@ package it.eufonica.catalogqueryservice.service;
 
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.*;
-import it.eufonica.catalogqueryservice.exception.ErrorReason;
-import it.eufonica.catalogqueryservice.exception.client.BadRequestException;
-import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
+import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
 import it.eufonica.catalogqueryservice.model.SongCreditRead;
@@ -142,7 +142,7 @@ public class SongQueryServiceImpl implements SongQueryService {
         SongRead found = songRepository.findById(songId)
                 .orElseThrow(
                         () -> new NotFoundException("Could not find any song with the given id " + songId + ".",
-                                ErrorReason.RESOURCE_NOT_FOUND)
+                                CommonErrorReason.RESOURCE_NOT_FOUND)
                 );
         log.trace("Found song {}.", found);
 
@@ -163,9 +163,9 @@ public class SongQueryServiceImpl implements SongQueryService {
                                                              Integer pageNumber, Integer pageSize
     ) {
         if (pageNumber == null || pageNumber < 1)
-            throw new BadRequestException("pageNumber must be greater than or equal to 1.", ErrorReason.INVALID_PAGINATION_PARAMETER);
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.", CommonErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize == null || pageSize < 1)
-            throw new BadRequestException("pageSize must be greater than or equal to 1.", ErrorReason.INVALID_PAGINATION_PARAMETER);
+            throw new BadRequestException("pageSize must be greater than or equal to 1.", CommonErrorReason.INVALID_PAGINATION_PARAMETER);
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
         Specification<SongRead> spec = buildSpecification(filters);

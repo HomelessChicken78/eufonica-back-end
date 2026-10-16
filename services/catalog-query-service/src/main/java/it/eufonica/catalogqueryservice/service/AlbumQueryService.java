@@ -4,7 +4,7 @@ import it.eufonica.catalogqueryservice.dto.album.AlbumFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
-import it.eufonica.catalogqueryservice.exception.client.NotFoundException;
+import it.eufonica.exception.client.NotFoundException;
 
 import java.util.UUID;
 
