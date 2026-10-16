@@ -89,10 +89,10 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     private PageResponseDTO<ArtistRequestShortResponseDTO> doSearch(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
         if (pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.",
-                    AuthErrorReason.INVALID_PAGINATION_PARAMETER);
+                    CommonErrorReason.INVALID_PAGINATION_PARAMETER);
         if (pageSize < 1)
             throw new BadRequestException("pageSize must be greater than or equal to 1.",
-                    AuthErrorReason.INVALID_PAGINATION_PARAMETER);
+                    CommonErrorReason.INVALID_PAGINATION_PARAMETER);
 
         pageSize = pageSize > maxPageSize ? maxPageSize : pageSize;
 
@@ -147,7 +147,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                 .orElseThrow(
                         () -> new NotFoundException(
                                 "Artist request with the given id (" + id + ") does not exist.",
-                                AuthErrorReason.RESOURCE_NOT_FOUND
+                                CommonErrorReason.RESOURCE_NOT_FOUND
                         )
                 );
 
@@ -182,7 +182,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                 .orElseThrow(
                         () -> new NotFoundException(
                                 "Artist with the given id (" + request.getArtistId() + ") does not exist.",
-                                AuthErrorReason.RESOURCE_NOT_FOUND
+                                CommonErrorReason.RESOURCE_NOT_FOUND
                         )
                 );
 
@@ -476,7 +476,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                     requestId, currentUser.getId());
             // Deliberately throw a 404 instead a 401 to not reveal the existence of the artist request
             throw new NotFoundException("Artist request with the given id (" + requestId + ") does not exist.",
-                    AuthErrorReason.RESOURCE_NOT_FOUND);
+                    CommonErrorReason.RESOURCE_NOT_FOUND);
         }
 
         return requestMapper.toFullResponse(request);

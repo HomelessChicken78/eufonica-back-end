@@ -61,7 +61,7 @@ public class CurrentUserProvider {
         String sub = getCurrentRequest().getHeader(USER_SUB);
 
         if (sub == null || sub.isBlank())
-            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), AuthErrorReason.UNAUTHENTICATED);
+            throw new UnauthorizedException(HttpStatus.UNAUTHORIZED.getReasonPhrase(), CommonErrorReason.UNAUTHENTICATED);
 
         log.trace("Retrieved sub from the current security context. sub={}", sub);
 
@@ -138,7 +138,7 @@ public class CurrentUserProvider {
      */
     public void requireUser() {
         if (!getRoles().contains("USER"))
-            throw new ForbiddenException("This action require an USER role.", AuthErrorReason.NOT_AN_USER);
+            throw new ForbiddenException("This action require an USER role.", CommonErrorReason.NOT_AN_USER);
     }
 
     /**
@@ -148,7 +148,7 @@ public class CurrentUserProvider {
      */
     public void requireAdmin() {
         if (!isAdmin())
-            throw new ForbiddenException("This action require an ADMIN role.", AuthErrorReason.NOT_AN_ADMIN);
+            throw new ForbiddenException("This action require an ADMIN role.", CommonErrorReason.NOT_AN_ADMIN);
     }
 
     /**
