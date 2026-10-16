@@ -72,6 +72,7 @@ public class CurrentUserProvider {
      * The lookup is performed using the configured identity provider name and the user's token subject.
      *
      * @return the {@link AccessMethod} corresponding to the current user and identity provider
+     * @throws IllegalStateException if the access method in the jwt doesn't exist
      */
     public AccessMethod getAccessMethod() {
         // This shouldn't normally happen: a valid JWT with populated group claims
