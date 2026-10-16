@@ -63,7 +63,8 @@ public class AudioStorageServiceImpl implements AudioStorageService {
 
             return s3ObjectKey;
         } catch (IOException e) {
-            throw new InternalServerErrorException(e);
+            throw new InternalServerErrorException(
+                    "Failed to read bytes of uploaded audio file. originalFilename=" + file.getOriginalFilename(), e);
         }
     }
 }

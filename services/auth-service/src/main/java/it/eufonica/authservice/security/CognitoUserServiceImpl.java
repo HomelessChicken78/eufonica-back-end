@@ -42,9 +42,8 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .userAttributes(artistIdAttribute)
             );
         } catch (CognitoIdentityProviderException | SdkClientException e) {
-            log.error("Unexpected error while trying to affiliate an user to an artist.", e);
             throw new InternalServerErrorException(
-                    "Unknown error while setting the user as an artist. It might be a connection problem. Please try again later.",
+                    "Cognito adminUpdateUserAttributes failed while setting artist affiliation. sub=" + sub + ", artistId=" + artistId,
                     CommonErrorReason.INTERNAL_ERROR);
         }
     }
@@ -62,9 +61,8 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .userAttributes(artistIdAttribute)
             );
         } catch (CognitoIdentityProviderException | SdkClientException e) {
-            log.error("Unexpected error while trying to remove the artist affiliation for a user.", e);
             throw new InternalServerErrorException(
-                    "Unknown error while removing the user's artist affiliation. It might be a connection problem. Please try again later.",
+                    "Cognito adminUpdateUserAttributes failed while clearing artist affiliation. sub=" + sub,
                     CommonErrorReason.INTERNAL_ERROR);
         }
     }
@@ -79,9 +77,8 @@ public class CognitoUserServiceImpl implements CognitoUserService {
                     .groupName(userGroupName)
             );
         } catch (CognitoIdentityProviderException | SdkClientException e) {
-            log.error("Unexpected error while adding user to the user group. sub={}", sub, e);
             throw new InternalServerErrorException(
-                    "Unknown error while completing the signup. It might be a connection problem. Please try again later.",
+                    "Cognito adminAddUserToGroup failed. sub=" + sub + ", group=" + userGroupName,
                     CommonErrorReason.INTERNAL_ERROR);
         }
     }

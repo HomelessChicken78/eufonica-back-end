@@ -362,8 +362,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
         } catch (HttpStatusCodeException e) {
             // Any other status (4xx we didn't anticipate, or 5xx) is treated as an
             // unexpected failure of the upstream call, not a business outcome.
-            log.error("Unexpected status {} from catalog-command-service while creating artist.", e.getStatusCode(), e);
-            throw new InternalServerErrorException("Unexpected error while creating the artist. Please try again later.");
+            throw new InternalServerErrorException(
+                    "Unexpected status " + e.getStatusCode() + " from catalog-command-service while creating artist for requestId=" + request.getId());
         }
 
         ArtistAuthProjection createdArtist = artistMapper.toEntity(artistCreatedResponse);
