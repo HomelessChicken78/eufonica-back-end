@@ -1,7 +1,5 @@
 package it.eufonica.authservice.service;
 
-import it.eufonica.exception.CommonErrorReason;
-import it.eufonica.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.repository.AccessMethodRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,8 +16,7 @@ public class AccessMethodServiceImpl implements AccessMethodService {
         return accessMethodRepository.findByUser(user)
                 .orElseThrow(() ->
                         // This shouldn't normally happen: each user must be created after registering (so AccessMethod is always created)
-                        new InternalServerErrorException("User " + user.getId() + " has no associated access method.",
-                                CommonErrorReason.INTERNAL_ERROR))
+                        new IllegalStateException("User " + user.getId() + " has no associated access method."))
                 .getProviderUserId();
     }
 }
