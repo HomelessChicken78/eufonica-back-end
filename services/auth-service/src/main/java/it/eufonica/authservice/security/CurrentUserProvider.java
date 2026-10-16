@@ -1,6 +1,5 @@
 package it.eufonica.authservice.security;
 
-import it.eufonica.authservice.exception.AuthErrorReason;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.UnauthorizedException;
@@ -78,9 +77,8 @@ public class CurrentUserProvider {
         // This shouldn't normally happen: a valid JWT with populated group claims
         // implies signup already completed, which always creates an AccessMethod.
         AccessMethod accessMethod = accessMethodRepository.findByProviderNameAndProviderUserId(providerName, getSub())
-                .orElseThrow(() -> new InternalServerErrorException(
-                        "Authenticated user with sub " + getSub() + " has no associated access method.",
-                        CommonErrorReason.INTERNAL_ERROR));
+                .orElseThrow(() -> new IllegalStateException(
+                        "Authenticated user with sub " + getSub() + " has no associated access method."));
 
         log.debug("Retrieved access method from the current security context. accessMethod={}", accessMethod);
 
