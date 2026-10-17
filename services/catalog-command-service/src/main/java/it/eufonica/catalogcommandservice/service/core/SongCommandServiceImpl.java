@@ -131,11 +131,14 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         Song savedSong = songRepository.saveAndFlush(song);
 
+        // Publish the event before storing to S3. If an exception is thrown while publishing the event, nothing is uploaded on S3.
+        // We use flush to instantly flush the eventOutboxRepository.save and force hibernate to execute the outbox before storing.
         eventPublisher.publish(savedSong.getId().toString(), "SongCreatedEvent",
                 songTopicName, songMapper.toCreatedEvent(savedSong));
+        songRepository.flush();
 
-        /* Only after saving, try to store the file in S3. If the order was inverted (store before save), a file could
-        be saved in S3 but the save in the local DB could fail, leaving the audio file orphan in S3 */
+        /* Only after saving and publishing the event, try to store the file in S3. If the order was inverted (store before save),
+        a file could be saved in S3 but the save in the local DB could fail, leaving the audio file orphan in S3 */
         audioStorageService.store(audioFile, audioObjectKeys, audioMetadata);
 
         return songMapper.toResponse(savedSong);
