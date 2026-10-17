@@ -125,14 +125,18 @@ public class SongCommandServiceImpl implements SongCommandService {
         int audioDurationSec = audioMetadataService.getDurationSec(audioFile, audioMetadata.getExtension());
         song.setDurationSec(audioDurationSec);
 
-        // Send the request to the other service
-        String audioObjectKeys = audioStorageService.store(audioFile, owner.getName() + "/", request.getTitle(), audioMetadata);
+        // Generate the object key
+        String audioObjectKeys = audioStorageService.generateObjectKey(owner.getName() + "/", request.getTitle(), audioMetadata);
         song.setAudio(audioObjectKeys);
 
-        Song savedSong = songRepository.save(song);
+        Song savedSong = songRepository.saveAndFlush(song);
 
         eventPublisher.publish(savedSong.getId().toString(), "SongCreatedEvent",
                 songTopicName, songMapper.toCreatedEvent(savedSong));
+
+        /* Only after saving, try to store the file in S3. If the order was inverted (store before save), a file could
+        be saved in S3 but the save in the local DB could fail, leaving the audio file orphan in S3 */
+        audioStorageService.store(audioFile, owner.getName() + "/", request.getTitle(), audioMetadata);
 
         return songMapper.toResponse(savedSong);
     }
