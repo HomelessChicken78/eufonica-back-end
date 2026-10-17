@@ -70,6 +70,9 @@ public class AudioStorageServiceImpl implements AudioStorageService {
 
     @Override
     public String generateObjectKey(String prefix, String fileName, AudioMetadataDTO audioMetadata) {
+        if (!prefix.endsWith("/"))
+            throw new IllegalArgumentException("Prefix must end with '/'");
+
         return audioPrefix + prefix
                 + UUID.randomUUID() + "_"
                 + StringUtils.cleanPath(fileName)

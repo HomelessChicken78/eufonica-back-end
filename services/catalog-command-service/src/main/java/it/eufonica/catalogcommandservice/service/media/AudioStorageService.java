@@ -26,6 +26,7 @@ public interface AudioStorageService {
      * @param audioMetadata the file's metadata, containing the extension and the true mime type
      *
      * @return the generated S3 Object Key
+     * @throws IllegalArgumentException If the prefix doesn't end with '/'
      */
     String generateObjectKey(String prefix, String fileName, AudioMetadataDTO audioMetadata);
 }
