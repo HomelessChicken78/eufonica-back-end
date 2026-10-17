@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class GeneralErrorResponseDTO {
     private String message;
 
-    private LocalDateTime timestamp = LocalDateTime.now();
+    private final LocalDateTime timestamp = LocalDateTime.now();
 
     private int status = 400;
 
