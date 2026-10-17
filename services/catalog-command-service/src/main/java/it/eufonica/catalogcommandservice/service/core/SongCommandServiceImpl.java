@@ -136,7 +136,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         /* Only after saving, try to store the file in S3. If the order was inverted (store before save), a file could
         be saved in S3 but the save in the local DB could fail, leaving the audio file orphan in S3 */
-        audioStorageService.store(audioFile, owner.getName() + "/", request.getTitle(), audioMetadata);
+        audioStorageService.store(audioFile, audioObjectKeys, audioMetadata);
 
         return songMapper.toResponse(savedSong);
     }

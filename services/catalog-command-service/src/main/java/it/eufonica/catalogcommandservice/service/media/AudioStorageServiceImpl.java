@@ -30,38 +30,28 @@ public class AudioStorageServiceImpl implements AudioStorageService {
     private boolean s3UploadEnabled;
 
     @Override
-    public String store(MultipartFile file, String prefix, String fileName, AudioMetadataDTO audioMetadata) {
-        if (!prefix.endsWith("/"))
-            throw new IllegalArgumentException("Prefix must end with '/'");
+    public void store(MultipartFile file, String objectKey, AudioMetadataDTO audioMetadata) {
+        if (!objectKey.endsWith("/"))
+            throw new IllegalArgumentException("Object key must end with '/'");
 
         try {
             log.info("Storing audio file: originalFilename={}, extension={}, size={}",
                     file.getOriginalFilename(), audioMetadata.getExtension(), file.getSize());
 
             byte[] fileBytes = file.getBytes();
-
-            // Use a UUID to ensure unique S3 object keys, as different filenames such as "a/b"
-            // and "a b" may be normalized to the same key and otherwise overwrite each other.
-            // cleanPath() normalizes the filename/path before storing it in S3
-            final String s3ObjectKey = audioPrefix + prefix
-                    + UUID.randomUUID() + "_"
-                    + StringUtils.cleanPath(fileName)
-                    + audioMetadata.getExtension();
-            log.debug("Uploading audio file to S3: bucket={}, key={}", bucketS3, s3ObjectKey);
+            log.debug("Uploading audio file to S3: bucket={}, key={}", bucketS3, objectKey);
 
             if (s3UploadEnabled) {
                 s3Client.putObject(
                         b -> b.bucket(bucketS3)
-                                .key(s3ObjectKey)
+                                .key(objectKey)
                                 .contentType(audioMetadata.getMimeType().toString())
                                 .build(),
                         AsyncRequestBody.fromBytes(fileBytes)
                 ).join();
 
-                log.info("Successfully stored audio file: key={}", s3ObjectKey);
+                log.info("Successfully stored audio file: key={}", objectKey);
             } else log.warn("S3 Upload is disabled.");
-
-            return s3ObjectKey;
         } catch (IOException e) {
             throw new InternalServerErrorException(
                     "Failed to read bytes of uploaded audio file. originalFilename=" + file.getOriginalFilename(), e);

@@ -8,20 +8,18 @@ public interface AudioStorageService {
      * Stores the given audio file and returns its URL.
      *
      * @param file the audio file to store
+     * @param objectKey The object key the file should be stored with. Must end with '/'
      * @param audioMetadata the file's metadata, containing the extension and the true mime type
-     * @param prefix the prefix of the file to upload on s3
-     * @param fileName the name of the file to store
      *
-     * @return the S3 Object Key of the stored audio file
      * @throws IllegalArgumentException If the prefix doesn't end with '/'
      */
-    String store(MultipartFile file, String prefix, String fileName, AudioMetadataDTO audioMetadata);
+    void store(MultipartFile file, String objectKey, AudioMetadataDTO audioMetadata);
 
     /**
      * Generates the S3 object key under which an audio file would be stored,
      * without performing any upload.
      *
-     * @param prefix the prefix under which the object key is generated
+     * @param prefix the prefix under which the object key is generated. Must end with '/'
      * @param fileName the name of the file the key is generated for
      * @param audioMetadata the file's metadata, containing the extension and the true mime type
      *
