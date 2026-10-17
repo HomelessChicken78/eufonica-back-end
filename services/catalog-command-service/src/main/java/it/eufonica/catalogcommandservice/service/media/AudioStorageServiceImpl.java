@@ -67,4 +67,12 @@ public class AudioStorageServiceImpl implements AudioStorageService {
                     "Failed to read bytes of uploaded audio file. originalFilename=" + file.getOriginalFilename(), e);
         }
     }
+
+    @Override
+    public String generateObjectKey(String prefix, String fileName, AudioMetadataDTO audioMetadata) {
+        return audioPrefix + prefix
+                + UUID.randomUUID() + "_"
+                + StringUtils.cleanPath(fileName)
+                + audioMetadata.getExtension();
+    }
 }
