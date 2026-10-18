@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import it.eufonica.exception.ErrorReason;
 import lombok.AccessLevel;
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 public class GeneralErrorResponseDTO {
     private String message;
 
+    @EqualsAndHashCode.Exclude
     private final LocalDateTime timestamp = LocalDateTime.now();
 
     private int status = 400;
