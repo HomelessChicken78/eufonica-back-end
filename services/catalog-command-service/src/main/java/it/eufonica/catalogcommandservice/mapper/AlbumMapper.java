@@ -1,6 +1,7 @@
 package it.eufonica.catalogcommandservice.mapper;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
+import it.eufonica.catalogcommandservice.dto.album.AlbumRefDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumCreatedEvent;
@@ -9,6 +10,8 @@ import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
 import org.mapstruct.*;
+
+import java.util.Set;
 
 @Mapper(componentModel = "spring")
 public interface AlbumMapper {
@@ -41,4 +44,8 @@ public interface AlbumMapper {
     AlbumCreatedEvent.Artist toAlbumArtist(Artist artist);
 
     AlbumCreatedEvent.Song toAlbumSong(Song song);
+
+    Set<AlbumRefDTO> toRef(Set<Album> entities);
+
+    AlbumRefDTO toRef(Album entity);
 }
