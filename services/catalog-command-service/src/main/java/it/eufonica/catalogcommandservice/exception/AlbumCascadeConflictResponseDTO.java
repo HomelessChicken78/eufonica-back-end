@@ -28,12 +28,7 @@ public class AlbumCascadeConflictResponseDTO extends GeneralErrorResponseDTO {
     private final Set<AlbumRefDTO> albumsAtRisk;
 
     public AlbumCascadeConflictResponseDTO(String message, ErrorReason reason, Set<AlbumRefDTO> albumsAtRisk) {
-        super(message, reason);
-        this.albumsAtRisk = albumsAtRisk;
-    }
-
-    public AlbumCascadeConflictResponseDTO(String message, int status, ErrorReason reason, Set<AlbumRefDTO> albumsAtRisk) {
-        super(message, status, reason);
+        super(message, 409, reason);
         this.albumsAtRisk = albumsAtRisk;
     }
 }

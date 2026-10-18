@@ -15,11 +15,10 @@ public class SongAlbumExceptionHandler {
     public ResponseEntity<AlbumCascadeConflictResponseDTO> handleAlbumEmptyAfterSongDeletionException(AlbumEmptyAfterSongDeletionException exc) {
         AlbumCascadeConflictResponseDTO body = new AlbumCascadeConflictResponseDTO(
                 exc.getMessage(),
-                HttpStatus.CONFLICT.value(),
                 CatalogErrorReason.ALBUM_EMPTY_AFTER_SONG_DELETION,
                 albumMapper.toRef(exc.getEmptiedAlbums())
         );
 
-        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+        return ResponseEntity.status(body.getStatus()).body(body);
     }
 }
