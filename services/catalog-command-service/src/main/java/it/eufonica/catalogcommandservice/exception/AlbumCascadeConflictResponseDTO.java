@@ -1,11 +1,11 @@
 package it.eufonica.catalogcommandservice.exception;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumRefDTO;
-import it.eufonica.exception.ErrorReason;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.ToString;
+import org.springframework.http.HttpStatus;
 
 import java.util.Set;
 
@@ -27,8 +27,8 @@ public class AlbumCascadeConflictResponseDTO extends GeneralErrorResponseDTO {
 
     private final Set<AlbumRefDTO> albumsAtRisk;
 
-    public AlbumCascadeConflictResponseDTO(String message, ErrorReason reason, Set<AlbumRefDTO> albumsAtRisk) {
-        super(message, 409, reason);
+    public AlbumCascadeConflictResponseDTO(String message, Set<AlbumRefDTO> albumsAtRisk) {
+        super(message, HttpStatus.CONFLICT.value(), CatalogErrorReason.ALBUM_EMPTY_AFTER_SONG_DELETION);
         this.albumsAtRisk = albumsAtRisk;
     }
 }

@@ -31,16 +31,6 @@ public class AlbumEmptyAfterSongDeletionException extends ConflictException {
         this.emptiedAlbums = emptiedAlbums;
     }
 
-    public AlbumEmptyAfterSongDeletionException(String message, ErrorReason reason, Set<Album> emptiedAlbums) {
-        super(message, reason);
-        this.emptiedAlbums = emptiedAlbums;
-    }
-
-    public AlbumEmptyAfterSongDeletionException(String message, ErrorReason reason, Throwable cause, Set<Album> emptiedAlbums) {
-        super(message, reason, cause);
-        this.emptiedAlbums = emptiedAlbums;
-    }
-
     protected AlbumEmptyAfterSongDeletionException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace, Set<Album> emptiedAlbums) {
         super(message, cause, enableSuppression, writableStackTrace);
         this.emptiedAlbums = emptiedAlbums;
