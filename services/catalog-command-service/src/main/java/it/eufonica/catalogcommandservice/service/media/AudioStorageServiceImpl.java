@@ -31,8 +31,8 @@ public class AudioStorageServiceImpl implements AudioStorageService {
 
     @Override
     public void store(MultipartFile file, String objectKey, AudioMetadataDTO audioMetadata) {
-        if (!objectKey.endsWith("/"))
-            throw new IllegalArgumentException("Object key must end with '/'");
+        if (objectKey.endsWith("/"))
+            throw new IllegalArgumentException("Object key shouldn't end with '/'");
 
         try {
             log.info("Storing audio file: originalFilename={}, extension={}, size={}",
@@ -63,9 +63,11 @@ public class AudioStorageServiceImpl implements AudioStorageService {
         if (!prefix.endsWith("/"))
             throw new IllegalArgumentException("Prefix must end with '/'");
 
-        return audioPrefix + prefix
+        String objectKey = audioPrefix + prefix
                 + UUID.randomUUID() + "_"
                 + StringUtils.cleanPath(fileName)
                 + audioMetadata.getExtension();
+        log.debug("Generated object key: objectKey={}", objectKey);
+        return objectKey;
     }
 }
