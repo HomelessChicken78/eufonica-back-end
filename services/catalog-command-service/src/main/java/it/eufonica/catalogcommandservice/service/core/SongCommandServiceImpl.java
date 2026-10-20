@@ -211,7 +211,6 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         // Flush the change to force any change before sending the event
         songRepository.flush();
-        log.info("Deleted song with id {}.", idSong);
         eventPublisher.publish(idSong.toString(), "SongDeletedEvent", songTopicName, songMapper.toDeletedEvent(toDelete));
 
         return new SongDeletionResultDTO(idSong, deletedAlbums);
