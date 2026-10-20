@@ -3,10 +3,12 @@ package it.eufonica.catalogqueryservice.consumer;
 import it.eufonica.catalogqueryservice.event.song.CreditedArtistAddedEvent;
 import it.eufonica.catalogqueryservice.event.song.CreditedArtistRemovedEvent;
 import it.eufonica.catalogqueryservice.event.song.SongCreatedEvent;
+import it.eufonica.catalogqueryservice.event.song.SongDeletedEvent;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
 import it.eufonica.catalogqueryservice.model.SongCreditRead;
 import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.processing.EventProcessingService;
+import it.eufonica.catalogqueryservice.repository.AlbumContainsRepository;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
@@ -38,6 +40,7 @@ public class SongEventConsumer {
     // Repositories
     private final SongRepository songRepository;
     private final SongCreditRepository songCreditRepository;
+    private final AlbumContainsRepository albumContainsRepository;
 
     /**
      * Removes a song from the "songs" cache.
@@ -67,6 +70,7 @@ public class SongEventConsumer {
             case "SongCreatedEvent" -> handleSongCreation(eventId, objectMapper.readValue(payload, SongCreatedEvent.class));
             case "SongCreditedArtistAddedEvent" -> handleCreditedArtistAdded(eventId, objectMapper.readValue(payload, CreditedArtistAddedEvent.class));
             case "SongCreditedArtistRemovedEvent" -> handleCreditedArtistRemoved(eventId, objectMapper.readValue(payload, CreditedArtistRemovedEvent.class));
+            case "SongDeletedEvent" -> handleSongDeletion(eventId, objectMapper.readValue(payload, SongDeletedEvent.class));
             default -> log.warn("Unknown event type received. eventType={}", eventType);
         }
     }
@@ -110,6 +114,33 @@ public class SongEventConsumer {
         // Add all the links between the song and the credited artists back
         for (SongCreatedEvent.ArtistCredited credited : event.getCreditedArtists())
             songCreditRepository.save(new SongCreditRead(null, event.getId(), credited.getId()));
+
+        evictSongCache(event.getId());
+    }
+
+    /**
+     * Handles the removal of a song after a SongDeletedEvent is received.
+     * <p>If the song doesn't exist, this does nothing aside from a
+     * debug log, since deletion is idempotent by nature.</p>
+     *
+     * @param eventId The id of the event to compare against processed events
+     * @param event The deserialized event's payload
+     */
+    public void handleSongDeletion(UUID eventId, SongDeletedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "SongDeletedEvent", event.getId().toString())) return;
+
+        // Delete the many-to-many link tables, since there is no
+        // cascade configured - orphaned rows would otherwise be left
+        // pointing at a non-existent song.
+        albumContainsRepository.deleteBySongId(event.getId());
+        songCreditRepository.deleteBySongId(event.getId());
+
+        songRepository.deleteById(event.getId());
+
+        if (songRepository.existsById(event.getId()))
+            log.debug("Song already absent from projection, nothing to delete. eventId={}, songId={}", eventId, event.getId());
+        else
+            log.debug("Deleted song for event {}. songId={}", eventId, event.getId());
 
         evictSongCache(event.getId());
     }

@@ -9,6 +9,8 @@ import java.util.UUID;
 public interface AlbumContainsRepository extends JpaRepository<AlbumContainsRead, UUID> {
     void deleteByAlbumId(UUID albumId);
 
+    void deleteBySongId(UUID songId);
+
     void deleteByAlbumIdAndSongId(UUID albumId, UUID songId);
 
     boolean existsByAlbumIdAndSongId(UUID albumId, UUID songId);
