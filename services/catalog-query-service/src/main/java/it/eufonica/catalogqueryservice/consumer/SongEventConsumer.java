@@ -14,7 +14,6 @@ import it.eufonica.catalogqueryservice.repository.SongRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.redis.cache.RedisCacheManager;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
