@@ -11,9 +11,11 @@ import org.springframework.util.StringUtils;
 import org.springframework.web.multipart.MultipartFile;
 import software.amazon.awssdk.core.async.AsyncRequestBody;
 import software.amazon.awssdk.services.s3.S3AsyncClient;
+import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
 
 import java.io.IOException;
 import java.util.UUID;
+import java.util.concurrent.CompletionException;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -69,5 +71,25 @@ public class AudioStorageServiceImpl implements AudioStorageService {
                 + audioMetadata.getExtension();
         log.debug("Generated object key: objectKey={}", objectKey);
         return objectKey;
+    }
+
+    @Override
+    public void delete(String objectKey) {
+        DeleteObjectRequest request = DeleteObjectRequest.builder()
+                .key(objectKey)
+                .bucket(bucketS3)
+                .build();
+
+        try {
+            s3Client.deleteObject(request)
+                    // we manage the deletion synchronously, since, if there is an exception,
+                    // it needs to stay in the same thread for the consumer to perform a retry
+                    .join();
+            log.info("Successfully deleted audio file: key={}.", objectKey);
+        } catch (CompletionException e) {
+            // If an exception is found we log it and then rethrow it
+            log.error("Failed to delete S3 object. key={}.", objectKey, e.getCause());
+            throw e;
+        }
     }
 }

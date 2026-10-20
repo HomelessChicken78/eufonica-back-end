@@ -27,4 +27,11 @@ public interface AudioStorageService {
      * @throws IllegalArgumentException If the prefix doesn't end with '/'
      */
     String generateObjectKey(String prefix, String fileName, AudioMetadataDTO audioMetadata);
+
+    /**
+     * Delete the object corresponding to the given key.
+     *
+     * @param objectKey the object key of the object to delete from S3
+     */
+    void delete(String objectKey);
 }

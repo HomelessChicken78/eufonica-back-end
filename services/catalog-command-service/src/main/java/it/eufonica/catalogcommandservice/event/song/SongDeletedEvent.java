@@ -10,4 +10,6 @@ public class SongDeletedEvent {
     private Integer version;
 
     private UUID id;
+
+    private String audio;
 }
