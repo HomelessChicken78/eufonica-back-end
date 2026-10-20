@@ -1,6 +1,7 @@
 package it.eufonica.catalogcommandservice.controller.external;
 
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
+import it.eufonica.catalogcommandservice.dto.song.SongDeletionResultDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
 import it.eufonica.catalogcommandservice.service.core.SongCommandService;
 import jakarta.validation.Valid;
@@ -29,6 +30,16 @@ public class SongController {
         SongResponseDTO song = songCommandService.publishSong(creationRequestDTO, audioFile);
         log.info("Song published: {}.", song);
         return song;
+    }
+
+    @DeleteMapping(path = "/{idSong}", produces = APPLICATION_JSON_VALUE)
+    public SongDeletionResultDTO deleteSong(
+            @PathVariable UUID idSong,
+            @RequestParam(defaultValue = "false") boolean confirmCascade
+    ) {
+        SongDeletionResultDTO response = songCommandService.deleteSong(idSong, confirmCascade);
+        log.info("Deleted song {}.", idSong);
+        return response;
     }
 
     @PutMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
