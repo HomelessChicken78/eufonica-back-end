@@ -5,7 +5,6 @@ import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
-import it.eufonica.catalogcommandservice.event.album.AlbumDeletedEvent;
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.ConflictException;
@@ -34,6 +33,7 @@ import java.util.UUID;
 @RequiredArgsConstructor @Slf4j
 public class AlbumCommandServiceImpl implements AlbumCommandService {
     // Service
+    private final AlbumDeletionService albumDeletionService;
     private final SongCommandService songCommandService;
     private final ArtistCommandService artistCommandService;
     private final OutboxEventPublisherService eventPublisher;
@@ -226,13 +226,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public void deleteAlbum(UUID albumId) {
         Album album = requireCreditedAlbum(albumId);
 
-        album.getArtists().clear();
-        album.getSongs().clear();
-
-        albumRepository.deleteById(albumId);
-
-        eventPublisher.publish(album.getId().toString(), "AlbumDeletedEvent",
-                albumTopicName, new AlbumDeletedEvent(album.getVersion(), album.getId()));
+        albumDeletionService.deleteAlbum(album);
     }
 
     @Override

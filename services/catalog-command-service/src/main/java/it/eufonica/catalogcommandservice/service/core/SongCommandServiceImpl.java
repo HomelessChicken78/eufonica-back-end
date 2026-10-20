@@ -38,7 +38,7 @@ import java.util.stream.Collectors;
 public class SongCommandServiceImpl implements SongCommandService {
     // Service
     private final ArtistCommandService artistService;
-    private final AlbumCommandService albumService;
+    private final AlbumDeletionService albumService;
     private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
     private final OutboxEventPublisherService eventPublisher;
@@ -202,11 +202,9 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         // Remove any orphan album
         for (Album orphanAlbum : albumsAtRisk) {
-            log.info("Removing album. albumId={}", orphanAlbum.getId());
-
             deletedAlbums.add(albumMapper.toRef(orphanAlbum));
 
-            albumService.deleteAlbum(orphanAlbum.getId());
+            albumService.deleteAlbum(orphanAlbum);
         }
 
         // Flush the change to force any change before sending the event
