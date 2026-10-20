@@ -1,8 +1,13 @@
 package it.eufonica.catalogcommandservice.service.core;
 
+import it.eufonica.catalogcommandservice.dto.album.AlbumRefDTO;
 import it.eufonica.catalogcommandservice.event.song.CreditedArtistAddedEvent;
 import it.eufonica.catalogcommandservice.event.song.CreditedArtistRemovedEvent;
+import it.eufonica.catalogcommandservice.exception.AlbumEmptyAfterSongDeletionException;
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
+import it.eufonica.catalogcommandservice.model.Album;
+import it.eufonica.catalogcommandservice.repository.AlbumRepository;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.NotFoundException;
@@ -23,22 +28,28 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
 public class SongCommandServiceImpl implements SongCommandService {
     // Service
     private final ArtistCommandService artistService;
+    private final AlbumCommandService albumService;
     private final AudioMetadataService audioMetadataService;
     private final AudioStorageService audioStorageService;
     private final OutboxEventPublisherService eventPublisher;
 
     // Repository
     private final SongRepository songRepository;
+    private final AlbumRepository albumRepository;
 
     // Utility & Mapper
     private final SongMapper songMapper;
+    private final AlbumMapper albumMapper;
     private final CurrentUserProvider currentUser;
     private final ArtistAccessGuard accessGuard;
 
@@ -142,6 +153,68 @@ public class SongCommandServiceImpl implements SongCommandService {
         audioStorageService.store(audioFile, audioObjectKeys, audioMetadata);
 
         return songMapper.toResponse(savedSong);
+    }
+
+    @Override
+    public SongDeletionResultDTO deleteSong(UUID idSong, boolean confirmCascade) {
+        // Check authorizations
+        currentUser.requireUser();
+        Song toDelete = findByIdOrElseThrow(idSong);
+        accessGuard.requireArtist(toDelete.getArtistOwner().getId());
+
+        log.trace("Deleting song with id {} {}.",
+                idSong, confirmCascade ? "with cascade enabled" : "with cascade disabled");
+
+        // Find all albums affected by the song's deletion.
+        // Then split them between albums that would remain orphan and albums that would still have at least one song
+        Set<Album> albumsAffected = albumRepository.findBySongsContaining(toDelete);
+        Set<Album> albumsAtRisk = new HashSet<>();
+        Set<Album> survivingAlbums = new HashSet<>();
+        for (Album album : albumsAffected) {
+            if (album.getSongs().size() == 1)
+                albumsAtRisk.add(album);
+            else
+                survivingAlbums.add(album);
+        }
+
+        Set<AlbumRefDTO> deletedAlbums = confirmCascade ? new HashSet<>() : null;
+
+        // If there is at least an album that would remain orphan and confirm cascade is false, throw an exception
+        if (!albumsAtRisk.isEmpty() && !confirmCascade)
+            throw new AlbumEmptyAfterSongDeletionException(
+                    String.format("Cannot remove the song with id %s. The following albums would remain orphan: %s.", idSong,
+                            albumsAtRisk.stream().map(Album::getName).collect(Collectors.joining(", "))),
+                    albumsAtRisk
+            );
+
+        // If there is at least an album that would remain orphan but confirm cascade is true, just log it
+        else if (!albumsAtRisk.isEmpty())
+            log.debug("The deletion of the song would lead to certain albums being orphan. " +
+                    "The flag \"confirmCascade\" has been set to true, proceeding with the deletion of the albums. albums={}", albumsAtRisk);
+
+        // Delete the song
+        songRepository.delete(toDelete);
+        log.trace("Deleted song with id {} from the database.", idSong);
+
+        // Unlink each non-orphan risking album from the song (remove the link albumX - toDelete)
+        for (Album survivor : survivingAlbums)
+            survivor.getSongs().remove(toDelete);
+
+        // Remove any orphan album
+        for (Album orphanAlbum : albumsAtRisk) {
+            log.info("Removing album. albumId={}", orphanAlbum.getId());
+
+            deletedAlbums.add(albumMapper.toRef(orphanAlbum));
+
+            albumService.deleteAlbum(orphanAlbum.getId());
+        }
+
+        // Flush the change to force any change before sending the event
+        songRepository.flush();
+        log.info("Deleted song with id {}.", idSong);
+        eventPublisher.publish(idSong.toString(), "SongDeletedEvent", songTopicName, songMapper.toDeletedEvent(toDelete));
+
+        return new SongDeletionResultDTO(idSong, deletedAlbums);
     }
 
     @Override
