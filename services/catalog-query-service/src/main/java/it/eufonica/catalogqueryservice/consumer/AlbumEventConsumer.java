@@ -255,9 +255,9 @@ public class AlbumEventConsumer {
         albumRepository.deleteById(event.getId());
 
         if (albumRepository.existsById(event.getId()))
-            log.debug("Deleted album for event {}. albumId={}", eventId, event.getId());
-        else
             log.debug("Album already absent from projection, nothing to delete. eventId={}, albumId={}", eventId, event.getId());
+        else
+            log.debug("Deleted album for event {}. albumId={}", eventId, event.getId());
 
         evictAlbumCache(event.getId());
     }
