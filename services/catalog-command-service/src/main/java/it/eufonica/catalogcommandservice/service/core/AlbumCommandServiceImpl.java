@@ -178,7 +178,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         UUID callerArtistId = accessGuard.requireArtist();
 
         // Dedup: the caller is always a credited artist, regardless of what's in the DTO
-        Set<UUID> artistIds = new LinkedHashSet<>(request.getFeaturedArtists());
+        Set<UUID> artistIds = new LinkedHashSet<>(request.getFeaturedArtists() != null ? request.getFeaturedArtists() : Set.of());
         artistIds.add(callerArtistId);
 
         Album album = albumMapper.toEntity(request);
