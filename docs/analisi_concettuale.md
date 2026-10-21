@@ -8,6 +8,7 @@
       + [[V.Artist.registrato_dopo_fondazione]](#artistregistrato_dopo_fondazione)
       + [[V.song_credit.pubblicazione_dopo_fondazione]](#song_creditpubblicazione_dopo_fondazione)
       + [[V.Album.rilascio_originale_prima_di_pubblicazione]](#albumrilascio_originale_prima_di_pubblicazione)
+      + [[V.Album.tutte_le_canzoni_accreditano_uno_stesso_autore]](#albumtutte_le_canzoni_accreditano_uno_stesso_autore)
       + [[V.art_album.artista_fondato_prima_rilascio_album]](#art_albumartista_fondato_prima_rilascio_ufficiale_album)
       + [[V.art_album.artista_registrato_prima_pubblicazione_album]](#art_albumartista_registrato_prima_pubblicazione_album)
       + [[V.Listen.data_di_ascolto_valida]](#listendata_di_ascolto_valida)
@@ -69,6 +70,14 @@ Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero 
 ### [V.Album.rilascio_originale_prima_di_pubblicazione] Un Album può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
 
 Per ogni _al:Album_, deve essere vero che al.original_release_date <= al.pub_date
+
+<!-- TOC --><a id="albumtutte_le_canzoni_accreditano_uno_stesso_autore"></a>
+### [V.Album.tutte_le_canzoni_accreditano_uno_stesso_autore] Tutte le canzoni di un Album devono accreditare un autore in comune
+
+Per ogni _al:Album_:
+- Sia S l'insieme di tutte le _s:Song_ tali che _(al, s):album_contains_
+- Sia A l'insieme di tutti gli _art:Artist_ tali che _(art, al):art_album_
+- Deve esistere almeno un art' in A tale che, per ogni s in S, esista il link _(art', s):song_credit_
 
 <!-- TOC --><a id="art_albumartista_fondato_prima_rilascio_ufficiale_album"></a>
 ### [V.art_album.artista_fondato_prima_rilascio_ufficiale_album] Il rilascio ufficiale di un Album deve avvenire dopo la fondazione dei suoi Artisti
