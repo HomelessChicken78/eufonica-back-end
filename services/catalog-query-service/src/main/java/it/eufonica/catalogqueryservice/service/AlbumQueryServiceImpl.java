@@ -54,7 +54,7 @@ public class AlbumQueryServiceImpl implements AlbumQueryService {
                         .replace("_", "\\_");
                 predicates.add(
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("name")),
-                                "%" + escapedName + "%", '\\')
+                                "%" + escapedName.toLowerCase() + "%", '\\')
                 );
                 log.trace("Added filter name LIKE %{}%.", filters.getName());
             }

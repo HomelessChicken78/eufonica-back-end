@@ -100,7 +100,7 @@ public class SongQueryServiceImpl implements SongQueryService {
                         .replace("_", "\\_");
                 predicates.add(
                         criteriaBuilder.like(criteriaBuilder.lower(root.get("title")),
-                                "%" + escapedTitle + "%", '\\')
+                                "%" + escapedTitle.toLowerCase() + "%", '\\')
                 );
                 log.trace("Added filter title LIKE %{}%.", escapedTitle);
             }
