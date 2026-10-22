@@ -53,6 +53,17 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
 
         // Try to put the jwt, the roles and the artist id as headers
         return jwtDecoder.decode(headerAuth.substring("Bearer ".length()))
+                // If it fails the decoding, just log a warn and return an empty Mono
+                .onErrorResume(
+                        throwable -> {
+                            log.warn("JWT decoding failed, forwarding request without identity headers. reason={}",
+                                    throwable.getMessage());
+
+                            // We return an empty mono. This way the below ".switchIfEmpty" can detect it and correctly continue with the filters
+                            return Mono.empty();
+                        }
+                )
+
                 .flatMap(jwt -> {
                     String sub = jwt.getSubject();
                     List<String> groups = jwt.getClaimAsStringList(GROUPS_CLAIM);
@@ -81,13 +92,7 @@ public class JwtClaimsToHeadersFilter implements WebFilter {
                     return chain.filter(strippedExchange.mutate().request(newReq).build());
                 })
 
-                // If it fails, continue with the filters without doing anything
-                .onErrorResume(
-                        throwable -> {
-                            log.warn("JWT decoding failed, forwarding request without identity headers. reason={}",
-                                    throwable.getMessage());
-                            return chain.filter(strippedExchange);
-                        }
-                );
+                // If the Mono is empty, it means the decoding failed. Continue with the filters without doing anything
+                .switchIfEmpty(chain.filter(strippedExchange));
     }
 }
