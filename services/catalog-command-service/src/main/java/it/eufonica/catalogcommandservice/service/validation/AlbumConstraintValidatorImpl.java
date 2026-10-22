@@ -23,7 +23,7 @@ public class AlbumConstraintValidatorImpl implements AlbumConstraintValidator {
         if (artistIds == null || artistIds.isEmpty())
             throw new IllegalArgumentException("artistIds cannot be null or empty.");
 
-        if (!albumRepository.existsCommonCreditedArtist(artistIds, songIds, songIds.size()))
+        if (albumRepository.findCommonCreditedArtists(artistIds, songIds, songIds.size()).isEmpty())
             throw new ConflictException("No artist among the album's credited artists is credited on all songs of the album.",
                     CatalogErrorReason.ALBUM_MISSING_COMMON_CREDITED_ARTIST);
     }
@@ -33,7 +33,7 @@ public class AlbumConstraintValidatorImpl implements AlbumConstraintValidator {
         if (albumId == null)
             throw new IllegalArgumentException("albumId cannot be null.");
 
-        if (!albumRepository.existsCommonCreditedArtist(albumId))
+        if (albumRepository.findCommonCreditedArtists(albumId).isEmpty())
             throw new ConflictException("No artist among the album's credited artists is credited on all songs of the album.",
                     CatalogErrorReason.ALBUM_MISSING_COMMON_CREDITED_ARTIST);
     }
