@@ -183,7 +183,6 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         // Dedup: the caller is always a credited artist, regardless of what's in the DTO
         Set<UUID> artistIds = new LinkedHashSet<>(request.getFeaturedArtists() != null ? request.getFeaturedArtists() : Set.of());
         artistIds.add(callerArtistId);
-        albumConstraintValidator.requireCommonCreditedArtist(artistIds, request.getSongs());
 
         Album album = albumMapper.toEntity(request);
 
@@ -192,6 +191,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         for (UUID songId : request.getSongs())
             mapSongToAlbum(songId, album);
+
+        albumConstraintValidator.requireCommonCreditedArtist(artistIds, request.getSongs());
 
         Album savedAlbum = albumRepository.saveAndFlush(album);
         eventPublisher.publish(savedAlbum.getId().toString(), "AlbumCreatedEvent",
@@ -202,8 +203,6 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     @Override
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request) {
         Album album = requireCreditedAlbum(albumId);
-        Set<UUID> artistIds = album.getArtists().stream().map(Artist::getId).collect(Collectors.toSet());
-        albumConstraintValidator.requireCommonCreditedArtist(artistIds, request.getSongs());
 
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
@@ -221,6 +220,9 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         for (UUID songId : request.getSongs())
             mapSongToAlbum(songId, album);
+
+        Set<UUID> artistIds = album.getArtists().stream().map(Artist::getId).collect(Collectors.toSet());
+        albumConstraintValidator.requireCommonCreditedArtist(artistIds, request.getSongs());
 
         Album savedAlbum = albumRepository.saveAndFlush(album);
         eventPublisher.publish(savedAlbum.getId().toString(), "AlbumUpdatedEvent",
