@@ -6,6 +6,7 @@ import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.catalogcommandservice.service.validation.AlbumConstraintValidator;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.ForbiddenException;
@@ -28,12 +29,14 @@ import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
 public class AlbumCommandServiceImpl implements AlbumCommandService {
     // Service
     private final AlbumDeletionService albumDeletionService;
+    private final AlbumConstraintValidator albumConstraintValidator;
     private final SongCommandService songCommandService;
     private final ArtistCommandService artistCommandService;
     private final OutboxEventPublisherService eventPublisher;
@@ -180,6 +183,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         // Dedup: the caller is always a credited artist, regardless of what's in the DTO
         Set<UUID> artistIds = new LinkedHashSet<>(request.getFeaturedArtists() != null ? request.getFeaturedArtists() : Set.of());
         artistIds.add(callerArtistId);
+        albumConstraintValidator.requireCommonCreditedArtist(artistIds, request.getSongs());
 
         Album album = albumMapper.toEntity(request);
 
@@ -198,6 +202,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     @Override
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request) {
         Album album = requireCreditedAlbum(albumId);
+        Set<UUID> artistIds = album.getArtists().stream().map(Artist::getId).collect(Collectors.toSet());
+        albumConstraintValidator.requireCommonCreditedArtist(artistIds, request.getSongs());
 
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
@@ -241,7 +247,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         // manually so the version published in the event reflects the real change.
         album.setVersion(album.getVersion() + 1);
 
-        Album savedAlbum = albumRepository.save(album);
+        Album savedAlbum = albumRepository.saveAndFlush(album);
+        albumConstraintValidator.requireCommonCreditedArtist(albumId);
 
         AlbumSongAddedEvent event = AlbumSongAddedEvent.builder()
                 .version(savedAlbum.getVersion())

@@ -76,7 +76,9 @@ public interface SongCommandService {
      *
      * @return the DTO representing the updated song
      * @throws NotFoundException if the song or artist does not exist
-     * @throws ConflictException if the artist to remove is the primary owner of the song
+     * @throws ConflictException if the artist to remove is the primary owner of the song,
+     * or if removing the credit would leave an album containing this song without
+     * any artist credited on all of its songs
      */
     SongResponseDTO removeCreditedArtist(UUID idSong, UUID idArtist);
 }

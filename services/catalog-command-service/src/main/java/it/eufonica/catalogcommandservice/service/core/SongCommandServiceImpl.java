@@ -8,6 +8,7 @@ import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
 import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
+import it.eufonica.catalogcommandservice.service.validation.AlbumConstraintValidator;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.NotFoundException;
@@ -52,6 +53,7 @@ public class SongCommandServiceImpl implements SongCommandService {
     private final AlbumMapper albumMapper;
     private final CurrentUserProvider currentUser;
     private final ArtistAccessGuard accessGuard;
+    private final AlbumConstraintValidator albumConstraintValidator;
 
     @Value("${SONG_TOPIC_NAME:song.events}")
     private String songTopicName;
@@ -254,10 +256,13 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         song.setVersion(song.getVersion() + 1);
 
-        Song savedSong = songRepository.save(song);
+        Song savedSong = songRepository.saveAndFlush(song);
+
+        for (Album album : albumRepository.findBySongsContaining(savedSong)) {
+            albumConstraintValidator.requireCommonCreditedArtist(album.getId());
+        }
 
         var event = new CreditedArtistRemovedEvent(savedSong.getVersion(), idSong, idArtist);
-
         eventPublisher.publish(savedSong.getId().toString(), "SongCreditedArtistRemovedEvent",
                 songTopicName, event);
 
