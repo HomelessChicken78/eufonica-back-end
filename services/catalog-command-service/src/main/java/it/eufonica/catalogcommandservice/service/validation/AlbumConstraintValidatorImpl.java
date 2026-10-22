@@ -27,4 +27,14 @@ public class AlbumConstraintValidatorImpl implements AlbumConstraintValidator {
             throw new ConflictException("No artist among the album's credited artists is credited on all songs of the album.",
                     CatalogErrorReason.ALBUM_MISSING_COMMON_CREDITED_ARTIST);
     }
+
+    @Override
+    public void requireCommonCreditedArtist(UUID albumId) {
+        if (albumId == null)
+            throw new IllegalArgumentException("albumId cannot be null.");
+
+        if (!albumRepository.existsCommonCreditedArtist(albumId))
+            throw new ConflictException("No artist among the album's credited artists is credited on all songs of the album.",
+                    CatalogErrorReason.ALBUM_MISSING_COMMON_CREDITED_ARTIST);
+    }
 }
