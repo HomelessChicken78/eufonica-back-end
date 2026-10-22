@@ -35,7 +35,7 @@ public interface AlbumRepository extends JpaRepository<Album, UUID> {
             WHERE al.id = :albumId
             AND s MEMBER OF al.songs
             
-            GROUP BY art.id
+            GROUP BY art.id, al.id
             HAVING COUNT(DISTINCT(s.id)) = SIZE(al.songs)
             """
     )
