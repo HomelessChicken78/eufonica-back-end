@@ -38,6 +38,7 @@ public enum CatalogErrorReason implements ErrorReason {
     // Album-Song (album_contains)
     SONG_NOT_IN_ALBUM,
     ALBUM_EMPTY_AFTER_SONG_DELETION,
+    ALBUM_EMPTY_AFTER_SONG_REMOVED,
 
     // 413 Equivalent
     AUDIO_FILE_TOO_LARGE,

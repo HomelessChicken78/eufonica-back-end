@@ -272,6 +272,11 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         if (!removed)
             throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId, CatalogErrorReason.SONG_NOT_IN_ALBUM);
 
+        // An album should not remain orphan after the song is removed from it
+        if (album.getSongs().isEmpty())
+            throw new ConflictException("The album " + albumId + " would remain empty after removing the song from it.", CatalogErrorReason.ALBUM_EMPTY_AFTER_SONG_REMOVED);
+
+
         // Modifying a @ManyToMany collection only touches the join table, not any
         // scalar column on the Album row itself. Hibernate therefore won't emit an
         // UPDATE for the Album entity and @Version won't auto-increment. We change it

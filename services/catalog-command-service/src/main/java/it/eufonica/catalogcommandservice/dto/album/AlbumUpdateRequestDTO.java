@@ -23,5 +23,6 @@ public class AlbumUpdateRequestDTO {
     @PastOrPresent(message = "Original release date cannot be in the future.")
     private LocalDate originalReleaseDate;
 
+    @NotEmpty(message = "An album should have at least one song.")
     private Set<@NotNull(message = "Song ID cannot be null.") UUID> songs;
 }

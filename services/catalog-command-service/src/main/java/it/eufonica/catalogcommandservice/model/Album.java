@@ -49,5 +49,6 @@ public class Album {
             joinColumns = @JoinColumn(name = "album_id"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
+    @NotEmpty(message = "An album should have at least one song.")
     private Set<Song> songs = new HashSet<>();
 }
