@@ -2,7 +2,6 @@ package it.eufonica.catalogcommandservice.service.validation;
 
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
-import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import it.eufonica.exception.client.ConflictException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

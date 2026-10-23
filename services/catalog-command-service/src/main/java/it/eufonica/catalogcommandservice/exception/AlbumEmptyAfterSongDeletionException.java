@@ -1,7 +1,6 @@
 package it.eufonica.catalogcommandservice.exception;
 
 import it.eufonica.catalogcommandservice.model.Album;
-import it.eufonica.exception.ErrorReason;
 import it.eufonica.exception.client.ConflictException;
 import lombok.Getter;
 
