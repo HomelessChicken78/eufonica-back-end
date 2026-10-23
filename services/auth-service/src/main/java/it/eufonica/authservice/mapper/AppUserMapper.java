@@ -4,7 +4,6 @@ import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
 import it.eufonica.authservice.dto.auth.SignUpRequestDTO;
 import it.eufonica.authservice.model.AppUser;
-import it.eufonica.authservice.model.ArtistRequest;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

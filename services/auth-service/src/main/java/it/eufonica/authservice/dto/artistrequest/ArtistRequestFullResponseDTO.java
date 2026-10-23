@@ -1,9 +1,6 @@
 package it.eufonica.authservice.dto.artistrequest;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import it.eufonica.authservice.model.AppUser;
-import it.eufonica.authservice.model.ArtistAuthProjection;
-import it.eufonica.authservice.model.ArtistRequest;
 import lombok.*;
 
 import java.time.LocalDate;
