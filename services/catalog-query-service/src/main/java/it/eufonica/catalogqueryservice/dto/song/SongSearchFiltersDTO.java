@@ -1,7 +1,6 @@
 package it.eufonica.catalogqueryservice.dto.song;
 
 import jakarta.validation.constraints.AssertTrue;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
