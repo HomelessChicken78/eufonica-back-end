@@ -1,5 +1,7 @@
 package it.eufonica.catalogqueryservice.controller;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
@@ -19,6 +21,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ArtistController {
     private final ArtistQueryService artistQueryService;
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Artist found."),
+            @ApiResponse(responseCode = "404", description = "The artist does not exist.")
+    })
     @GetMapping(path = "/{artistId}", produces = APPLICATION_JSON_VALUE)
     public ArtistFullResponseDTO findArtistById(@PathVariable UUID artistId){
         ArtistFullResponseDTO artistFullResponseDTO = artistQueryService.findArtistById(artistId);
@@ -26,6 +32,10 @@ public class ArtistController {
         return artistFullResponseDTO;
     }
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Artists matching the given filters, paginated."),
+            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1.")
+    })
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(
             @ModelAttribute @Valid ArtistSearchFiltersDTO filters,
