@@ -1,5 +1,7 @@
 package it.eufonica.catalogqueryservice.controller;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
@@ -20,6 +22,10 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class SongController {
     private final SongQueryService songQueryService;
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Song found."),
+            @ApiResponse(responseCode = "404", description = "The song does not exist.")
+    })
     @GetMapping(path = "/{songId}", produces = APPLICATION_JSON_VALUE)
     public SongFullResponseDTO findSongById(@PathVariable UUID songId){
         SongFullResponseDTO songFullResponseDTO = songQueryService.findSongById(songId);
@@ -27,6 +33,10 @@ public class SongController {
         return songFullResponseDTO;
     }
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Songs matching the given filters, paginated."),
+            @ApiResponse(responseCode = "400", description = "A filter range is invalid (negative value, or max lower than min), or pageNumber or pageSize is less than 1.")
+    })
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<SongShortResponseDTO> searchSongs(
             @ModelAttribute @Valid SongSearchFiltersDTO filters,
