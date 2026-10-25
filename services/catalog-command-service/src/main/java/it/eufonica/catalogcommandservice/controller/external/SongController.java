@@ -23,8 +23,6 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 public class SongController {
     private final SongCommandService songCommandService;
 
-    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Song published."),
             @ApiResponse(responseCode = "400", description = "Request validation failed or the audio file is missing, empty or has an unsupported MIME type."),
@@ -33,6 +31,8 @@ public class SongController {
             @ApiResponse(responseCode = "409", description = "A song with this title already exists for this artist or a credited artist's foundation date is after the song's published date."),
             @ApiResponse(responseCode = "413", description = "The audio file exceeds the maximum allowed size.")
     })
+    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public SongResponseDTO publishSong(
             @RequestPart("creationRequest") @Valid PublishSongRequestDTO creationRequestDTO,
             @RequestPart("audioFile") MultipartFile audioFile
@@ -73,13 +73,13 @@ public class SongController {
         return response;
     }
 
-    @DeleteMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artist removed from the song's credits."),
             @ApiResponse(responseCode = "403", description = "Caller is not a USER or is not the song's owning artist."),
             @ApiResponse(responseCode = "404", description = "The song does not exist or the artist does not exist."),
             @ApiResponse(responseCode = "409", description = "The artist is the song's primary owner and cannot be removed from its credits or removing it would leave an album without a common credited artist.")
     })
+    @DeleteMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
     public SongResponseDTO removeCreditedArtist(
             @PathVariable UUID idSong,
             @PathVariable UUID idArtist

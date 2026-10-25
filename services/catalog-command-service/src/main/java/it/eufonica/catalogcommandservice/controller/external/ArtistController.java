@@ -17,12 +17,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ArtistController {
     private final ArtistCommandService artistCommandService;
 
-    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artist updated."),
             @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. invalid name format, missing or future foundation date)."),
             @ApiResponse(responseCode = "403", description = "Caller is not a USER or has no artist affiliation.")
     })
+    @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ArtistSummaryResponseDTO updateArtist(@RequestBody @Valid ArtistCreationRequestDTO creationRequestDTO) {
         ArtistSummaryResponseDTO artist = artistCommandService.updateArtist(creationRequestDTO);
         log.info("Artist updated: {}.", artist);

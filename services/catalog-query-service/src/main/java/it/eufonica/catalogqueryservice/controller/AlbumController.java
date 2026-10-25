@@ -21,22 +21,22 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AlbumController {
     private final AlbumQueryService albumQueryService;
 
-    @GetMapping(path = "/{albumId}", produces = APPLICATION_JSON_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Album found."),
             @ApiResponse(responseCode = "404", description = "The album does not exist.")
     })
+    @GetMapping(path = "/{albumId}", produces = APPLICATION_JSON_VALUE)
     public AlbumFullResponseDTO findAlbumById(@PathVariable UUID albumId){
         AlbumFullResponseDTO albumFullResponseDTO = albumQueryService.findAlbumById(albumId);
         log.debug("Searched and found album with id {}", albumId);
         return albumFullResponseDTO;
     }
 
-    @GetMapping(produces = APPLICATION_JSON_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Albums matching the given filters, paginated."),
             @ApiResponse(responseCode = "400", description = "minSongs is negative, or pageNumber or pageSize is less than 1.")
     })
+    @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<AlbumShortResponseDTO> searchAlbums(
             @ModelAttribute @Valid AlbumSearchFiltersDTO filters,
             @RequestParam(defaultValue = "1") Integer pageNumber,

@@ -21,8 +21,6 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class AlbumController {
     private final AlbumCommandService albumCommandService;
 
-    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
-    @ResponseStatus(HttpStatus.CREATED)
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Album created."),
             @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing name, more than 2 featured artists, no songs)."),
@@ -30,6 +28,8 @@ public class AlbumController {
             @ApiResponse(responseCode = "404", description = "A featured artist or a song referenced in the request does not exist."),
             @ApiResponse(responseCode = "409", description = "An artist/album temporal constraint is violated or no credited artist is common to every song in the album.")
     })
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
     public AlbumSummaryResponseDTO createAlbum(@RequestBody @Valid AlbumCreationRequestDTO creationRequestDTO) {
         AlbumSummaryResponseDTO album = albumCommandService.createAlbum(creationRequestDTO);
         log.info("Album created: {}.", album);

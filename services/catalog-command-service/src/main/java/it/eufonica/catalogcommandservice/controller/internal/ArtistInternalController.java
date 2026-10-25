@@ -18,13 +18,13 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class ArtistInternalController {
     private final ArtistCommandService artistCommandService;
 
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Artist created."),
             @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. invalid name format, missing or future foundation date)."),
             @ApiResponse(responseCode = "409", description = "An artist with this name already exists.")
     })
+    @ResponseStatus(HttpStatus.CREATED)
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ArtistSummaryResponseDTO createArtist(@RequestBody @Valid ArtistCreationRequestDTO creationRequestDTO) {
         ArtistSummaryResponseDTO artist = artistCommandService.createArtist(creationRequestDTO);
         log.info("Artist created: {}.", artist);
