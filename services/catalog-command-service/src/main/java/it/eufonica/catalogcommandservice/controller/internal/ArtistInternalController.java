@@ -1,5 +1,7 @@
 package it.eufonica.catalogcommandservice.controller.internal;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.service.core.ArtistCommandService;
@@ -18,6 +20,11 @@ public class ArtistInternalController {
 
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ApiResponses({
+            @ApiResponse(responseCode = "201", description = "Artist created."),
+            @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. invalid name format, missing or future foundation date)."),
+            @ApiResponse(responseCode = "409", description = "An artist with this name already exists.")
+    })
     public ArtistSummaryResponseDTO createArtist(@RequestBody @Valid ArtistCreationRequestDTO creationRequestDTO) {
         ArtistSummaryResponseDTO artist = artistCommandService.createArtist(creationRequestDTO);
         log.info("Artist created: {}.", artist);
