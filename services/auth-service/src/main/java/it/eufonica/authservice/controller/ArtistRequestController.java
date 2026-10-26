@@ -1,10 +1,14 @@
 package it.eufonica.authservice.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
 import it.eufonica.authservice.service.ArtistRequestService;
+import it.eufonica.exception.dto.GeneralErrorResponseDTO;
+import it.eufonica.exception.dto.ValidationErrorResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,9 +25,12 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "New-artist request created."),
-            @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing requested name or foundation date)."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER."),
-            @ApiResponse(responseCode = "409", description = "Caller is already an artist or already has a pending request.")
+            @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing requested name or foundation date).",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Caller is already an artist (reason: ALREADY_AN_ARTIST) or already has a pending request (reason: ARTIST_REQUEST_ALREADY_PENDING).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PostMapping(value = "/new-artist",
             consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -35,10 +42,14 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Existing-artist request created."),
-            @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing artist id)."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER."),
-            @ApiResponse(responseCode = "404", description = "The referenced artist does not exist."),
-            @ApiResponse(responseCode = "409", description = "Caller is already an artist, already has a pending request or the artist registered after the request.")
+            @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing artist id).",
+                    content = @Content(schema = @Schema(implementation = ValidationErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The referenced artist does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Caller is already an artist (reason: ALREADY_AN_ARTIST), already has a pending request (reason: ARTIST_REQUEST_ALREADY_PENDING) or the artist registered after the request (reason: ARTIST_REGISTERED_AFTER_REQUEST).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PostMapping(value = "/existing-artist",
             consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
@@ -50,10 +61,14 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Request evaluated."),
-            @ApiResponse(responseCode = "400", description = "Request validation failed or catalog-command-service rejected the artist creation as invalid."),
-            @ApiResponse(responseCode = "403", description = "Caller is not an admin."),
-            @ApiResponse(responseCode = "404", description = "The request does not exist."),
-            @ApiResponse(responseCode = "409", description = "The request was already evaluated, the admin is trying to evaluate their own request or catalog-command-service rejected the artist creation as a conflict.")
+            @ApiResponse(responseCode = "400", description = "Request validation failed (missing accepted flag), or catalog-command-service rejected the artist creation as invalid (reason: INTERNAL_ERROR).",
+                    content = @Content(schema = @Schema(oneOf = {ValidationErrorResponseDTO.class, GeneralErrorResponseDTO.class}))),
+            @ApiResponse(responseCode = "403", description = "Caller is not an admin (reason: NOT_AN_ADMIN).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The request does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "The request was already evaluated (reason: REQUEST_ALREADY_EVALUATED), the admin is trying to evaluate their own request (reason: SELF_EVALUATION_NOT_ALLOWED) or catalog-command-service rejected the artist creation as a conflict (reason: INTERNAL_ERROR).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PatchMapping(value = "/{requestId}/evaluate", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     public ArtistRequestResultDTO evaluateRequest(@PathVariable UUID requestId, @RequestBody @Valid EvaluateArtistRequestDTO evaluation) {
@@ -64,8 +79,10 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Requests matching the given filters, paginated."),
-            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1."),
-            @ApiResponse(responseCode = "403", description = "Caller is not an admin.")
+            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1 (reason: INVALID_PAGINATION_PARAMETER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Caller is not an admin (reason: NOT_AN_ADMIN).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<ArtistRequestShortResponseDTO> searchAllRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO commonFilters,
@@ -82,8 +99,10 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The caller's own requests matching the given filters, paginated."),
-            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER.")
+            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1 (reason: INVALID_PAGINATION_PARAMETER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(value = "/me", produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<ArtistRequestShortResponseDTO> searchOwnRequests(@ModelAttribute @Valid CommonArtistRequestFiltersDTO filters,
@@ -96,7 +115,8 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Request found."),
-            @ApiResponse(responseCode = "404", description = "The request does not exist, or the caller is neither its owner nor an admin.")
+            @ApiResponse(responseCode = "404", description = "The request does not exist, or the caller is neither its owner nor an admin (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(value = "/{requestId}", produces = APPLICATION_JSON_VALUE)
     public ArtistRequestFullResponseDTO findRequest(@PathVariable UUID requestId) {
