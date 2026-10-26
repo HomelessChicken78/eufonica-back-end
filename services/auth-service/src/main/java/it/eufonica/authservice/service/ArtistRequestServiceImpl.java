@@ -3,12 +3,13 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.authservice.exception.ArtistCreationUpstreamErrorReason;
 import it.eufonica.authservice.exception.AuthErrorReason;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.NotFoundException;
-import it.eufonica.exception.dto.GeneralErrorResponseDTO;
+import it.eufonica.exception.dto.UpstreamClientErrorResponseDTO;
 import it.eufonica.exception.server.InternalServerErrorException;
 import it.eufonica.authservice.mapper.ArtistMapper;
 import it.eufonica.authservice.mapper.ArtistRequestMapper;
@@ -39,6 +40,7 @@ import org.springframework.web.client.RestClient;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -304,28 +306,28 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     /**
      * Attempts to parse the error body of a failed response from catalog-command-service
-     * into a {@link GeneralErrorResponseDTO}, so its {@code message} and {@code reason}
+     * into a {@link UpstreamClientErrorResponseDTO}, so its {@code message} and {@code reason}
      * can be propagated to the caller of this service.
      *
      * @param e the exception thrown for the failed upstream call
      *
-     * @return the parsed error body, or {@code null} if the body is missing or could not be parsed
+     * @return the parsed error body, normalized so that {@code message} and {@code reason} are
+     * never {@code null}; never {@code null} itself — if the body is missing or could not
+     * be parsed, an "unknown error" response is returned instead
      */
-    private GeneralErrorResponseDTO parseUpstreamError(HttpStatusCodeException e) {
-        GeneralErrorResponseDTO errorResponse = e.getResponseBodyAs(GeneralErrorResponseDTO.class);
+    private UpstreamClientErrorResponseDTO parseUpstreamError(HttpStatusCodeException e) {
+        UpstreamClientErrorResponseDTO errorResponse = e.getResponseBodyAs(UpstreamClientErrorResponseDTO.class);
 
         if (errorResponse == null) {
             log.warn("catalog-command-service returned status {} with no parseable error body.", e.getStatusCode());
-            return new GeneralErrorResponseDTO("unknown error.", e.getStatusCode().value(), CommonErrorReason.UNEXPECTED_ERROR);
+            return UpstreamClientErrorResponseDTO.unknown(e.getStatusCode().value());
         }
-        if (errorResponse.getMessage() == null || errorResponse.getMessage().isEmpty()) {
+
+        Set<UpstreamClientErrorResponseDTO.Field> errorFields = errorResponse.normalizeDefaults();
+        if (errorFields.contains(UpstreamClientErrorResponseDTO.Field.MESSAGE))
             log.info("catalog-command-service returned status {} with empty or null message in the body.", e.getStatusCode());
-            errorResponse.setMessage("unknown error.");
-        }
-        if (errorResponse.getReason() == null) {
+        if (errorFields.contains(UpstreamClientErrorResponseDTO.Field.REASON))
             log.warn("catalog-command-service returned status {} with null reason in the body.", e.getStatusCode());
-            errorResponse.setReason(CommonErrorReason.UNEXPECTED_ERROR);
-        }
 
         return errorResponse;
     }
@@ -352,13 +354,13 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                     .retrieve()
                     .body(ArtistSummaryResponseDTO.class);
         } catch (HttpClientErrorException.BadRequest e) {
-            GeneralErrorResponseDTO upstream = parseUpstreamError(e);
+            UpstreamClientErrorResponseDTO upstream = parseUpstreamError(e);
             throw new BadRequestException(
-                    "Cannot create the artist: " + upstream.getMessage(), CommonErrorReason.INTERNAL_ERROR);
+                    "Cannot create the artist: " + upstream.getMessage(), ArtistCreationUpstreamErrorReason.fromUpstream(upstream.getReason()));
         } catch (HttpClientErrorException.Conflict e) {
-            GeneralErrorResponseDTO upstream = parseUpstreamError(e);
+            UpstreamClientErrorResponseDTO upstream = parseUpstreamError(e);
             throw new ConflictException(
-                    "Cannot create the artist: " + upstream.getMessage(), CommonErrorReason.INTERNAL_ERROR);
+                    "Cannot create the artist: " + upstream.getMessage(), ArtistCreationUpstreamErrorReason.fromUpstream(upstream.getReason()));
         } catch (HttpStatusCodeException e) {
             // Any other status (4xx we didn't anticipate, or 5xx) is treated as an
             // unexpected failure of the upstream call, not a business outcome.
