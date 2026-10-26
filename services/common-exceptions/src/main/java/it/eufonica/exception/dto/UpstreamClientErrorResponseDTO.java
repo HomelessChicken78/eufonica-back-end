@@ -24,13 +24,14 @@ public class UpstreamClientErrorResponseDTO {
 
     private String reason;
 
+    // This lists even unused fields for future application
     public enum Field {
         MESSAGE, TIMESTAMP, STATUS, REASON
     }
 
     /**
      * Normalize null {@code message} and null {@code reason} fields by setting them to
-     * {@code "unknown error"} and {@code CommonErrorReason.UNEXPECTED_ERROR.toString()} respectively.
+     * {@code "unknown error."} and {@code CommonErrorReason.UNEXPECTED_ERROR.toString()} respectively.
      *
      * @return a set containing all the fields that have been normalized.
      */
@@ -45,5 +46,24 @@ public class UpstreamClientErrorResponseDTO {
             normalized.add(Field.REASON);
         }
         return normalized;
+    }
+
+    /**
+     * Creates a new {@code UpstreamClientErrorResponseDTO} representing an unknown upstream error,
+     * using the given status and default values for other fields.
+     *
+     * @param status The status code to create the {@code UpstreamClientErrorResponseDTO} from
+     *
+     * @return the created {@code UpstreamClientErrorResponseDTO}
+     */
+    public static UpstreamClientErrorResponseDTO unknown(int status) {
+        UpstreamClientErrorResponseDTO unknownError = new UpstreamClientErrorResponseDTO();
+
+        unknownError.setMessage(DEFAULT_MESSAGE);
+        unknownError.setTimestamp(LocalDateTime.now());
+        unknownError.setStatus(status);
+        unknownError.setReason(DEFAULT_REASON);
+
+        return unknownError;
     }
 }
