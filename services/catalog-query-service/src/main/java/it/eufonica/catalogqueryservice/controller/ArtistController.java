@@ -1,5 +1,7 @@
 package it.eufonica.catalogqueryservice.controller;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
@@ -7,6 +9,7 @@ import it.eufonica.catalogqueryservice.dto.artist.ArtistSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
 import it.eufonica.catalogqueryservice.service.ArtistQueryService;
+import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +26,8 @@ public class ArtistController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artist found."),
-            @ApiResponse(responseCode = "404", description = "The artist does not exist.")
+            @ApiResponse(responseCode = "404", description = "The artist does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(path = "/{artistId}", produces = APPLICATION_JSON_VALUE)
     public ArtistFullResponseDTO findArtistById(@PathVariable UUID artistId){
@@ -34,7 +38,8 @@ public class ArtistController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artists matching the given filters, paginated."),
-            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1.")
+            @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1 (reason: INVALID_PAGINATION_PARAMETER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<ArtistShortResponseDTO> searchArtists(
