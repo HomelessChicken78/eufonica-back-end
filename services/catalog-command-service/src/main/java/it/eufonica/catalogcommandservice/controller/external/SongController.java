@@ -1,11 +1,16 @@
 package it.eufonica.catalogcommandservice.controller.external;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongDeletionResultDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
+import it.eufonica.catalogcommandservice.exception.AlbumCascadeConflictResponseDTO;
 import it.eufonica.catalogcommandservice.service.core.SongCommandService;
+import it.eufonica.exception.dto.GeneralErrorResponseDTO;
+import it.eufonica.exception.dto.ValidationErrorResponseDTO;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,11 +30,16 @@ public class SongController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Song published."),
-            @ApiResponse(responseCode = "400", description = "Request validation failed or the audio file is missing, empty or has an unsupported MIME type."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER or has no artist affiliation."),
-            @ApiResponse(responseCode = "404", description = "A credited artist referenced in the request does not exist."),
-            @ApiResponse(responseCode = "409", description = "A song with this title already exists for this artist or a credited artist's foundation date is after the song's published date."),
-            @ApiResponse(responseCode = "413", description = "The audio file exceeds the maximum allowed size.")
+            @ApiResponse(responseCode = "400", description = "Request validation failed, or the audio file is missing (reason: MISSING_AUDIO_FILE), empty or has an unsupported MIME type (reason: MISSING_MIME_TYPE or MIME_NOT_ALLOWED).",
+                    content = @Content(schema = @Schema(oneOf = {ValidationErrorResponseDTO.class, GeneralErrorResponseDTO.class}))),
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or has no artist affiliation (reason: NOT_AN_ARTIST).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "A credited artist referenced in the request does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "A song with this title already exists for this artist (reason: SONG_NAME_ALREADY_EXISTS_FOR_ARTIST) or a credited artist's foundation date is after the song's published date (reason: INVALID_CREDITED_ARTIST_FOUNDATION_DATE).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "413", description = "The audio file exceeds the maximum allowed size (reason: AUDIO_FILE_TOO_LARGE).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -44,9 +54,12 @@ public class SongController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Song deleted."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER or is not the song's owning artist."),
-            @ApiResponse(responseCode = "404", description = "The song does not exist."),
-            @ApiResponse(responseCode = "409", description = "The deletion would leave one or more albums empty and confirmCascade was not set to true.")
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or is not the song's owning artist (reason: NOT_AN_ARTIST or ARTIST_OWNERSHIP_MISMATCH).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The song does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "The deletion would leave one or more albums empty and confirmCascade was not set to true (reason: ALBUM_EMPTY_AFTER_SONG_DELETION); the response body also lists the albums at risk.",
+                    content = @Content(schema = @Schema(implementation = AlbumCascadeConflictResponseDTO.class)))
     })
     @DeleteMapping(path = "/{idSong}", produces = APPLICATION_JSON_VALUE)
     public SongDeletionResultDTO deleteSong(
@@ -60,8 +73,10 @@ public class SongController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artist credited on the song."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER or is not the song's owning artist."),
-            @ApiResponse(responseCode = "404", description = "The song does not exist or the artist does not exist.")
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or is not the song's owning artist (reason: NOT_AN_ARTIST or ARTIST_OWNERSHIP_MISMATCH).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The song does not exist or the artist does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PutMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
     public SongResponseDTO addCreditedArtist(
@@ -75,9 +90,12 @@ public class SongController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Artist removed from the song's credits."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER or is not the song's owning artist."),
-            @ApiResponse(responseCode = "404", description = "The song does not exist or the artist does not exist."),
-            @ApiResponse(responseCode = "409", description = "The artist is the song's primary owner and cannot be removed from its credits or removing it would leave an album without a common credited artist.")
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or is not the song's owning artist (reason: NOT_AN_ARTIST or ARTIST_OWNERSHIP_MISMATCH).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The song does not exist or the artist does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "The artist is the song's primary owner and cannot be removed from its credits (reason: CANNOT_REMOVE_PRIMARY_OWNER_CREDIT) or removing it would leave an album without a common credited artist (reason: ALBUM_MISSING_COMMON_CREDITED_ARTIST).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @DeleteMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
     public SongResponseDTO removeCreditedArtist(
