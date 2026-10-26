@@ -61,13 +61,13 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Request evaluated."),
-            @ApiResponse(responseCode = "400", description = "Request validation failed (missing accepted flag), or catalog-command-service rejected the artist creation as invalid (reason: INTERNAL_ERROR).",
+            @ApiResponse(responseCode = "400", description = "Request validation failed (missing accepted flag), or catalog-command-service rejected the artist creation as invalid.",
                     content = @Content(schema = @Schema(oneOf = {ValidationErrorResponseDTO.class, GeneralErrorResponseDTO.class}))),
             @ApiResponse(responseCode = "403", description = "Caller is not an admin (reason: NOT_AN_ADMIN).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The request does not exist (reason: RESOURCE_NOT_FOUND).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "409", description = "The request was already evaluated (reason: REQUEST_ALREADY_EVALUATED), the admin is trying to evaluate their own request (reason: SELF_EVALUATION_NOT_ALLOWED) or catalog-command-service rejected the artist creation as a conflict (reason: INTERNAL_ERROR).",
+            @ApiResponse(responseCode = "409", description = "The request was already evaluated (reason: REQUEST_ALREADY_EVALUATED) or the admin is trying to evaluate their own request (reason: SELF_EVALUATION_NOT_ALLOWED).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PatchMapping(value = "/{requestId}/evaluate", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
