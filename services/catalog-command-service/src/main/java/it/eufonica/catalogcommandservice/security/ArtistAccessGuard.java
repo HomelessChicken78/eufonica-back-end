@@ -51,16 +51,13 @@ public class ArtistAccessGuard {
      *
      * @param artistId the artist id the caller must match
      *
-     * @return the caller's own artist id
      * @throws ForbiddenException if the caller has no artist affiliation, or is not that artist
      * @throws InternalServerErrorException if the affiliated artist does not exist
      */
-    public UUID requireArtist(UUID artistId) {
+    public void requireArtist(UUID artistId) {
         UUID callerArtistId = requireArtist();
 
         if (!artistId.equals(callerArtistId))
             throw new ForbiddenException("You can only perform this action on your own artist profile.", CatalogErrorReason.ARTIST_OWNERSHIP_MISMATCH);
-
-        return callerArtistId;
     }
 }
