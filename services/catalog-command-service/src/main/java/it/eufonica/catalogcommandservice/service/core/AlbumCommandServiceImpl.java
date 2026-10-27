@@ -142,9 +142,9 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     /**
      * Check if the caller is one of the credited artists of the album.
      *
-     * @param album The album to check the authorizations
-     * @param callerArtistId The artist that wants to perform an action on that album
-     * @throws ForbiddenException If the artist is not credited in the album
+     * @param album the album to check the authorizations
+     * @param callerArtistId the artist that wants to perform an action on that album
+     * @throws ForbiddenException if the artist is not credited in the album
      */
     private void requireCredited(Album album, UUID callerArtistId) {
         boolean isCredited = album.getArtists().stream()
