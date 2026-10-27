@@ -5,6 +5,7 @@ import it.eufonica.catalogcommandservice.dto.song.SongDeletionResultDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
 import it.eufonica.catalogcommandservice.exception.AlbumEmptyAfterSongDeletionException;
 import it.eufonica.exception.client.ConflictException;
+import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.model.Song;
 import org.springframework.web.multipart.MultipartFile;
@@ -52,6 +53,7 @@ public interface SongCommandService {
      *
      * @return a DTO describing the outcome, including any albums deleted as part of the cascade
      * @throws NotFoundException if no song exists with the given id
+     * @throws ForbiddenException if the caller is not an admin and is not the song's owner
      * @throws AlbumEmptyAfterSongDeletionException if deleting the song would leave one or more albums
      * without any songs and {@code confirmCascade} is false
      */

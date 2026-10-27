@@ -54,7 +54,7 @@ public class SongController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Song deleted."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or is not the song's owning artist (reason: NOT_AN_ARTIST or ARTIST_OWNERSHIP_MISMATCH).",
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER), or caller is not an admin and either has no artist affiliation (reason: NOT_AN_ARTIST) or is not the song's owner (reason: ARTIST_OWNERSHIP_MISMATCH).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The song does not exist (reason: RESOURCE_NOT_FOUND).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),

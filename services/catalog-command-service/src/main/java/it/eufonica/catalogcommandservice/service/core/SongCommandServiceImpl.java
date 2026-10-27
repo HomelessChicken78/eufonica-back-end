@@ -162,7 +162,7 @@ public class SongCommandServiceImpl implements SongCommandService {
         // Check authorizations
         currentUser.requireUser();
         Song toDelete = findByIdOrElseThrow(idSong);
-        accessGuard.requireArtist(toDelete.getArtistOwner().getId());
+        accessGuard.requireArtistOrAdmin(toDelete.getArtistOwner().getId());
 
         log.trace("Deleting song with id {} {}.",
                 idSong, confirmCascade ? "with cascade enabled" : "with cascade disabled");
