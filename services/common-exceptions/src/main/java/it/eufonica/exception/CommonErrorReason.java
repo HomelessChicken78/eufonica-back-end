@@ -24,9 +24,18 @@ public enum CommonErrorReason implements ErrorReason {
     RESOURCE_NOT_FOUND,
     ENDPOINT_NOT_FOUND,
 
+    // 405 Equivalent
+    METHOD_NOT_ALLOWED,
+
+    // 406 Equivalent
+    NOT_ACCEPTABLE,
+
     // 409 Equivalent
     // Optimistic Locking
     OPTIMISTIC_LOCKING_FAILURE,
+
+    // 413 Equivalent
+    CONTENT_TOO_LARGE,
 
     // 415 Equivalent
     UNSUPPORTED_MEDIA_TYPE,
@@ -34,6 +43,9 @@ public enum CommonErrorReason implements ErrorReason {
     // 5XX
     // 500 Equivalent
     INTERNAL_ERROR,
+
+    // 503 Equivalent
+    SERVICE_UNAVAILABLE,
 
     // Misc
     UNEXPECTED_ERROR
