@@ -64,7 +64,7 @@ public class AlbumController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "204", description = "Album deleted."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER), has no artist affiliation (reason: NOT_AN_ARTIST) or is not credited on this album (reason: NOT_RESOURCE_OWNER).",
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER), or caller is not an admin and either has no artist affiliation (reason: NOT_AN_ARTIST) or is not credited on this album (reason: NOT_RESOURCE_OWNER).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The album does not exist (reason: RESOURCE_NOT_FOUND).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))

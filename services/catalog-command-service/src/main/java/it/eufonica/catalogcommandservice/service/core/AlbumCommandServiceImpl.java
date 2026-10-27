@@ -257,7 +257,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public void deleteAlbum(UUID albumId) {
-        Album album = requireCreditedAlbum(albumId);
+        Album album = requireCreditedAlbumOrAdmin(albumId);
 
         albumDeletionService.deleteAlbum(album);
     }

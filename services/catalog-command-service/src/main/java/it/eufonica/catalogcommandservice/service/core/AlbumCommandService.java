@@ -60,13 +60,13 @@ public interface AlbumCommandService {
 
     /**
      * Deletes an album.
-     * The caller must be an authenticated user with artist access, and must be
-     * credited on the album.
+     * The caller must be an authenticated user and either have artist access while being
+     * credited on the album or be an admin.
      *
      * @param albumId the id of the album to delete
      *
      * @throws NotFoundException if no album with the given id exists
-     * @throws ForbiddenException if the caller is not credited on the album
+     * @throws ForbiddenException if the caller is both not credited on the album and not an admin
      */
     void deleteAlbum(UUID albumId);
 
