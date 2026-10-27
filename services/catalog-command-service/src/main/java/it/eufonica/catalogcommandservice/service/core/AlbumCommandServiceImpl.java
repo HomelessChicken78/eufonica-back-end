@@ -175,6 +175,31 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         return album;
     }
 
+    /**
+     * Retrieves the album and ensures the current caller is authorized to act on it,
+     * allowing an admin to bypass the credited-artist check.
+     *
+     * @param albumId the id of the album to retrieve
+     * @return the album, if the caller is credited on it or is an admin
+     *
+     * @throws NotFoundException if no album with the given id exists
+     * @throws ForbiddenException if the caller is not an admin and is not credited on the album
+     */
+    private Album requireCreditedAlbumOrAdmin(UUID albumId) {
+        currentUser.requireUser();
+        Album album = findByIdOrThrow(albumId);
+
+        if (currentUser.isAdmin()) {
+            log.info("Action allowed, user is an ADMIN.");
+            return album;
+        }
+
+        UUID callerArtistId = accessGuard.requireArtist();
+        requireCredited(album, callerArtistId);
+
+        return album;
+    }
+
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
         currentUser.requireUser();
