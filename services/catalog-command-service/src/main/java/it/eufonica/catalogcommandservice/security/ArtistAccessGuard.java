@@ -51,7 +51,7 @@ public class ArtistAccessGuard {
      *
      * @param artistId the artist id the caller must match
      *
-     * @throws ForbiddenException if the caller has no artist affiliation, or is not that artist
+     * @throws ForbiddenException if the caller has no artist affiliation or is not that artist
      * @throws InternalServerErrorException if the affiliated artist does not exist
      */
     public void requireArtist(UUID artistId) {
@@ -59,5 +59,23 @@ public class ArtistAccessGuard {
 
         if (!artistId.equals(callerArtistId))
             throw new ForbiddenException("You can only perform this action on your own artist profile.", CatalogErrorReason.ARTIST_OWNERSHIP_MISMATCH);
+    }
+
+    /**
+     * Ensures the caller is authenticated as the artist identified by the given id, or is an admin.
+     *
+     * @param artistId the artist id the caller must match, unless the caller is an admin
+     *
+     * @throws ForbiddenException if the caller is not an admin and either has no artist
+     * affiliation or is not the artist identified by the given id
+     * @throws InternalServerErrorException if the affiliated artist does not exist
+     */
+    public void requireArtistOrAdmin(UUID artistId) {
+        if (currentUser.isAdmin()) {
+            log.info("Action allowed, user is an ADMIN.");
+            return;
+        }
+
+        requireArtist(artistId);
     }
 }
