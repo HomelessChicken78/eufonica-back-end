@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
+import it.eufonica.catalogcommandservice.dto.album.SongRemovedFromAlbumResponseDTO;
 import it.eufonica.catalogcommandservice.service.core.AlbumCommandService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.exception.dto.ValidationErrorResponseDTO;
@@ -102,8 +103,11 @@ public class AlbumController {
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @DeleteMapping(path = "/{albumId}/songs/{idSong}")
-    public AlbumSummaryResponseDTO removeSongFromAlbum(@PathVariable UUID albumId, @PathVariable UUID idSong) {
-        AlbumSummaryResponseDTO album = albumCommandService.removeSongFromAlbum(albumId, idSong, true); // TODO Placeholder hardcoded "true" value for confirmCascade
+    public SongRemovedFromAlbumResponseDTO removeSongFromAlbum(
+            @PathVariable UUID albumId, @PathVariable UUID idSong,
+            @RequestParam(defaultValue = "false") boolean confirmCascade
+    ) {
+        SongRemovedFromAlbumResponseDTO album = albumCommandService.removeSongFromAlbum(albumId, idSong, confirmCascade);
         log.info("Song removed from album. Updated album: {}.", album);
         return album;
     }

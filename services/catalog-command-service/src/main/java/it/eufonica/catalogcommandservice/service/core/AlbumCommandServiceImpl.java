@@ -3,6 +3,7 @@ package it.eufonica.catalogcommandservice.service.core;
 import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
+import it.eufonica.catalogcommandservice.dto.album.SongRemovedFromAlbumResponseDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
 import it.eufonica.catalogcommandservice.exception.AlbumEmptyAfterSongRemovalException;
@@ -291,7 +292,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     }
 
     @Override
-    public AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId, boolean confirmCascade) {
+    public SongRemovedFromAlbumResponseDTO removeSongFromAlbum(UUID albumId, UUID songId, boolean confirmCascade) {
         Album album = requireCreditedAlbum(albumId);
 
         // Remove the song directly by id to avoid querying the Song table
@@ -311,7 +312,10 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             albumDeletionService.deleteAlbum(album);
 
             // Return early. If the album is removed, it's implicit that the song is also removed, so there is no need to do anything else
-            return null;
+            return SongRemovedFromAlbumResponseDTO.builder()
+                    .albumId(albumId)
+                    .albumRemoved(true)
+                    .build();
         }
 
         // Modifying a @ManyToMany collection only touches the join table, not any
@@ -332,6 +336,9 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         eventPublisher.publish(album.getId().toString(), "AlbumSongRemovedEvent",
                 albumTopicName, event);
 
-        return albumMapper.toSummaryResponse(savedAlbum);
+        return SongRemovedFromAlbumResponseDTO.builder()
+                .albumId(albumId)
+                .remainingSongCount(savedAlbum.getSongs().size())
+                .build();
     }
 }
