@@ -8,6 +8,7 @@ import it.eufonica.catalogcommandservice.dto.album.AlbumCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.dto.album.SongRemovedFromAlbumResponseDTO;
+import it.eufonica.catalogcommandservice.exception.SongRemovalCascadeResponseDTO;
 import it.eufonica.catalogcommandservice.service.core.AlbumCommandService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.exception.dto.ValidationErrorResponseDTO;
@@ -94,13 +95,13 @@ public class AlbumController {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Song removed from the album."),
-            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER), has no artist affiliation (reason: NOT_AN_ARTIST) or is not credited on this album (reason: NOT_RESOURCE_OWNER).",
+            @ApiResponse(responseCode = "200", description = "Song removed from the album. If the removal would have left the album empty and confirmCascade was true, the album was deleted as well."),
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER), is not an artist (reason: NOT_AN_ARTIST), or is not credited on the album (reason: NOT_RESOURCE_OWNER).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "404", description = "The album does not exist (reason: RESOURCE_NOT_FOUND) or the song is not part of it (reason: SONG_NOT_IN_ALBUM).",
+            @ApiResponse(responseCode = "404", description = "The album does not exist (reason: RESOURCE_NOT_FOUND) or the song is not in the album (reason: SONG_NOT_IN_ALBUM).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "409", description = "Removing the song would leave the album empty (reason: ALBUM_EMPTY_AFTER_SONG_REMOVED).",
-                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
+            @ApiResponse(responseCode = "409", description = "Removing the song would leave the album without any songs and confirmCascade was not set to true (reason: ALBUM_EMPTY_AFTER_SONG_REMOVED).",
+                    content = @Content(schema = @Schema(implementation = SongRemovalCascadeResponseDTO.class)))
     })
     @DeleteMapping(path = "/{albumId}/songs/{idSong}")
     public SongRemovedFromAlbumResponseDTO removeSongFromAlbum(
