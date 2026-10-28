@@ -102,5 +102,5 @@ public interface AlbumCommandService {
      * @throws ConflictException if removing the song would leave the album
      * with no songs
      */
-    AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId);
+    AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId, boolean confirmCascade);
 }

@@ -103,7 +103,7 @@ public class AlbumController {
     })
     @DeleteMapping(path = "/{albumId}/songs/{idSong}")
     public AlbumSummaryResponseDTO removeSongFromAlbum(@PathVariable UUID albumId, @PathVariable UUID idSong) {
-        AlbumSummaryResponseDTO album = albumCommandService.removeSongFromAlbum(albumId, idSong);
+        AlbumSummaryResponseDTO album = albumCommandService.removeSongFromAlbum(albumId, idSong, true); // TODO Placeholder hardcoded "true" value for confirmCascade
         log.info("Song removed from album. Updated album: {}.", album);
         return album;
     }

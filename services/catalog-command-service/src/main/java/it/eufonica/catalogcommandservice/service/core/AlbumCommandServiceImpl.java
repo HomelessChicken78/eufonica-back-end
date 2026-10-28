@@ -5,6 +5,7 @@ import it.eufonica.catalogcommandservice.dto.album.AlbumSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.dto.album.AlbumUpdateRequestDTO;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongAddedEvent;
 import it.eufonica.catalogcommandservice.event.album.AlbumSongRemovedEvent;
+import it.eufonica.catalogcommandservice.exception.AlbumEmptyAfterSongRemovalException;
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
 import it.eufonica.catalogcommandservice.service.validation.AlbumConstraintValidator;
 import it.eufonica.exception.CommonErrorReason;
@@ -290,7 +291,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     }
 
     @Override
-    public AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId) {
+    public AlbumSummaryResponseDTO removeSongFromAlbum(UUID albumId, UUID songId, boolean confirmCascade) {
         Album album = requireCreditedAlbum(albumId);
 
         // Remove the song directly by id to avoid querying the Song table
@@ -299,10 +300,19 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
         if (!removed)
             throw new NotFoundException("Song with id " + songId + " was not found in the album with id " + albumId, CatalogErrorReason.SONG_NOT_IN_ALBUM);
 
-        // An album should not remain orphan after the song is removed from it
-        if (album.getSongs().isEmpty())
-            throw new ConflictException("The album " + albumId + " would remain empty after removing the song from it.", CatalogErrorReason.ALBUM_EMPTY_AFTER_SONG_REMOVED);
+        // An album should not remain orphan after the song is removed from it.
+        // If it does, then either undo the action or, if the boolean flag is true, delete the album.
+        if (album.getSongs().isEmpty() && !confirmCascade)
+            throw new AlbumEmptyAfterSongRemovalException("The album " + albumId + " would remain empty after removing the song from it.", album);
 
+        else if (album.getSongs().isEmpty()) {
+            log.debug("The deletion of the song would lead to the album being orphan. " +
+                    "The flag \"confirmCascade\" has been set to true, proceeding with the deletion of it. album={}", album);
+            albumDeletionService.deleteAlbum(album);
+
+            // Return early. If the album is removed, it's implicit that the song is also removed, so there is no need to do anything else
+            return null;
+        }
 
         // Modifying a @ManyToMany collection only touches the join table, not any
         // scalar column on the Album row itself. Hibernate therefore won't emit an
