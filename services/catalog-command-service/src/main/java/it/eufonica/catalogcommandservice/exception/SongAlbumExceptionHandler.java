@@ -23,4 +23,16 @@ public class SongAlbumExceptionHandler {
 
         return ResponseEntity.status(body.getStatus()).body(body);
     }
+
+    @ExceptionHandler
+    public ResponseEntity<SongRemovalCascadeResponseDTO> handleAlbumEmptyAfterSongRemovalException(AlbumEmptyAfterSongRemovalException exc) {
+        log.warn("Album cascade conflict on song removal: {}", exc.getMessage());
+
+        SongRemovalCascadeResponseDTO body = new SongRemovalCascadeResponseDTO(
+                exc.getMessage(),
+                albumMapper.toRef(exc.getEmptiedAlbum())
+        );
+
+        return ResponseEntity.status(body.getStatus()).body(body);
+    }
 }
