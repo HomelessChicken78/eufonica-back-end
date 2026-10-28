@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongDeletionResultDTO;
 import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
-import it.eufonica.catalogcommandservice.exception.AlbumCascadeConflictResponseDTO;
+import it.eufonica.catalogcommandservice.exception.SongDeletionCascadeResponseDTO;
 import it.eufonica.catalogcommandservice.service.core.SongCommandService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.exception.dto.ValidationErrorResponseDTO;
@@ -59,7 +59,7 @@ public class SongController {
             @ApiResponse(responseCode = "404", description = "The song does not exist (reason: RESOURCE_NOT_FOUND).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "409", description = "The deletion would leave one or more albums empty and confirmCascade was not set to true (reason: ALBUM_EMPTY_AFTER_SONG_DELETION); the response body also lists the albums at risk.",
-                    content = @Content(schema = @Schema(implementation = AlbumCascadeConflictResponseDTO.class)))
+                    content = @Content(schema = @Schema(implementation = SongDeletionCascadeResponseDTO.class)))
     })
     @DeleteMapping(path = "/{idSong}", produces = APPLICATION_JSON_VALUE)
     public SongDeletionResultDTO deleteSong(

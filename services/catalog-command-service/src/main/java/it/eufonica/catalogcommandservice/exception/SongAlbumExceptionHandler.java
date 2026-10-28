@@ -13,10 +13,10 @@ public class SongAlbumExceptionHandler {
     private final AlbumMapper albumMapper;
 
     @ExceptionHandler
-    public ResponseEntity<AlbumCascadeConflictResponseDTO> handleAlbumEmptyAfterSongDeletionException(AlbumEmptyAfterSongDeletionException exc) {
+    public ResponseEntity<SongDeletionCascadeResponseDTO> handleAlbumEmptyAfterSongDeletionException(AlbumEmptyAfterSongDeletionException exc) {
         log.warn("Album cascade conflict on song deletion: {}", exc.getMessage());
 
-        AlbumCascadeConflictResponseDTO body = new AlbumCascadeConflictResponseDTO(
+        SongDeletionCascadeResponseDTO body = new SongDeletionCascadeResponseDTO(
                 exc.getMessage(),
                 albumMapper.toRef(exc.getEmptiedAlbums())
         );

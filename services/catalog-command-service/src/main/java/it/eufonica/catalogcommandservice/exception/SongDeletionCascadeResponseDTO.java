@@ -11,7 +11,7 @@ import java.util.Set;
 
 @Getter
 @EqualsAndHashCode(callSuper = true) @ToString(callSuper = true)
-public class AlbumCascadeConflictResponseDTO extends GeneralErrorResponseDTO {
+public class SongDeletionCascadeResponseDTO extends GeneralErrorResponseDTO {
     /*
      * Intentionally has no no-args constructor: this type is only ever serialized
      * (written by this service in the error response), never deserialized, since
@@ -27,7 +27,7 @@ public class AlbumCascadeConflictResponseDTO extends GeneralErrorResponseDTO {
 
     private final Set<AlbumRefDTO> albumsAtRisk;
 
-    public AlbumCascadeConflictResponseDTO(String message, Set<AlbumRefDTO> albumsAtRisk) {
+    public SongDeletionCascadeResponseDTO(String message, Set<AlbumRefDTO> albumsAtRisk) {
         super(message, HttpStatus.CONFLICT.value(), CatalogErrorReason.ALBUM_EMPTY_AFTER_SONG_DELETION);
         this.albumsAtRisk = albumsAtRisk;
     }
