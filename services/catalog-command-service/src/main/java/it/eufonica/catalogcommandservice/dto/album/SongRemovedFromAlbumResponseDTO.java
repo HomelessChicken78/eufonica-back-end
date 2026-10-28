@@ -1,11 +1,12 @@
 package it.eufonica.catalogcommandservice.dto.album;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
+import lombok.Builder;
 import lombok.Data;
 
 import java.util.UUID;
 
-@Data
+@Data @Builder
 public class SongRemovedFromAlbumResponseDTO {
     private UUID albumId;
 
