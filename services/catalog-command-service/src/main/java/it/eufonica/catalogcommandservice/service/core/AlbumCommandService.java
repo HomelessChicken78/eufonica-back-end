@@ -1,6 +1,7 @@
 package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.*;
+import it.eufonica.catalogcommandservice.exception.AlbumEmptyAfterSongRemovalException;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
@@ -88,19 +89,23 @@ public interface AlbumCommandService {
     AlbumSummaryResponseDTO addSongToAlbum(UUID albumId, UUID songId);
 
     /**
-     * Removes a song from an album.
-     * The caller must be an authenticated user with artist access, and must be
-     * credited on the album. The album can't be left without songs.
+     * Removes a song from an album. The caller must be an authenticated user with artist
+     * access, and must be credited on the album. If removing the song would leave the album
+     * without any songs, the operation is blocked unless {@code confirmCascade} is true, in
+     * which case the album is deleted as well.
      *
      * @param albumId the id of the album to remove the song from
      * @param songId the id of the song to remove
+     * @param confirmCascade whether the caller has already confirmed removal of the song even if
+     * it would cascade and delete the album
      *
-     * @return a summary of the updated album
+     * @return a DTO describing the outcome: whether the album was deleted and, if not, how many
+     * songs remain in it
      * @throws NotFoundException if the album does not exist, or if the song
      * is not part of the album
      * @throws ForbiddenException if the caller is not credited on the album
-     * @throws ConflictException if removing the song would leave the album
-     * with no songs
+     * @throws AlbumEmptyAfterSongRemovalException if removing the song would leave the album
+     * without any songs and {@code confirmCascade} is false
      */
     SongRemovedFromAlbumResponseDTO removeSongFromAlbum(UUID albumId, UUID songId, boolean confirmCascade);
 }
