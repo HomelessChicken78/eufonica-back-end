@@ -10,7 +10,8 @@ import java.util.UUID;
 public class SongRemovedFromAlbumResponseDTO {
     private UUID albumId;
 
-    private boolean albumRemoved;
+    @Builder.Default
+    private boolean albumRemoved = false;
 
     /**
      * Field should be null if albumRemoved=true
