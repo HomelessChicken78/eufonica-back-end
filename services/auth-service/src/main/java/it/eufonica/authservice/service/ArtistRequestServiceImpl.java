@@ -5,6 +5,7 @@ import it.eufonica.authservice.dto.artistrequest.*;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
 import it.eufonica.authservice.exception.ArtistCreationUpstreamErrorReason;
 import it.eufonica.authservice.exception.AuthErrorReason;
+import it.eufonica.authservice.security.CurrentUserResolver;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.ConflictException;
@@ -21,7 +22,7 @@ import it.eufonica.authservice.repository.ArtistRepository;
 import it.eufonica.authservice.repository.ArtistRequestRepository;
 import it.eufonica.authservice.security.CognitoM2MTokenService;
 import it.eufonica.authservice.security.CognitoUserService;
-import it.eufonica.authservice.security.CurrentUserProvider;
+import it.eufonica.security.CurrentCallerProvider;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,7 +57,8 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     // Mapper & Utility
     private final ArtistRequestMapper requestMapper;
     private final ArtistMapper artistMapper;
-    private final CurrentUserProvider currentUserProvider;
+    private final CurrentCallerProvider currentCaller;
+    private final CurrentUserResolver userResolver;
 
     // Services
     private final CognitoUserService cognitoUserService;
@@ -159,9 +161,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     public ArtistRequestFullResponseDTO sendNewArtistRequest(SendNewArtistRequestDTO request) {
-        currentUserProvider.requireUser();
+        currentCaller.requireUser();
 
-        AppUser currentUser = currentUserProvider.getCurrentUser();
+        AppUser currentUser = userResolver.getCurrentUser();
 
         validateArtistRequest(currentUser);
 
@@ -174,9 +176,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     public ArtistRequestFullResponseDTO sendExistingArtistRequest(SendExistingArtistRequestDTO request) {
-        currentUserProvider.requireUser();
+        currentCaller.requireUser();
 
-        AppUser currentUser = currentUserProvider.getCurrentUser();
+        AppUser currentUser = userResolver.getCurrentUser();
 
         validateArtistRequest(currentUser);
 
@@ -432,9 +434,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     public ArtistRequestResultDTO evaluateRequest(UUID requestId, EvaluateArtistRequestDTO evaluation) {
-        currentUserProvider.requireAdmin();
+        currentCaller.requireAdmin();
 
-        AppUser evaluator = currentUserProvider.getCurrentUser();
+        AppUser evaluator = userResolver.getCurrentUser();
         ArtistRequest artistRequest = findByIdOrThrow(requestId);
 
         validateIsPending(artistRequest);
@@ -449,17 +451,17 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     @Override
     public PageResponseDTO<ArtistRequestShortResponseDTO> searchAllRequests(ArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
-        currentUserProvider.requireAdmin();
+        currentCaller.requireAdmin();
 
         return doSearch(filters, pageNumber, pageSize);
     }
 
     @Override
     public PageResponseDTO<ArtistRequestShortResponseDTO> searchOwnRequests(CommonArtistRequestFiltersDTO filters, int pageNumber, int pageSize) {
-        currentUserProvider.requireUser();
+        currentCaller.requireUser();
 
         ArtistRequestFiltersDTO completeFilters = ArtistRequestFiltersDTO.builder()
-                .requestingUserId(currentUserProvider.getCurrentUser().getId())
+                .requestingUserId(userResolver.getCurrentUser().getId())
                 .commonFilters(filters)
                 .build();
 
@@ -469,11 +471,11 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
     @Override
     public ArtistRequestFullResponseDTO findRequest(UUID requestId) {
         ArtistRequest request = findByIdOrThrow(requestId);
-        AppUser currentUser = currentUserProvider.getCurrentUser();
+        AppUser currentUser = userResolver.getCurrentUser();
 
         boolean isOwner = request.getRequestingUser().getId().equals(currentUser.getId());
 
-        if (!currentUserProvider.isAdmin() && !isOwner) {
+        if (!currentCaller.isAdmin() && !isOwner) {
             log.debug("Access denied to artist request {}: user {} is neither the owner nor an admin.",
                     requestId, currentUser.getId());
             // Deliberately throw a 404 instead a 401 to not reveal the existence of the artist request

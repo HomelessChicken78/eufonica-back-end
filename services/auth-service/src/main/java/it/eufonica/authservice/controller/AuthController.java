@@ -5,10 +5,10 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.authservice.dto.auth.SignUpRequestDTO;
-import it.eufonica.authservice.security.CurrentUserProvider;
 import it.eufonica.authservice.service.AuthService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.exception.dto.ValidationErrorResponseDTO;
+import it.eufonica.security.CurrentCallerProvider;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -21,7 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @RequiredArgsConstructor @Slf4j
 public class AuthController {
     private final AuthService authService;
-    private final CurrentUserProvider currentUser;
+    private final CurrentCallerProvider currentUser;
 
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "User signed up."),

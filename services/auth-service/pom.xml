@@ -73,6 +73,20 @@
             <artifactId>spring-boot-starter-kafka</artifactId>
         </dependency>
 
+        <!-- ==== Security ==== -->
+        <dependency>
+            <groupId>it.eufonica</groupId>
+            <artifactId>common-security</artifactId>
+            <version>${project.version}</version>
+        </dependency>
+
+        <!-- == Documentation == -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>3.1.0</version>
+        </dependency>
+
         <!-- == Utilities == -->
         <!-- ==== Code Generation / Mapping ==== -->
         <dependency>
@@ -89,13 +103,6 @@
             <groupId>org.projectlombok</groupId>
             <artifactId>lombok-mapstruct-binding</artifactId>
             <version>0.2.0</version>
-        </dependency>
-
-        <!-- == Documentation == -->
-        <dependency>
-            <groupId>org.springdoc</groupId>
-            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-            <version>3.1.0</version>
         </dependency>
 
         <!-- == Testing == -->

@@ -4,13 +4,14 @@ import it.eufonica.authservice.dto.appuser.AppUserFiltersDTO;
 import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
 import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.authservice.security.CurrentUserResolver;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.authservice.mapper.AppUserMapper;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.repository.AppUserRepository;
-import it.eufonica.authservice.security.CurrentUserProvider;
+import it.eufonica.security.CurrentCallerProvider;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,8 @@ import java.util.List;
 public class AppUserServiceImpl implements AppUserService {
     private final AppUserRepository userRepository;
     private final AppUserMapper userMapper;
-    private final CurrentUserProvider currentUserProvider;
+    private final CurrentCallerProvider currentCaller;
+    private final CurrentUserResolver currentUser;
 
     @Value("${USER_REQUEST_MAX_PAGE_SIZE:200}")
     private int maxPageSize;
@@ -78,7 +80,7 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public PageResponseDTO<AppUserShortResponseDTO> findAll(AppUserFiltersDTO filters, int pageNumber, int pageSize) {
-        currentUserProvider.requireAdmin();
+        currentCaller.requireAdmin();
 
         if (pageNumber < 1)
             throw new BadRequestException("pageNumber must be greater than or equal to 1.", CommonErrorReason.INVALID_PAGINATION_PARAMETER);
@@ -106,7 +108,7 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public AppUserFullResponseDTO findById(UUID userId) {
-        currentUserProvider.requireAdmin();
+        currentCaller.requireAdmin();
 
         AppUser user = findByIdOrThrow(userId);
         return userMapper.toFullResponse(user);
@@ -114,7 +116,7 @@ public class AppUserServiceImpl implements AppUserService {
 
     @Override
     public AppUserFullResponseDTO findSelf() {
-        AppUser user = currentUserProvider.getCurrentUser();
+        AppUser user = currentUser.getCurrentUser();
         return userMapper.toFullResponse(user);
     }
 }

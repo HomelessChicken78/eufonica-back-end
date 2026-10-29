@@ -5,7 +5,8 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication(scanBasePackages = {
         "it.eufonica.authservice",
-        "it.eufonica.exception"
+        "it.eufonica.exception",
+        "it.eufonica.security"
 })
 public class AuthServiceApplication {
 
