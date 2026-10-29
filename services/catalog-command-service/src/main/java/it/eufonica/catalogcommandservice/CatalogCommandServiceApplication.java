@@ -6,7 +6,8 @@ import org.springframework.scheduling.annotation.EnableScheduling;
 
 @SpringBootApplication(scanBasePackages = {
         "it.eufonica.catalogcommandservice",
-        "it.eufonica.exception"
+        "it.eufonica.exception",
+        "it.eufonica.security"
 }) @EnableScheduling
 public class CatalogCommandServiceApplication {
 

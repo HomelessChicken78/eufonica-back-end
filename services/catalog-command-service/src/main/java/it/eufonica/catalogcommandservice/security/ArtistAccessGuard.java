@@ -5,7 +5,7 @@ import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.server.InternalServerErrorException;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
-import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
+import it.eufonica.security.CurrentCallerProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -15,7 +15,7 @@ import java.util.UUID;
 @Component
 @RequiredArgsConstructor @Slf4j
 public class ArtistAccessGuard {
-    private final CurrentUserProvider currentUser;
+    private final CurrentCallerProvider currentCaller;
     private final ArtistRepository artistRepository;
 
     // Header names
@@ -29,7 +29,7 @@ public class ArtistAccessGuard {
      * @throws InternalServerErrorException if the affiliated artist does not exist
      */
     public UUID requireArtist() {
-        String artistIdHeader = currentUser.getArtistId();
+        String artistIdHeader = currentCaller.getArtistId();
         if (artistIdHeader == null || artistIdHeader.isBlank()) {
             log.debug("requireArtist failed: no {} header present.", ARTIST_ID);
             throw new ForbiddenException("Only an artist can perform this action.", CatalogErrorReason.NOT_AN_ARTIST);
@@ -71,7 +71,7 @@ public class ArtistAccessGuard {
      * @throws InternalServerErrorException if the affiliated artist does not exist
      */
     public void requireArtistOrAdmin(UUID artistId) {
-        if (currentUser.isAdmin()) {
+        if (currentCaller.isAdmin()) {
             log.info("Action allowed, user is an ADMIN.");
             return;
         }

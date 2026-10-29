@@ -12,7 +12,7 @@ import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
-import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
+import it.eufonica.security.CurrentCallerProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -34,7 +34,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     // Utility & Mappers
     private final ArtistMapper artistMapper;
-    private final CurrentUserProvider currentUser;
+    private final CurrentCallerProvider currentCaller;
     private final ArtistAccessGuard accessGuard;
 
     @Value("${ARTIST_TOPIC_NAME:artist.events}")
@@ -84,7 +84,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     @Override
     public ArtistSummaryResponseDTO updateArtist(ArtistCreationRequestDTO creationRequestDTO) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
         UUID artistId = accessGuard.requireArtist();
 
         log.info("Updating artist with id {}.", artistId);

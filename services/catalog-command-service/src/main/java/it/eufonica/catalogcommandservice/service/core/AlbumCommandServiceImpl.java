@@ -20,7 +20,7 @@ import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
-import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
+import it.eufonica.security.CurrentCallerProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +48,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     // Utility & Mappers
     private final AlbumMapper albumMapper;
-    private final CurrentUserProvider currentUser;
+    private final CurrentCallerProvider currentCaller;
     private final ArtistAccessGuard accessGuard;
 
     @Value("${ALBUM_TOPIC_NAME:album.events}")
@@ -168,7 +168,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      * @throws ForbiddenException if the caller is not credited on the album
      */
     private Album requireCreditedAlbum(UUID albumId) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
         UUID callerArtistId = accessGuard.requireArtist();
 
         Album album = findByIdOrThrow(albumId);
@@ -188,10 +188,10 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      * @throws ForbiddenException if the caller is not an admin and is not credited on the album
      */
     private Album requireCreditedAlbumOrAdmin(UUID albumId) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
         Album album = findByIdOrThrow(albumId);
 
-        if (currentUser.isAdmin()) {
+        if (currentCaller.isAdmin()) {
             log.info("Action allowed, user is an ADMIN.");
             return album;
         }
@@ -204,7 +204,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
     @Override
     public AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
         UUID callerArtistId = accessGuard.requireArtist();
 
         // Dedup: the caller is always a credited artist, regardless of what's in the DTO

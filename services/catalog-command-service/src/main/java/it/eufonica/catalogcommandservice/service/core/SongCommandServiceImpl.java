@@ -19,9 +19,9 @@ import it.eufonica.catalogcommandservice.model.Song;
 import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.SongRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
-import it.eufonica.catalogcommandservice.service.CurrentUserProvider;
 import it.eufonica.catalogcommandservice.service.media.AudioMetadataService;
 import it.eufonica.catalogcommandservice.service.media.AudioStorageService;
+import it.eufonica.security.CurrentCallerProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -51,7 +51,7 @@ public class SongCommandServiceImpl implements SongCommandService {
     // Utility & Mapper
     private final SongMapper songMapper;
     private final AlbumMapper albumMapper;
-    private final CurrentUserProvider currentUser;
+    private final CurrentCallerProvider currentCaller;
     private final ArtistAccessGuard accessGuard;
     private final AlbumConstraintValidator albumConstraintValidator;
 
@@ -90,7 +90,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Override
     public SongResponseDTO publishSong(PublishSongRequestDTO request, MultipartFile audioFile) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
         UUID ownerId = accessGuard.requireArtist();
 
         Song song = songMapper.toEntity(request);
@@ -160,7 +160,7 @@ public class SongCommandServiceImpl implements SongCommandService {
     @Override
     public SongDeletionResultDTO deleteSong(UUID idSong, boolean confirmCascade) {
         // Check authorizations
-        currentUser.requireUser();
+        currentCaller.requireUser();
         Song toDelete = findByIdOrElseThrow(idSong);
         accessGuard.requireArtistOrAdmin(toDelete.getArtistOwner().getId());
 
@@ -218,7 +218,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Override
     public SongResponseDTO addCreditedArtist(UUID idSong, UUID idArtist) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
 
         Song song = findByIdOrElseThrow(idSong);
         accessGuard.requireArtist(song.getArtistOwner().getId());
@@ -241,7 +241,7 @@ public class SongCommandServiceImpl implements SongCommandService {
 
     @Override
     public SongResponseDTO removeCreditedArtist(UUID idSong, UUID idArtist) {
-        currentUser.requireUser();
+        currentCaller.requireUser();
 
         Song song = findByIdOrElseThrow(idSong);
         accessGuard.requireArtist(song.getArtistOwner().getId());
