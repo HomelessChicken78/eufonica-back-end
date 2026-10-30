@@ -48,6 +48,13 @@
             <version>${project.version}</version>
         </dependency>
 
+        <!-- ==== AWS ==== -->
+        <dependency>
+            <groupId>software.amazon.awssdk</groupId>
+            <artifactId>s3</artifactId>
+            <version>2.34.0</version>
+        </dependency>
+
         <!-- ==== Caching ==== -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -74,6 +81,13 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-kafka</artifactId>
+        </dependency>
+
+        <!-- ==== Security ==== -->
+        <dependency>
+            <groupId>it.eufonica</groupId>
+            <artifactId>common-security</artifactId>
+            <version>${project.version}</version>
         </dependency>
 
         <!-- == Documentation == -->
