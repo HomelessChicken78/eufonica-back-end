@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.catalogqueryservice.dto.common.PresignedUrlResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
@@ -53,5 +54,12 @@ public class SongController {
         PageResponseDTO<SongShortResponseDTO> result = songQueryService.searchSongs(filters, sortOrder, pageNumber, pageSize);
         log.debug("Songs searched: found {} results (page {}/{}).", result.getTotalElements(), pageNumber, result.getTotalPages());
         return result;
+    }
+
+    @GetMapping(produces = APPLICATION_JSON_VALUE, path = "/{songId}/audio-url")
+    public PresignedUrlResponseDTO getPresignedUrl(@PathVariable UUID songId) {
+        PresignedUrlResponseDTO response = songQueryService.getAudioUrl(songId);
+        log.debug("Song presigned. url={}.", response.getUrl());
+        return response;
     }
 }

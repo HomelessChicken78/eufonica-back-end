@@ -1,6 +1,7 @@
 package it.eufonica.catalogqueryservice.service;
 
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.catalogqueryservice.dto.common.PresignedUrlResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
@@ -30,4 +31,7 @@ public interface SongQueryService {
      */
     PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder,
                                                       Integer pageNumber, Integer pageSize);
+
+    // TODO Javadoc
+    PresignedUrlResponseDTO getAudioUrl(UUID songId);
 }

@@ -1,6 +1,7 @@
 package it.eufonica.catalogqueryservice.service;
 
 import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.catalogqueryservice.dto.common.PresignedUrlResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.*;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
@@ -11,6 +12,7 @@ import it.eufonica.catalogqueryservice.model.SongCreditRead;
 import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
+import it.eufonica.security.CurrentCallerProvider;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
@@ -24,7 +26,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
+import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
+import java.time.Duration;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
@@ -36,12 +42,20 @@ public class SongQueryServiceImpl implements SongQueryService {
     private final SongRepository songRepository;
     private final SongCreditRepository songCreditRepository;
     private final SongMapper songMapper;
+    private final CurrentCallerProvider currentCaller;
+    private final S3Presigner s3Presigner;
 
     @Value("${SONG_PAGE_MAX_SIZE:50}")
     private Integer maxPageSize;
 
     @Value("${SONG_DEFAULT_SORT_ORDER:AMOUNT_LISTENS_ASC}")
     private SongResponseSortOrder defaultSortOrder;
+
+    @Value("${AUDIO_PRESIGN_DURATION_MINS:5}")
+    private Integer audioPresignDurationMins;
+
+    @Value("${S3_BUCKET_NAME}")
+    private String bucketName;
 
     @SuppressWarnings("LoggingSimilarMessage")
     private void addRangePredicates(List<Predicate> predicates, Root<SongRead> root, CriteriaBuilder cb,
@@ -181,6 +195,27 @@ public class SongQueryServiceImpl implements SongQueryService {
                 .totalPages(results.getTotalPages())
                 .totalElements(results.getTotalElements())
                 .pageSize(pageSize)
+                .build();
+    }
+
+    @Override
+    public PresignedUrlResponseDTO getAudioUrl(UUID songId) {
+        currentCaller.requireUser();
+        SongRead found = songRepository.findById(songId)
+                .orElseThrow(
+                        () -> new NotFoundException("Could not find any song with the given id " + songId + ".",
+                                CommonErrorReason.RESOURCE_NOT_FOUND)
+                );
+
+        var presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(audioPresignDurationMins))
+                .getObjectRequest(b -> b.bucket(bucketName).key(found.getAudio()))
+                .build();
+
+        PresignedGetObjectRequest s3Response = s3Presigner.presignGetObject(presignRequest);
+        return PresignedUrlResponseDTO.builder()
+                .url(s3Response.url().toString())
+                .expiresAt(s3Response.expiration())
                 .build();
     }
 }
