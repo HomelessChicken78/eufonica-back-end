@@ -6,6 +6,7 @@ import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
+import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 
 import java.util.UUID;
@@ -32,6 +33,14 @@ public interface SongQueryService {
     PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder,
                                                       Integer pageNumber, Integer pageSize);
 
-    // TODO Javadoc
+    /**
+     * Generates a short-lived presigned URL for downloading or streaming the audio file of a song.
+     *
+     * @param songId the unique id of the song
+     *
+     * @return a DTO containing the presigned URL and its expiration instant
+     * @throws NotFoundException if no song exists with the given id
+     * @throws ForbiddenException if the caller does not have the "user" role
+     */
     PresignedUrlResponseDTO getAudioUrl(UUID songId);
 }

@@ -215,7 +215,7 @@ public class SongQueryServiceImpl implements SongQueryService {
         log.trace("Created GetObjectPresignRequest. signatureDuration={}, key={}.",
                 presignRequest.signatureDuration(), presignRequest.getObjectRequest().key());
         PresignedGetObjectRequest s3Response = s3Presigner.presignGetObject(presignRequest);
-        
+
         return PresignedUrlResponseDTO.builder()
                 .url(s3Response.url().toString())
                 .expiresAt(s3Response.expiration())
