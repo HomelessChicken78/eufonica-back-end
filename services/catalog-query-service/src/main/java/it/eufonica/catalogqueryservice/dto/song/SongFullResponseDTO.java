@@ -18,8 +18,6 @@ public class SongFullResponseDTO {
 
     private Integer durationSec;
 
-    private String audio;
-
     private LocalDate publishedDate;
 
     private Integer amountListens = 0;
