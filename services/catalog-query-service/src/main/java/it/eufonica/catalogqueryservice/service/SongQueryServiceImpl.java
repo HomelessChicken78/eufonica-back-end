@@ -212,7 +212,10 @@ public class SongQueryServiceImpl implements SongQueryService {
                 .getObjectRequest(b -> b.bucket(bucketName).key(found.getAudio()))
                 .build();
 
+        log.trace("Created GetObjectPresignRequest. signatureDuration={}, key={}.",
+                presignRequest.signatureDuration(), presignRequest.getObjectRequest().key());
         PresignedGetObjectRequest s3Response = s3Presigner.presignGetObject(presignRequest);
+        
         return PresignedUrlResponseDTO.builder()
                 .url(s3Response.url().toString())
                 .expiresAt(s3Response.expiration())
