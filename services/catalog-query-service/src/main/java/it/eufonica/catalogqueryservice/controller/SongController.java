@@ -56,6 +56,13 @@ public class SongController {
         return result;
     }
 
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "Presigned audio URL generated."),
+            @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "404", description = "The song does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
+    })
     @GetMapping(produces = APPLICATION_JSON_VALUE, path = "/{songId}/audio-url")
     public PresignedUrlResponseDTO getPresignedUrl(@PathVariable UUID songId) {
         PresignedUrlResponseDTO response = songQueryService.getAudioUrl(songId);
