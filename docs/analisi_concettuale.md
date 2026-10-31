@@ -147,8 +147,9 @@ Pre: Nessuna<br>
 Post: L'operazione non modifica i dati. Il risultato è così definito:
 </p>
 
-- Sia S l'insieme di tutte le _s:Song_, tali che esiste il link (this, s):playlist_contains
-- result è la somma di tutte le s.duration_sec in S, espresso in ore, minuti e secondi
+- Sia E l'insieme di tutte  le _e:PlaylistEntry_, tali che esiste il link (this, e):playlist_contains
+- Per ogni e in E, sia _s_e:Song_ (unica Song dell'e) tale che esista il link (e, s_e):entry_song
+- result è la somma, per ogni e in E, di s_e.duration_sec, espressa in ore, minuti e secondi
 
 <p style="margin-top: 20px">
 amount_likes(): Intero > 0<br>
@@ -241,18 +242,22 @@ Post:
 - Viene creato il link _(**ut**, res):playlist_creator_
 
 <p style="margin-top: 20px">
-aggiungi_brano_a_playlist(ut: AppUser, pl: Playlist, s: Song)<br>
+aggiungi_brano_a_playlist(ut: AppUser, pl: Playlist, s: Song, incr: Intero)<br>
 Pre:
 </p>
 
 - Deve esistere il link _(**ut**, **pl**):playlist_creator_
-- Non deve esistere il link _(**pl**, **s**):playlist_contains_
+- Deve essere vero che **incr** > 0
 
 <p>
 Post:
 </p>
 
-- Viene creato il link _(**pl**, **s**):playlist_contains_
+- Sia E l'insieme di tutti gli _e:PlaylistEntry_, tali che _(**pl**, e):playlist_contains_
+- Se E è vuoto, sia pos_max = 0, altrimenti sia pos_max il valore massimo di e.position in E
+- Viene creato l'oggetto _new_e:PlaylistEntry_, con valori new_e.position = pos_max + **incr**
+- Viene creato il link _(new_e, **pl**):playlist_contains_
+- Viene creato il link _(new_e, **s**):entry_song_
 
 <!-- TOC --><a name="strumenti-di-interazione"></a>
 ### Strumenti di Interazione
