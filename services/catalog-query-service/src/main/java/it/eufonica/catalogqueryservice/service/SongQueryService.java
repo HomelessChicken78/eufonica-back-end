@@ -1,6 +1,6 @@
 package it.eufonica.catalogqueryservice.service;
 
-import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PresignedUrlResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
