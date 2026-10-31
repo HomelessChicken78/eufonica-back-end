@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.authservice.dto.artistrequest.*;
-import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.authservice.service.ArtistRequestService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.exception.dto.ValidationErrorResponseDTO;
