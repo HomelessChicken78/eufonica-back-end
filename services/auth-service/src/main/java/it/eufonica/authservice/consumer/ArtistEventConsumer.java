@@ -1,7 +1,7 @@
 package it.eufonica.authservice.consumer;
 
-import it.eufonica.authservice.event.artist.ArtistCreatedEvent;
-import it.eufonica.authservice.event.artist.ArtistUpdatedEvent;
+import it.eufonica.event.artist.ArtistCreatedEvent;
+import it.eufonica.event.artist.ArtistUpdatedEvent;
 import it.eufonica.authservice.mapper.ArtistMapper;
 import it.eufonica.authservice.repository.ArtistRepository;
 import lombok.RequiredArgsConstructor;

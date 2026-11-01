@@ -1,7 +1,7 @@
 package it.eufonica.authservice.mapper;
 
 import it.eufonica.authservice.dto.artist.ArtistSummaryResponseDTO;
-import it.eufonica.authservice.event.artist.ArtistCreatedEvent;
+import it.eufonica.event.artist.ArtistCreatedEvent;
 import it.eufonica.authservice.model.ArtistAuthProjection;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
