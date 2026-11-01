@@ -2,8 +2,8 @@ package it.eufonica.catalogcommandservice.mapper;
 
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
-import it.eufonica.catalogcommandservice.event.artist.ArtistCreatedEvent;
-import it.eufonica.catalogcommandservice.event.artist.ArtistUpdatedEvent;
+import it.eufonica.event.artist.ArtistCreatedEvent;
+import it.eufonica.event.artist.ArtistUpdatedEvent;
 import it.eufonica.catalogcommandservice.model.Artist;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
