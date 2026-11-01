@@ -6,18 +6,18 @@
     <groupId>it.eufonica</groupId>
     <artifactId>eufonica-back-end</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <relativePath>../../pom.xml</relativePath>
+    <relativePath>../../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>common-exceptions</artifactId>
+  <artifactId>common-security</artifactId>
   <packaging>jar</packaging>
 
-  <name>common-exceptions</name>
-  <description>Maven module containing common exceptions, handlers and error dto used by the whole application.</description>
+  <name>common-security</name>
+  <description>Maven module containing the shared CurrentCallerProvider, exposing the current caller’s identity (sub, roles, artist id) from gateway-forwarded headers, and basic role checks used by all the services.</description>
   <url/>
 
   <properties>
-    <java.version>17</java.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
   </properties>
 
   <dependencies>
@@ -26,13 +26,14 @@
       <artifactId>spring-boot-starter-web</artifactId>
     </dependency>
     <dependency>
-      <groupId>org.springframework</groupId>
-      <artifactId>spring-tx</artifactId>
-    </dependency>
-    <dependency>
       <groupId>org.projectlombok</groupId>
       <artifactId>lombok</artifactId>
       <optional>true</optional>
+    </dependency>
+    <dependency>
+      <groupId>it.eufonica</groupId>
+      <artifactId>common-exceptions</artifactId>
+      <version>${project.version}</version>
     </dependency>
   </dependencies>
 </project>
