@@ -1,6 +1,6 @@
 package it.eufonica.catalogqueryservice.consumer;
 
-import it.eufonica.catalogqueryservice.event.album.*;
+import it.eufonica.event.album.*;
 import it.eufonica.catalogqueryservice.mapper.AlbumMapper;
 import it.eufonica.catalogqueryservice.model.AlbumContainsRead;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
