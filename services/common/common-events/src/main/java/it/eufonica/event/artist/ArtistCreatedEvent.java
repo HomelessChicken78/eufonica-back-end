@@ -1,4 +1,4 @@
-package it.eufonica.events.artist;
+package it.eufonica.event.artist;
 
 import lombok.*;
 
