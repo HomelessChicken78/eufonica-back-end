@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.outbox;
+package it.eufonica.event.outbox;
 
 import it.eufonica.exception.server.InternalServerErrorException;
 

@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.outbox;
+package it.eufonica.event.outbox;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -16,4 +16,3 @@ public interface OutboxService {
 
     void handleFailure(OutboxEvent event, Exception exc);
 }
-

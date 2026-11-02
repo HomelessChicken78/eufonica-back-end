@@ -17,7 +17,7 @@ import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
 import it.eufonica.catalogcommandservice.model.Album;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
-import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
+import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
 import it.eufonica.security.CurrentCallerProvider;

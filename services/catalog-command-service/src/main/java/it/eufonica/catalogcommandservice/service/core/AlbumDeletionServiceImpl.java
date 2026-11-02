@@ -2,7 +2,7 @@ package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.event.album.AlbumDeletedEvent;
 import it.eufonica.catalogcommandservice.model.Album;
-import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
+import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.AlbumRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

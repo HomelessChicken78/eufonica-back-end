@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.outbox;
+package it.eufonica.event.outbox;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

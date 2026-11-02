@@ -1,4 +1,4 @@
-package it.eufonica.catalogcommandservice.outbox;
+package it.eufonica.event.outbox;
 
 import jakarta.persistence.*;
 import lombok.*;
