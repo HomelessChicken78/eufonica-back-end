@@ -9,7 +9,7 @@ import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.catalogcommandservice.mapper.ArtistMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
-import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
+import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.ArtistRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
 import it.eufonica.security.CurrentCallerProvider;
