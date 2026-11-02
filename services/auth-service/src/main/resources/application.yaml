@@ -19,6 +19,9 @@ spring:
 
   kafka:
     bootstrap-servers: ${KAFKA_BOOTSTRAP_SERVERS:localhost:9092}
+    producer:
+      key-serializer: ${KAFKA_KEY_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
+      value-serializer: ${KAFKA_VALUE_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:auth-service-group}
       auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
