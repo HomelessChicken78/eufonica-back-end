@@ -1,4 +1,4 @@
-package it.eufonica.processing;
+package it.eufonica.event.processing;
 
 import java.util.UUID;
 

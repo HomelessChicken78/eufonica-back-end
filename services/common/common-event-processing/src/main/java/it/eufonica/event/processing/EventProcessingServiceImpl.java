@@ -1,4 +1,4 @@
-package it.eufonica.processing;
+package it.eufonica.event.processing;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

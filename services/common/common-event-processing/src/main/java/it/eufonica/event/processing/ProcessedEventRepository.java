@@ -1,4 +1,4 @@
-package it.eufonica.processing;
+package it.eufonica.event.processing;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
