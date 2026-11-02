@@ -4,7 +4,7 @@ import it.eufonica.event.artist.ArtistCreatedEvent;
 import it.eufonica.event.artist.ArtistUpdatedEvent;
 import it.eufonica.catalogqueryservice.mapper.ArtistMapper;
 import it.eufonica.catalogqueryservice.model.ArtistRead;
-import it.eufonica.catalogqueryservice.processing.EventProcessingService;
+import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.ArtistRepository;
 import it.eufonica.catalogqueryservice.versionchecker.VersionChecker;
 import lombok.RequiredArgsConstructor;

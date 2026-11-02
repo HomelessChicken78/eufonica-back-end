@@ -7,7 +7,7 @@ import it.eufonica.event.song.SongDeletedEvent;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
 import it.eufonica.catalogqueryservice.model.SongCreditRead;
 import it.eufonica.catalogqueryservice.model.SongRead;
-import it.eufonica.catalogqueryservice.processing.EventProcessingService;
+import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.AlbumContainsRepository;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;

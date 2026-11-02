@@ -5,7 +5,7 @@ import it.eufonica.catalogqueryservice.mapper.AlbumMapper;
 import it.eufonica.catalogqueryservice.model.AlbumContainsRead;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
 import it.eufonica.catalogqueryservice.model.ArtAlbumRead;
-import it.eufonica.catalogqueryservice.processing.EventProcessingService;
+import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.AlbumContainsRepository;
 import it.eufonica.catalogqueryservice.repository.AlbumRepository;
 import it.eufonica.catalogqueryservice.repository.ArtAlbumRepository;
