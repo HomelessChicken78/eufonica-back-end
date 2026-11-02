@@ -41,3 +41,4 @@ logging:
     it.eufonica.authservice.service: ${SERVICE_LOG_LEVEL:INFO}
     org.apache.kafka.clients.consumer.ConsumerConfig: WARN
     org.apache.kafka.clients.admin.AdminClientConfig: WARN
+    it.eufonica.event.outbox: ${OUTBOX_LOG_LEVEL:INFO}
