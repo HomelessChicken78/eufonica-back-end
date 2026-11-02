@@ -9,11 +9,11 @@
     <relativePath>../../../pom.xml</relativePath>
   </parent>
 
-  <artifactId>common-event-processing</artifactId>
+  <artifactId>common-event-delivery</artifactId>
   <packaging>jar</packaging>
 
-  <name>common-event-processing</name>
-  <description>Shared Kafka event-processing infrastructure (idempotent consumption via ProcessedEvent) used across services</description>
+  <name>common-event-delivery</name>
+  <description>Shared Kafka event sending (Outbox pattern) and processing (idempotent consumption via ProcessedEvent) infrastructure used across services</description>
   <url/>
 
   <properties>
