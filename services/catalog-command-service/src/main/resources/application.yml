@@ -27,6 +27,9 @@ spring:
     producer:
       key-serializer: ${KAFKA_KEY_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
       value-serializer: ${KAFKA_VALUE_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
+      properties:
+        request.timeout.ms: ${KAFKA_PRODUCER_REQUEST_TIMEOUT_MS:5000}
+        delivery.timeout.ms: ${KAFKA_PRODUCER_DELIVERY_TIMEOUT_MS:10000}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:catalog-command-service-group}
       auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
