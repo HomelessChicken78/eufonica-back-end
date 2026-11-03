@@ -46,9 +46,7 @@ public class SongEventConsumer {
 
     /**
      * Handles the creation of a new song after a SongCreatedEvent is received.
-     * <p>If the song already exists and the event's version is higher
-     * than the song's current version, perform an upsertion.</p>
-     * <p>If the version is lower than or equal to the song's current version, ignore it.</p>
+     * <p>If the song already exists, perform an upsertion.</p>
      *
      * @param eventId The id of the event to compare against processed events
      * @param event The deserialized event's payload
