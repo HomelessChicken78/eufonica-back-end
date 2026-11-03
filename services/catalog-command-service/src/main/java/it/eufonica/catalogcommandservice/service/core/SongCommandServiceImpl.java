@@ -1,8 +1,8 @@
 package it.eufonica.catalogcommandservice.service.core;
 
 import it.eufonica.catalogcommandservice.dto.album.AlbumRefDTO;
-import it.eufonica.catalogcommandservice.event.song.CreditedArtistAddedEvent;
-import it.eufonica.catalogcommandservice.event.song.CreditedArtistRemovedEvent;
+import it.eufonica.event.song.CreditedArtistAddedEvent;
+import it.eufonica.event.song.CreditedArtistRemovedEvent;
 import it.eufonica.catalogcommandservice.exception.AlbumEmptyAfterSongDeletionException;
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
 import it.eufonica.catalogcommandservice.mapper.AlbumMapper;
@@ -16,7 +16,7 @@ import it.eufonica.catalogcommandservice.dto.song.*;
 import it.eufonica.catalogcommandservice.mapper.SongMapper;
 import it.eufonica.catalogcommandservice.model.Artist;
 import it.eufonica.catalogcommandservice.model.Song;
-import it.eufonica.catalogcommandservice.outbox.OutboxEventPublisherService;
+import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.catalogcommandservice.repository.SongRepository;
 import it.eufonica.catalogcommandservice.security.ArtistAccessGuard;
 import it.eufonica.catalogcommandservice.service.media.AudioMetadataService;

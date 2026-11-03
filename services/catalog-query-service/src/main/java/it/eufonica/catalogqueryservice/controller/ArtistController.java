@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
-import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.catalogqueryservice.service.ArtistQueryService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import jakarta.validation.Valid;

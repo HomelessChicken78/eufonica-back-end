@@ -2,8 +2,8 @@ package it.eufonica.catalogqueryservice.mapper;
 
 import it.eufonica.catalogqueryservice.dto.album.AlbumFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumShortResponseDTO;
-import it.eufonica.catalogqueryservice.event.album.AlbumCreatedEvent;
-import it.eufonica.catalogqueryservice.event.album.AlbumUpdatedEvent;
+import it.eufonica.event.album.AlbumCreatedEvent;
+import it.eufonica.event.album.AlbumUpdatedEvent;
 import it.eufonica.catalogqueryservice.model.AlbumRead;
 import org.mapstruct.*;
 

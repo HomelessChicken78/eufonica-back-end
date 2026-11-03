@@ -3,7 +3,7 @@ package it.eufonica.catalogqueryservice.service;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.artist.ArtistShortResponseDTO;
-import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;

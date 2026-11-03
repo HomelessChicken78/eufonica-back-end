@@ -2,7 +2,7 @@ package it.eufonica.catalogqueryservice.mapper;
 
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
-import it.eufonica.catalogqueryservice.event.song.SongCreatedEvent;
+import it.eufonica.event.song.SongCreatedEvent;
 import it.eufonica.catalogqueryservice.model.SongRead;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;

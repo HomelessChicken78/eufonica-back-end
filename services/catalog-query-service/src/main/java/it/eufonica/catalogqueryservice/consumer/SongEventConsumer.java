@@ -1,13 +1,13 @@
 package it.eufonica.catalogqueryservice.consumer;
 
-import it.eufonica.catalogqueryservice.event.song.CreditedArtistAddedEvent;
-import it.eufonica.catalogqueryservice.event.song.CreditedArtistRemovedEvent;
-import it.eufonica.catalogqueryservice.event.song.SongCreatedEvent;
-import it.eufonica.catalogqueryservice.event.song.SongDeletedEvent;
+import it.eufonica.event.song.CreditedArtistAddedEvent;
+import it.eufonica.event.song.CreditedArtistRemovedEvent;
+import it.eufonica.event.song.SongCreatedEvent;
+import it.eufonica.event.song.SongDeletedEvent;
 import it.eufonica.catalogqueryservice.mapper.SongMapper;
 import it.eufonica.catalogqueryservice.model.SongCreditRead;
 import it.eufonica.catalogqueryservice.model.SongRead;
-import it.eufonica.catalogqueryservice.processing.EventProcessingService;
+import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.catalogqueryservice.repository.AlbumContainsRepository;
 import it.eufonica.catalogqueryservice.repository.SongCreditRepository;
 import it.eufonica.catalogqueryservice.repository.SongRepository;

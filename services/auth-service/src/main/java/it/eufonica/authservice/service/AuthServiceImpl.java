@@ -2,6 +2,8 @@ package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.auth.SignUpRequestDTO;
 import it.eufonica.authservice.exception.AuthErrorReason;
+import it.eufonica.event.appuser.AppUserCreatedEvent;
+import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.authservice.mapper.AppUserMapper;
 import it.eufonica.authservice.model.AccessMethod;
@@ -28,6 +30,12 @@ public class AuthServiceImpl implements AuthService {
     // Mapper & Utilities
     private final AppUserMapper userMapper;
 
+    // Services
+    private final OutboxEventPublisherService eventPublisher;
+
+    @Value("${APP_USER_TOPIC_NAME:appuser.events}")
+    private String appUserTopicName;
+
     @Value("${PROVIDER_NAME:cognito}")
     private String providerName;
 
@@ -49,8 +57,15 @@ public class AuthServiceImpl implements AuthService {
                     AuthErrorReason.DISPLAY_NAME_ALREADY_IN_USE
             );
 
-        AppUser user = userRepository.save(userMapper.toEntity(request));
-        accessMethodRepository.save(new AccessMethod(null, providerName, sub, user));
+        AppUser user = userRepository.saveAndFlush(userMapper.toEntity(request));
+        accessMethodRepository.saveAndFlush(new AccessMethod(null, providerName, sub, user));
+
+        eventPublisher.publish(
+                user.getId().toString(),
+                "AppUserCreatedEvent",
+                appUserTopicName,
+                new AppUserCreatedEvent(user.getId())
+        );
 
         cognitoUserService.addToUserGroup(sub);
 

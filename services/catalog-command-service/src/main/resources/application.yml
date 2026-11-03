@@ -27,6 +27,9 @@ spring:
     producer:
       key-serializer: ${KAFKA_KEY_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
       value-serializer: ${KAFKA_VALUE_SERIALIZER:org.apache.kafka.common.serialization.StringSerializer}
+      properties:
+        request.timeout.ms: ${KAFKA_PRODUCER_REQUEST_TIMEOUT_MS:5000}
+        delivery.timeout.ms: ${KAFKA_PRODUCER_DELIVERY_TIMEOUT_MS:10000}
     consumer:
       group-id: ${KAFKA_CONSUMER_GROUP_ID:catalog-command-service-group}
       auto-offset-reset: ${KAFKA_AUTO_OFFSET_RESET:earliest}
@@ -50,4 +53,5 @@ logging:
     it.eufonica.catalogcommandservice.service: ${SERVICE_LOG_LEVEL:INFO}
     it.eufonica.catalogcommandservice.controller: ${CONTROLLER_LOG_LEVEL:INFO}
     it.eufonica.catalogcommandservice.security: ${SECURITY_LOG_LEVEL:INFO}
-    it.eufonica.catalogcommandservice.outbox: ${OUTBOX_LOG_LEVEL:INFO}
+    it.eufonica.security: ${SECURITY_LOG_LEVEL:INFO}
+    it.eufonica.event.outbox: ${OUTBOX_LOG_LEVEL:INFO}

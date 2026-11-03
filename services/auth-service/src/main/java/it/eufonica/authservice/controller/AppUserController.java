@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.authservice.dto.appuser.AppUserFiltersDTO;
 import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
-import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.authservice.service.AppUserService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import jakarta.validation.Valid;

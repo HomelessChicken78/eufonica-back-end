@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.catalogqueryservice.dto.album.AlbumFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.album.AlbumShortResponseDTO;
-import it.eufonica.catalogqueryservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.catalogqueryservice.service.AlbumQueryService;
 import it.eufonica.exception.dto.GeneralErrorResponseDTO;
 import it.eufonica.exception.dto.ValidationErrorResponseDTO;

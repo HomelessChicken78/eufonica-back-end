@@ -1,6 +1,6 @@
 package it.eufonica.catalogcommandservice.consumer;
 
-import it.eufonica.catalogcommandservice.event.song.SongDeletedEvent;
+import it.eufonica.event.song.SongDeletedEvent;
 import it.eufonica.catalogcommandservice.service.media.AudioStorageService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

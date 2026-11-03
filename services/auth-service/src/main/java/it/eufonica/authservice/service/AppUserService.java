@@ -3,7 +3,7 @@ package it.eufonica.authservice.service;
 import it.eufonica.authservice.dto.appuser.AppUserFiltersDTO;
 import it.eufonica.authservice.dto.appuser.AppUserFullResponseDTO;
 import it.eufonica.authservice.dto.appuser.AppUserShortResponseDTO;
-import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;

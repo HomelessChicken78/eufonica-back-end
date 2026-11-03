@@ -1,7 +1,7 @@
 package it.eufonica.authservice.service;
 
 import it.eufonica.authservice.dto.artistrequest.*;
-import it.eufonica.authservice.dto.common.PageResponseDTO;
+import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.ConflictException;
 import it.eufonica.exception.client.NotFoundException;

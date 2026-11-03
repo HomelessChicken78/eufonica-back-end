@@ -2,8 +2,8 @@
 
     import it.eufonica.catalogcommandservice.dto.song.PublishSongRequestDTO;
     import it.eufonica.catalogcommandservice.dto.song.SongResponseDTO;
-    import it.eufonica.catalogcommandservice.event.song.SongCreatedEvent;
-    import it.eufonica.catalogcommandservice.event.song.SongDeletedEvent;
+    import it.eufonica.event.song.SongCreatedEvent;
+    import it.eufonica.event.song.SongDeletedEvent;
     import it.eufonica.catalogcommandservice.model.Artist;
     import it.eufonica.catalogcommandservice.model.Song;
     import org.mapstruct.Mapper;
