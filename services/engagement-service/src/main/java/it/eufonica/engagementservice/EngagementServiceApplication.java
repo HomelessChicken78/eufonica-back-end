@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "it.eufonica.engagementservice",
         "it.eufonica.exception",
         "it.eufonica.security",
+        "it.eufonica.event.processing"
 })
 @EntityScan(basePackages = {
         "it.eufonica.engagementservice",
