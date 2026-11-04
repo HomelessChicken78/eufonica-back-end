@@ -23,8 +23,9 @@ public class Listen {
     @Column(nullable = false)
     private UUID userId;
 
-    @Column(nullable = false)
-    private UUID songId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(nullable = false)
+    private Song song;
 
     @Column(nullable = false)
     @PositiveOrZero(message = "listen.secPlayed should always be >= 0.")
