@@ -5,7 +5,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDate;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -24,7 +24,7 @@ public class Playlist {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDate creationDate;
+    private Instant creationDate;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
