@@ -20,8 +20,9 @@ public class Listen {
     @Column(nullable = false, updatable = false)
     private Instant timestamp;
 
-    @Column(nullable = false)
-    private UUID userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false)
+    private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(nullable = false)

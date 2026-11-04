@@ -35,6 +35,7 @@ public class Playlist {
     @Builder.Default
     private Integer amountLikes = 0;
 
-    @Column(nullable = false)
-    private UUID creatorId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "creator_id", nullable = false)
+    private AppUser creator;
 }
