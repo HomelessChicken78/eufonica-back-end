@@ -20,8 +20,9 @@ public class SongLike {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     @EqualsAndHashCode.Include private UUID id;
 
-    @Column(name = "song_id", nullable = false)
-    private UUID songId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "song_id", nullable = false)
+    private Song song;
 
     @Column(name = "user_id", nullable = false)
     private UUID userId;
