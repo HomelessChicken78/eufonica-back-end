@@ -1,0 +1,33 @@
+package it.eufonica.engagementservice.model;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.PositiveOrZero;
+import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+
+import java.time.Instant;
+import java.util.UUID;
+
+@Entity
+@AllArgsConstructor @NoArgsConstructor @Builder
+@Getter @Setter
+@EqualsAndHashCode(onlyExplicitlyIncluded = true) @ToString
+public class Listen {
+    @Id @GeneratedValue(strategy = GenerationType.UUID)
+    @EqualsAndHashCode.Include private UUID id;
+
+    @CreationTimestamp
+    @Column(nullable = false, updatable = false)
+    private Instant timestamp;
+
+    @Column(nullable = false)
+    private UUID userId;
+
+    @Column(nullable = false)
+    private UUID songId;
+
+    @Column(nullable = false)
+    @PositiveOrZero(message = "listen.secPlayed should always be >= 0.")
+    @Builder.Default
+    private Integer secPlayed = 0;
+}

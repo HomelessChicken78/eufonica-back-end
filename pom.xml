@@ -29,6 +29,7 @@
         <module>services/auth-service</module>
         <module>services/catalog-command-service</module>
         <module>services/catalog-query-service</module>
+        <module>services/engagement-service</module>
         <module>services/gateway-service</module>
     </modules>
 </project>

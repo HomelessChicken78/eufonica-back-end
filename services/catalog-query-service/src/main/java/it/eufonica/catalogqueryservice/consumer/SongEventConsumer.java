@@ -137,9 +137,11 @@ public class SongEventConsumer {
         songRepository.deleteById(event.getId());
 
         if (songRepository.existsById(event.getId()))
-            log.debug("Song already absent from projection, nothing to delete. eventId={}, songId={}", eventId, event.getId());
+            log.debug("Deleting song for event {}. songId={}", eventId, event.getId());
         else
-            log.debug("Deleted song for event {}. songId={}", eventId, event.getId());
+            log.debug("Song already absent from projection, nothing to delete. eventId={}, songId={}", eventId, event.getId());
+
+        songRepository.deleteById(event.getId());
 
         evictSongCache(event.getId());
     }
