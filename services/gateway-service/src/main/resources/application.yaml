@@ -67,6 +67,12 @@ spring:
                 - Path=/api/albums/**
                 - Method=POST,PUT,PATCH,DELETE
 
+            # Engagement Service Routes
+            - id: engagement-service-playlists
+              uri: ${ENGAGEMENT_SERVICE}
+              predicates:
+                - Path=/api/playlists/**
+
             # Internal endpoints not exposed to the public
 
 server:
