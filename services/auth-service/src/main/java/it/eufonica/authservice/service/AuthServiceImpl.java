@@ -64,7 +64,7 @@ public class AuthServiceImpl implements AuthService {
                 user.getId().toString(),
                 "AppUserCreatedEvent",
                 appUserTopicName,
-                new AppUserCreatedEvent(user.getId())
+                new AppUserCreatedEvent(user.getId(), sub)
         );
 
         cognitoUserService.addToUserGroup(sub);

@@ -14,7 +14,7 @@ public class CurrentUserResolver {
     // Repository
     private final AccessMethodRepository accessMethodRepository;
 
-    // Service
+    // Mapper & Utility
     private final CurrentCallerProvider currentCaller;
 
     @Value("${PROVIDER_NAME:cognito}")
