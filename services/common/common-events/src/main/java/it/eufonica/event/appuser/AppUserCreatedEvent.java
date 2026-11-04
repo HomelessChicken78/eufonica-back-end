@@ -8,4 +8,5 @@ import java.util.UUID;
 @NoArgsConstructor @AllArgsConstructor
 public class AppUserCreatedEvent {
     private UUID id;
+    private String sub;
 }
