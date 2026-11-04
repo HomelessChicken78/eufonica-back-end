@@ -37,8 +37,4 @@ public class Playlist {
 
     @Column(nullable = false)
     private UUID creatorId;
-
-    public enum VisibilityType {
-        PUBLIC, PRIVATE, UNLISTED
-    }
 }
