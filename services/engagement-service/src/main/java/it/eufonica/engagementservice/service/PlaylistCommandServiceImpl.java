@@ -73,6 +73,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
         PlaylistEntry entry = new PlaylistEntry(null, nextPosition, playlist, songId);
         log.debug("Created new SongEntry. (songId={}, playlistId={}, position={})", songId, playlist.getId(), nextPosition);
 
+        playlist.setNumberOfEntries(playlist.getNumberOfEntries() + 1);
         entryRepository.save(entry);
         log.info("Added song to playlist. (songId={}, playlistId={}, playlistName={})", songId, playlist.getId(), playlist.getName());
     }

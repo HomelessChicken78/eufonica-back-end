@@ -38,4 +38,9 @@ public class Playlist {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "creator_id", nullable = false)
     private AppUser creator;
+
+    @PositiveOrZero(message = "playlist.numberOfEntries should always be >= 0.")
+    @Column(nullable = false)
+    @Builder.Default
+    private Integer numberOfEntries = 0;
 }
