@@ -2,12 +2,14 @@ package it.eufonica.engagementservice.mapper;
 
 import it.eufonica.engagementservice.dto.playlist.PlaylistCreateRequestDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistCreatedResponseDTO;
+import it.eufonica.engagementservice.dto.playlist.PlaylistShortResponseDTO;
 import it.eufonica.engagementservice.model.Playlist;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PlaylistMapper {
+    @Mapping(target = "numberOfEntries", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creator", ignore = true)
@@ -17,4 +19,7 @@ public interface PlaylistMapper {
 
     @Mapping(target = "createdPlaylistId", source = "id")
     PlaylistCreatedResponseDTO toCreatedResponse(Playlist entity);
+
+    @Mapping(target = "creatorId", ignore = true)
+    PlaylistShortResponseDTO toShortResponse(Playlist entity);
 }
