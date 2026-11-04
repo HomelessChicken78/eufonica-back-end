@@ -7,5 +7,5 @@ import java.util.List;
 import java.util.UUID;
 
 public interface SongLikeRepository extends JpaRepository<SongLike, UUID> {
-    List<SongLike> findBySongId(UUID songId);
+    void deleteBySongId(UUID songId);
 }

@@ -1,5 +1,7 @@
 package it.eufonica.engagementservice.consumer;
 
+import it.eufonica.engagementservice.repository.ListenRepository;
+import it.eufonica.engagementservice.repository.SongLikeRepository;
 import it.eufonica.event.song.SongCreatedEvent;
 import it.eufonica.event.song.SongDeletedEvent;
 import it.eufonica.engagementservice.mapper.SongMapper;
@@ -29,6 +31,8 @@ public class SongEventConsumer {
 
     // Repositories
     private final SongRepository songRepository;
+    private final ListenRepository listenRepository;
+    private final SongLikeRepository songLikeRepository;
 
     @KafkaListener(topics = "${SONG_TOPIC_NAME:song.events}")
     public void consume(@Payload String payload,
@@ -90,6 +94,12 @@ public class SongEventConsumer {
             log.debug("Deleting song for event {}. songId={}", eventId, event.getId());
         else
             log.debug("Song already absent from projection, nothing to delete. eventId={}, songId={}", eventId, event.getId());
+
+        // Clean up listen and like records for the song, since there is no
+        // relation/FK configured - orphaned rows would otherwise be left
+        // pointing at a non-existent song.
+        listenRepository.deleteBySongId(event.getId());
+        songLikeRepository.deleteBySongId(event.getId());
 
         songRepository.deleteById(event.getId());
     }
