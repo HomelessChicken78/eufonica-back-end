@@ -7,6 +7,7 @@ import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
 import it.eufonica.engagementservice.model.VisibilityType;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
+import it.eufonica.engagementservice.repository.PlaylistLikeRepository;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
 import it.eufonica.engagementservice.security.CurrentUserResolver;
@@ -33,6 +34,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     private final PlaylistRepository playlistRepository;
     private final SongRepository songRepository;
     private final PlaylistEntryRepository entryRepository;
+    private final PlaylistLikeRepository playlistLikeRepository;
 
     // Utility & Mappers
     private final CurrentUserResolver currentUser;
@@ -80,6 +82,17 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
         log.info("Added song to playlist. (songId={}, playlistId={}, playlistName={})", songId, playlist.getId(), playlist.getName());
     }
 
+    /**
+     * Remove all the {@code PlaylistLike} and {@code PlaylistEntry}
+     * correlated to the playlist matching the given {@code playlistId}.
+     *
+     * @param playlistId the id of the playlist to remove the related entities of
+     */
+    private void deleteRelatedPlaylistEntities(UUID playlistId) {
+        playlistLikeRepository.deleteByPlaylistId(playlistId);
+        entryRepository.deleteByPlaylistId(playlistId);
+    }
+
     @Override
     public PlaylistCreatedResponseDTO createPlaylist(PlaylistCreateRequestDTO request) {
         Playlist playlist = playlistMapper.toEntity(request);
@@ -113,5 +126,15 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
 
         found.setVisibility(newVisibility);
         playlistRepository.save(found);
+    }
+
+    @Override
+    public void deletePlaylist(UUID playlistId) {
+        Playlist found = queryService.findOrElseThrow(playlistId);
+
+        accessGuard.requireOwnerOrAdmin(found.getCreator().getId(), found.getVisibility());
+
+        deleteRelatedPlaylistEntities(found.getId());
+        playlistRepository.delete(found);
     }
 }

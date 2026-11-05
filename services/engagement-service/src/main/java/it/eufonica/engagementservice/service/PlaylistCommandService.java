@@ -47,4 +47,18 @@ public interface PlaylistCommandService {
      * @throws ForbiddenException if the caller is not the playlist owner
      */
     void setVisibility(UUID playlistId, VisibilityType newVisibility);
+
+    /**
+     * Delete the playlist with the given {@code playlistId} and all the related entities.
+     *
+     * <p>Can only be performed by the owner or, if the playlist is not {@code PRIVATE},
+     * by an ADMIN.
+     *
+     * @param playlistId the id of the playlist to remove.
+     *
+     * @throws NotFoundException if the playlist does not exist
+     * @throws ForbiddenException if the caller is not the playlist owner and either
+     * the caller is not an ADMIN or the playlist visibility is {@code PRIVATE}
+     */
+    void deletePlaylist(UUID playlistId);
 }

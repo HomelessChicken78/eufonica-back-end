@@ -8,4 +8,6 @@ import java.util.UUID;
 
 public interface PlaylistLikeRepository extends JpaRepository<PlaylistLike, UUID> {
     List<PlaylistLike> findByUserId(UUID userId);
+
+    void deleteByPlaylistId(UUID playlistId);
 }

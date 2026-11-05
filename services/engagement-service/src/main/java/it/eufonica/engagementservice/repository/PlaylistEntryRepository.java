@@ -18,4 +18,6 @@ public interface PlaylistEntryRepository extends JpaRepository<PlaylistEntry, UU
     WHERE e.playlist = :playlist
     """)
     Optional<Long> findLastPosition(@Param("playlist") Playlist playlist);
+
+    void deleteByPlaylistId(UUID playlistId);
 }
