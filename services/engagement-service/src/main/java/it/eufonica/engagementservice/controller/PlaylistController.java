@@ -25,7 +25,7 @@ public class PlaylistController {
     public PlaylistCreatedResponseDTO createPlaylist(@RequestBody @Valid PlaylistCreateRequestDTO request) {
         PlaylistCreatedResponseDTO playlist = commandService.createPlaylist(request);
 
-        log.info("Public playlist has been created. playlistId={}.", playlist.getCreatedPlaylistId());
+        log.info("Playlist has been created. playlistId={}.", playlist.getCreatedPlaylistId());
 
         return playlist;
     }
