@@ -14,5 +14,7 @@ public class PlaylistShortResponseDTO {
 
     private Integer amountLikes;
 
+    private Integer numberOfEntries;
+
     private UUID creatorId;
 }
