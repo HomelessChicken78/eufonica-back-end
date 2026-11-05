@@ -5,6 +5,7 @@ import it.eufonica.engagementservice.dto.playlist.PlaylistSearchFiltersDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistShortResponseDTO;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.web.dto.PageResponseDTO;
 
@@ -22,7 +23,10 @@ public interface PlaylistQueryService {
     Playlist findOrElseThrow(UUID id);
 
     /**
-     * Searches public playlists matching the given filters.
+     * Searches playlists matching the given filters.
+     *
+     * <p>Can only return {@code PUBLIC} playlists, unless {@code filters.showOnlyUnlisted}
+     * is {@code true} (filters admin-only).
      *
      * @param filters the search filters to use
      * @param sortOrder the criteria to sort the result
@@ -30,6 +34,8 @@ public interface PlaylistQueryService {
      * @param pageSize the requested page size, with a maximum configured
      *
      * @throws BadRequestException if either the pageNumber or the pageSize are less than 1
+     * @throws ForbiddenException if a non-admin tries to call the method
+     * with {@code filters.showOnlyUnlisted = true}
      * @return the paginated search result
      */
     PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(PlaylistSearchFiltersDTO filters, PlaylistResponseSortOrder sortOrder,

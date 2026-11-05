@@ -5,10 +5,12 @@ import it.eufonica.engagementservice.dto.playlist.PlaylistSearchFiltersDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistShortResponseDTO;
 import it.eufonica.engagementservice.mapper.PlaylistMapper;
 import it.eufonica.engagementservice.model.Playlist;
+import it.eufonica.engagementservice.model.VisibilityType;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;
+import it.eufonica.security.CurrentCallerProvider;
 import it.eufonica.web.dto.PageResponseDTO;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -33,10 +35,10 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     // Service
     private final PlaylistRepository playlistRepository;
     private final PlaylistMapper playlistMapper;
-
     // Repository
 
     // Utility & Mappers
+    private final CurrentCallerProvider callerProvider;
 
     @Value("${PLAYLIST_PAGE_MAX_SIZE:50}")
     private Integer maxPageSize;
@@ -76,6 +78,21 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
                 );
                 log.trace("Added filter name LIKE %{}%.", escapedName);
             }
+
+            // Change the predicate depending on if the filter's attributes are false, true or null
+            // Visibility
+            VisibilityType targetVisibility;
+            if (filters.getShowOnlyUnlisted() == null || !filters.getShowOnlyUnlisted())
+                targetVisibility = VisibilityType.PUBLIC;
+            else {
+                callerProvider.requireAdmin();
+                targetVisibility = VisibilityType.UNLISTED;
+            }
+
+            predicates.add(
+                    criteriaBuilder.equal(root.get("visibility"), targetVisibility)
+            );
+            log.trace("Added filter visibility = '{}'", targetVisibility);
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });

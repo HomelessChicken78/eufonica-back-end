@@ -26,6 +26,9 @@ public class PlaylistSearchFiltersDTO {
     @PositiveOrZero(message = "The maximum number of entries can't be negative.")
     private Integer maxNumberOfEntries; // Null means no maximum
 
+    @Builder.Default
+    private Boolean showOnlyUnlisted = false;
+
     @AssertTrue(message = "The maximum number of likes can't be lower than the minimum.")
     public boolean isLikesRangeValid() {
         // Always return true if the max likes is set to null (equivalent to infinity)
