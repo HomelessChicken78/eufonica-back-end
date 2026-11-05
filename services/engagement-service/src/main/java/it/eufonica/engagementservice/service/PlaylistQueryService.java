@@ -3,10 +3,24 @@ package it.eufonica.engagementservice.service;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseSortOrder;
 import it.eufonica.engagementservice.dto.playlist.PlaylistSearchFiltersDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistShortResponseDTO;
+import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.web.dto.PageResponseDTO;
 
+import java.util.UUID;
+
 public interface PlaylistQueryService {
+    /**
+     * Finds a playlist by its id.
+     *
+     * @param id the unique id of the playlist
+     *
+     * @return the playlist associated with the given id
+     * @throws NotFoundException if no playlist exists with the given id
+     */
+    Playlist findOrElseThrow(UUID id);
+
     /**
      * Searches public playlists matching the given filters.
      *

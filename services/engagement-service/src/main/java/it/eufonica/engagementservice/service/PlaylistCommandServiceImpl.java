@@ -26,6 +26,7 @@ import java.util.UUID;
 @RequiredArgsConstructor @Slf4j
 public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     // Service
+    private final PlaylistQueryService queryService;
 
     // Repository
     private final PlaylistRepository playlistRepository;
@@ -91,5 +92,12 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
             mapSongToPlaylist(songId, created);
 
         return playlistMapper.toCreatedResponse(created);
+    }
+
+    @Override
+    public void rename(UUID playlistId, String newName) {
+        Playlist found = queryService.findOrElseThrow(playlistId);
+        found.setName(newName);
+        playlistRepository.save(found);
     }
 }

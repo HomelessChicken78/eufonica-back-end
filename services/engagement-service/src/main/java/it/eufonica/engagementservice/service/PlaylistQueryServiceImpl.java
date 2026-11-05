@@ -8,6 +8,7 @@ import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
+import it.eufonica.exception.client.NotFoundException;
 import it.eufonica.web.dto.PageResponseDTO;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.Predicate;
@@ -24,6 +25,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -88,6 +90,14 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
             case LIKES_DESC -> Sort.by(Sort.Direction.DESC, "amountLikes");
             case NUMBER_OF_ENTRIES_DESC -> Sort.by(Sort.Direction.DESC, "numberOfEntries");
         };
+    }
+
+    @Override
+    public Playlist findOrElseThrow(UUID id) {
+        return playlistRepository.findById(id)
+                .orElseThrow(
+                        () -> new NotFoundException("Could not find playlist with id " + id)
+                );
     }
 
     @Override

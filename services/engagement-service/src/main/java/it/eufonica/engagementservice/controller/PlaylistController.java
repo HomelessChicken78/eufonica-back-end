@@ -10,6 +10,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.UUID;
+
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController @RequestMapping("/playlists")
@@ -26,6 +28,13 @@ public class PlaylistController {
         log.info("Public playlist has been created. playlistId={}.", playlist.getCreatedPlaylistId());
 
         return playlist;
+    }
+
+    @PatchMapping(path = "/{playlistId}/name", consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void rename(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistRenameRequestDTO request) {
+        commandService.rename(playlistId, request.getNewName());
+        log.info("Playlist has been renamed. playlistId={}, newName={}.", playlistId, request.getNewName());
     }
 
     @GetMapping(produces = APPLICATION_JSON_VALUE)
