@@ -3,6 +3,7 @@ package it.eufonica.engagementservice.service;
 import it.eufonica.engagementservice.dto.playlist.PlaylistCreateRequestDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistCreatedResponseDTO;
 import it.eufonica.engagementservice.model.VisibilityType;
+import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 
 import java.util.UUID;
@@ -24,6 +25,8 @@ public interface PlaylistCommandService {
      * @param newName the new name to apply to the playlist
      *
      * @throws NotFoundException if the playlist does not exist
+     * @throws ForbiddenException if the caller is not the playlist owner and either
+     * the caller is not an ADMIN or the playlist visibility is {@code PRIVATE}
      */
     void rename(UUID playlistId, String newName);
 
@@ -41,6 +44,7 @@ public interface PlaylistCommandService {
      * @param newVisibility the new visibility of the playlist
      *
      * @throws NotFoundException if the playlist does not exist
+     * @throws ForbiddenException if the caller is not the playlist owner
      */
     void setVisibility(UUID playlistId, VisibilityType newVisibility);
 }

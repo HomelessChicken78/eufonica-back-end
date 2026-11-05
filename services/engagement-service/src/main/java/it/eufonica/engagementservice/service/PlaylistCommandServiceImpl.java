@@ -10,6 +10,7 @@ import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
 import it.eufonica.engagementservice.security.CurrentUserResolver;
+import it.eufonica.engagementservice.security.PlaylistOwnerAccessGuard;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -35,6 +36,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
 
     // Utility & Mappers
     private final CurrentUserResolver currentUser;
+    private final PlaylistOwnerAccessGuard accessGuard;
     private final PlaylistMapper playlistMapper;
 
     @Value("${PLAYLIST_ENTRY_POSITION_GAP:1000}")
@@ -96,6 +98,9 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     @Override
     public void rename(UUID playlistId, String newName) {
         Playlist found = queryService.findOrElseThrow(playlistId);
+
+        accessGuard.requireOwnerOrAdmin(found.getCreator().getId(), found.getVisibility());
+
         found.setName(newName);
         playlistRepository.save(found);
     }
@@ -103,6 +108,9 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     @Override
     public void setVisibility(UUID playlistId, VisibilityType newVisibility) {
         Playlist found = queryService.findOrElseThrow(playlistId);
+
+        currentUser.requireSelf(found.getCreator().getId());
+
         found.setVisibility(newVisibility);
         playlistRepository.save(found);
     }
