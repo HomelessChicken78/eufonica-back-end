@@ -37,6 +37,13 @@ public class PlaylistController {
         log.info("Playlist has been renamed. playlistId={}, newName={}.", playlistId, request.getNewName());
     }
 
+    @PatchMapping(path = "/{playlistId}/visibility", consumes =  APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void setVisibility(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistSetVisibilityRequestDTO request) {
+        commandService.setVisibility(playlistId, request.getNewVisibility());
+        log.info("Playlist visibility changed. playlistId={}, newVisibility={}", playlistId, request.getNewVisibility());
+    }
+
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(
             @ModelAttribute @Valid PlaylistSearchFiltersDTO filters,

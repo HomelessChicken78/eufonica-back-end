@@ -5,6 +5,7 @@ import it.eufonica.engagementservice.dto.playlist.PlaylistCreatedResponseDTO;
 import it.eufonica.engagementservice.mapper.PlaylistMapper;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
+import it.eufonica.engagementservice.model.VisibilityType;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
@@ -96,6 +97,13 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     public void rename(UUID playlistId, String newName) {
         Playlist found = queryService.findOrElseThrow(playlistId);
         found.setName(newName);
+        playlistRepository.save(found);
+    }
+
+    @Override
+    public void setVisibility(UUID playlistId, VisibilityType newVisibility) {
+        Playlist found = queryService.findOrElseThrow(playlistId);
+        found.setVisibility(newVisibility);
         playlistRepository.save(found);
     }
 }
