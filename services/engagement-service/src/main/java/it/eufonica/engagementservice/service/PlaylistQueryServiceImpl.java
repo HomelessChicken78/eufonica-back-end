@@ -39,7 +39,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     @Value("${PLAYLIST_PAGE_MAX_SIZE:50}")
     private Integer maxPageSize;
 
-    @Value("${PLAYLIST_DEFAULT_SORT_ORDER:LIKES_ASC}")
+    @Value("${PLAYLIST_DEFAULT_SORT_ORDER:LIKES_DESC}")
     private PlaylistResponseSortOrder defaultSortOrder;
 
     private void addRangePredicates(List<Predicate> predicates, Root<Playlist> root, CriteriaBuilder cb,
@@ -85,8 +85,8 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         return switch (sortOrder) {
             case NAME_ASC -> Sort.by(Sort.Direction.ASC, "name");
             case NAME_DESC -> Sort.by(Sort.Direction.DESC, "name");
-            case LIKES_ASC -> Sort.by(Sort.Direction.ASC, "amountLikes");
-            case NUMBER_OF_ENTRIES_ASC -> Sort.by(Sort.Direction.ASC, "numberOfEntries");
+            case LIKES_DESC -> Sort.by(Sort.Direction.DESC, "amountLikes");
+            case NUMBER_OF_ENTRIES_DESC -> Sort.by(Sort.Direction.DESC, "numberOfEntries");
         };
     }
 
