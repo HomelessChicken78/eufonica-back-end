@@ -20,6 +20,6 @@ public interface PlaylistMapper {
     @Mapping(target = "createdPlaylistId", source = "id")
     PlaylistCreatedResponseDTO toCreatedResponse(Playlist entity);
 
-    @Mapping(target = "creatorId", ignore = true)
+    @Mapping(target = "creatorId", source = "creator.id")
     PlaylistShortResponseDTO toShortResponse(Playlist entity);
 }
