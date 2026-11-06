@@ -44,6 +44,13 @@ public class PlaylistController {
         log.info("Playlist visibility changed. playlistId={}, newVisibility={}", playlistId, request.getNewVisibility());
     }
 
+    @DeleteMapping(path = "/{playlistId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deletePlaylist(@PathVariable UUID playlistId) {
+        commandService.deletePlaylist(playlistId);
+        log.info("Playlist has been deleted. playlistId={}.", playlistId);
+    }
+
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(
             @ModelAttribute @Valid PlaylistSearchFiltersDTO filters,
