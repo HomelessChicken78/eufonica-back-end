@@ -113,7 +113,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     public Playlist findOrElseThrow(UUID id) {
         return playlistRepository.findById(id)
                 .orElseThrow(
-                        () -> new NotFoundException("Could not find playlist with id " + id + ".")
+                        () -> new NotFoundException("Could not find playlist with id " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND)
                 );
     }
 
