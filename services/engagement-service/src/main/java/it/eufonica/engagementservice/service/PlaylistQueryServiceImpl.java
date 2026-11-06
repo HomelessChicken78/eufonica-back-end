@@ -111,10 +111,13 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
 
     @Override
     public Playlist findOrElseThrow(UUID id) {
-        return playlistRepository.findById(id)
+        Playlist found = playlistRepository.findById(id)
                 .orElseThrow(
                         () -> new NotFoundException("Could not find playlist with id " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND)
                 );
+        log.trace("Found playlist with id {}.", found.getId());
+
+        return found;
     }
 
     @Override
