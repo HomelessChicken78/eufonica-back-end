@@ -3,7 +3,9 @@ package it.eufonica.engagementservice.service;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
+import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
+import it.eufonica.engagementservice.security.PlaylistOwnerAccessGuard;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -18,12 +20,15 @@ import java.util.UUID;
 @RequiredArgsConstructor @Slf4j
 public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     // Service
+    private final PlaylistQueryService queryService;
 
     // Repository
+    private final PlaylistRepository playlistRepository;
     private final SongRepository songRepository;
 
     // Utility & Mappers
     private final PlaylistEntryRepository entryRepository;
+    private final PlaylistOwnerAccessGuard accessGuard;
 
     @Value("${PLAYLIST_ENTRY_POSITION_GAP:1000}")
     private Long positionGap;
@@ -53,5 +58,15 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         playlist.setNumberOfEntries(playlist.getNumberOfEntries() + 1);
         entryRepository.save(entry);
         log.info("Added song to playlist. (songId={}, playlistId={}, playlistName={})", songId, playlist.getId(), playlist.getName());
+    }
+
+    @Override
+    public void addSongPlaylist(UUID songId, UUID playlistId) {
+        Playlist found = queryService.findOrElseThrow(playlistId);
+
+        accessGuard.requireOwner(found);
+
+        addEntry(songId, found);
+        playlistRepository.save(found);
     }
 }
