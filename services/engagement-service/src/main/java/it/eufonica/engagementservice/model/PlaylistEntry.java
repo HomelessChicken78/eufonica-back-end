@@ -28,6 +28,8 @@ public class PlaylistEntry {
     @ToString.Exclude
     private Playlist playlist;
 
+    // Not a db foreign key because it allows to have a PlaylistEntry with a song that doesn't exist.
+    // This way, if a song gets removed, the entries keep existing
     @Column(nullable = false)
     private UUID songId;
 }
