@@ -46,7 +46,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     }
 
     @Override
-    public void addEntry(UUID songId, Playlist playlist) {
+    public PlaylistEntry addEntry(UUID songId, Playlist playlist) {
         existSongByIdOrThrow(songId);
 
         long posMax = entryRepository.findLastPosition(playlist).orElse(0L);
@@ -58,6 +58,8 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         playlist.setNumberOfEntries(playlist.getNumberOfEntries() + 1);
         entryRepository.save(entry);
         log.info("Added song to playlist. (songId={}, playlistId={}, playlistName={})", songId, playlist.getId(), playlist.getName());
+
+        return entry;
     }
 
     @Override

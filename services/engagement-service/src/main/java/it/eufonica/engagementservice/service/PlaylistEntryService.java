@@ -1,6 +1,7 @@
 package it.eufonica.engagementservice.service;
 
 import it.eufonica.engagementservice.model.Playlist;
+import it.eufonica.engagementservice.model.PlaylistEntry;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 
@@ -18,8 +19,9 @@ public interface PlaylistEntryService {
      * @param playlist the playlist to which the song is added
      *
      * @throws NotFoundException if the song with the given id does not exist
+     * @return the newly created {@code PlaylistEntry} that associate the song and the playlist
      */
-    void addEntry(UUID songId, Playlist playlist);
+    PlaylistEntry addEntry(UUID songId, Playlist playlist);
 
     /**
      * Associates the specific song with the playlist.
