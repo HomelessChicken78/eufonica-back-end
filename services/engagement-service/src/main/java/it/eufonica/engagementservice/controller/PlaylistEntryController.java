@@ -23,4 +23,11 @@ public class PlaylistEntryController {
     public PlaylistEntryShortResponseDTO addEntryToSong(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryCreateRequestDTO request) {
         return entryService.addSongPlaylist(playlistId, request.getSongId());
     }
+
+    @DeleteMapping(path = "/{entryId}")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteEntry(@PathVariable UUID playlistId, @PathVariable UUID entryId) {
+        entryService.deletePlaylistEntry(playlistId, entryId);
+        log.info("Removed entry from playlist. (songId={}, playlistId={})", entryId, playlistId);
+    }
 }
