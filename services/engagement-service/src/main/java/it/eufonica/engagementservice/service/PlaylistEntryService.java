@@ -16,13 +16,13 @@ public interface PlaylistEntryService {
      * The PlaylistEntry's position is equivalent to the position of the last entry + {@code positionGap},
      * or, if the first song, {@code positionGap}.
      *
-     * @param songId the id of the song to associate with the playlist
      * @param playlist the playlist to which the song is added
+     * @param songId the id of the song to associate with the playlist
      *
      * @throws NotFoundException if the song with the given id does not exist
      * @return the newly created {@code PlaylistEntry} that associate the song and the playlist
      */
-    PlaylistEntry addEntry(UUID songId, Playlist playlist);
+    PlaylistEntry addEntry(Playlist playlist, UUID songId);
 
     /**
      * Associates the specific song with the playlist.
@@ -31,8 +31,8 @@ public interface PlaylistEntryService {
      * The PlaylistEntry's position is equivalent to the position of the last entry +
      * {@code positionGap}, or, if the first song, {@code positionGap}.
      *
-     * @param songId the id of the song to associate with the playlist
      * @param playlistId the id of the playlist to which the song is added
+     * @param songId the id of the song to associate with the playlist
      *
      * @throws NotFoundException if the song or the playlist with the given id does not exist,
      * or the caller is not the playlist's owner and the playlist is {@code PRIVATE}
@@ -41,5 +41,5 @@ public interface PlaylistEntryService {
      * @return a dto containing essential information of the newly created {@code PlaylistEntry}
      * (both the playlist entry's id and its id).
      */
-    PlaylistEntryShortResponseDTO addSongPlaylist(UUID songId, UUID playlistId);
+    PlaylistEntryShortResponseDTO addSongPlaylist(UUID playlistId, UUID songId);
 }

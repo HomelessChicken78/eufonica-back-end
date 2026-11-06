@@ -49,7 +49,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     }
 
     @Override
-    public PlaylistEntry addEntry(UUID songId, Playlist playlist) {
+    public PlaylistEntry addEntry(Playlist playlist, UUID songId) {
         existSongByIdOrThrow(songId);
 
         long posMax = entryRepository.findLastPosition(playlist).orElse(0L);
@@ -66,12 +66,12 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     }
 
     @Override
-    public PlaylistEntryShortResponseDTO addSongPlaylist(UUID songId, UUID playlistId) {
+    public PlaylistEntryShortResponseDTO addSongPlaylist(UUID playlistId, UUID songId) {
         Playlist found = queryService.findOrElseThrow(playlistId);
 
         accessGuard.requireOwner(found);
 
-        PlaylistEntry savedEntry = addEntry(songId, found);
+        PlaylistEntry savedEntry = addEntry(found, songId);
         playlistRepository.save(found);
 
         return entryMapper.toShortResponse(savedEntry);

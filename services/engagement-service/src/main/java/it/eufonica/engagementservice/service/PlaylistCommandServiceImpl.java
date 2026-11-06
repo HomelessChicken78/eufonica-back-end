@@ -57,7 +57,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
         List<UUID> songIds = Optional.ofNullable(request.getSongIds()).orElse(List.of());
 
         for (UUID songId : songIds)
-            entryService.addEntry(songId, created);
+            entryService.addEntry(created, songId);
 
         return playlistMapper.toCreatedResponse(created);
     }
