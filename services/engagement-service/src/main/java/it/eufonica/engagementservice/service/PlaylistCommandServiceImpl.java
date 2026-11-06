@@ -112,7 +112,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     public void rename(UUID playlistId, String newName) {
         Playlist found = queryService.findOrElseThrow(playlistId);
 
-        accessGuard.requireOwnerOrAdmin(found.getCreator().getId(), found.getVisibility());
+        accessGuard.requireOwnerOrAdmin(found);
 
         found.setName(newName);
         playlistRepository.save(found);
@@ -122,7 +122,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     public void setVisibility(UUID playlistId, VisibilityType newVisibility) {
         Playlist found = queryService.findOrElseThrow(playlistId);
 
-        currentUser.requireSelf(found.getCreator().getId());
+        accessGuard.requireOwner(found);
 
         found.setVisibility(newVisibility);
         playlistRepository.save(found);
@@ -132,7 +132,7 @@ public class PlaylistCommandServiceImpl implements PlaylistCommandService {
     public void deletePlaylist(UUID playlistId) {
         Playlist found = queryService.findOrElseThrow(playlistId);
 
-        accessGuard.requireOwnerOrAdmin(found.getCreator().getId(), found.getVisibility());
+        accessGuard.requireOwnerOrAdmin(found);
 
         deleteRelatedPlaylistEntities(found.getId());
         playlistRepository.delete(found);
