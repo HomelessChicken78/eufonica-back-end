@@ -1,5 +1,7 @@
 package it.eufonica.engagementservice.service;
 
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
+import it.eufonica.engagementservice.mapper.PlaylistEntryMapper;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
@@ -27,6 +29,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     private final SongRepository songRepository;
 
     // Utility & Mappers
+    private final PlaylistEntryMapper entryMapper;
     private final PlaylistEntryRepository entryRepository;
     private final PlaylistOwnerAccessGuard accessGuard;
 
@@ -63,12 +66,14 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     }
 
     @Override
-    public void addSongPlaylist(UUID songId, UUID playlistId) {
+    public PlaylistEntryShortResponseDTO addSongPlaylist(UUID songId, UUID playlistId) {
         Playlist found = queryService.findOrElseThrow(playlistId);
 
         accessGuard.requireOwner(found);
 
-        addEntry(songId, found);
+        PlaylistEntry savedEntry = addEntry(songId, found);
         playlistRepository.save(found);
+
+        return entryMapper.toShortResponse(savedEntry);
     }
 }

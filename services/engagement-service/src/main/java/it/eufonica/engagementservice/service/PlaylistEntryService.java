@@ -1,5 +1,6 @@
 package it.eufonica.engagementservice.service;
 
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
 import it.eufonica.exception.client.ForbiddenException;
@@ -37,6 +38,8 @@ public interface PlaylistEntryService {
      * or the caller is not the playlist's owner and the playlist is {@code PRIVATE}
      * @throws ForbiddenException if the playlist is not {@code PRIVATE} and the caller is not
      * the playlist's owner
+     * @return a dto containing essential information of the newly created {@code PlaylistEntry}
+     * (both the playlist entry's id and its id).
      */
-    void addSongPlaylist(UUID songId, UUID playlistId);
+    PlaylistEntryShortResponseDTO addSongPlaylist(UUID songId, UUID playlistId);
 }
