@@ -26,11 +26,11 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
     // Repository
     private final PlaylistRepository playlistRepository;
+    private final PlaylistEntryRepository entryRepository;
     private final SongRepository songRepository;
 
     // Utility & Mappers
     private final PlaylistEntryMapper entryMapper;
-    private final PlaylistEntryRepository entryRepository;
     private final PlaylistOwnerAccessGuard accessGuard;
 
     @Value("${PLAYLIST_ENTRY_POSITION_GAP:1000}")
@@ -46,6 +46,26 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     private void existSongByIdOrThrow(UUID id) {
         if (!songRepository.existsById(id))
             throw new NotFoundException("Song not found with id: " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND);
+    }
+
+    /**
+     * Finds a Playlist Entry by its id inside a specific playlist
+     *
+     * @param playlist the playlist to search inside of
+     * @param entryId the id of the entry to search for
+     *
+     * @return the entry inside the given playlist with the given id
+     * @throws NotFoundException if either the playlist does not exist or there
+     * is no entry inside the given playlist with the given id
+     */
+    private PlaylistEntry findEntryInPlaylist(Playlist playlist, UUID entryId) {
+        return entryRepository.findByIdAndPlaylist(entryId, playlist)
+                .orElseThrow(
+                        () -> new NotFoundException(
+                                "Entry not found with id: " + entryId + " inside playlist with id: " + playlist + ".",
+                                CommonErrorReason.RESOURCE_NOT_FOUND
+                        )
+                );
     }
 
     @Override
@@ -75,5 +95,15 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         playlistRepository.save(found);
 
         return entryMapper.toShortResponse(savedEntry);
+    }
+
+    @Override
+    public void deletePlaylistEntry(UUID playlistId, UUID entryId) {
+        Playlist foundPlaylist = queryService.findOrElseThrow(playlistId);
+        PlaylistEntry foundEntry = findEntryInPlaylist(foundPlaylist, entryId);
+
+        accessGuard.requireOwner(foundPlaylist);
+
+        entryRepository.delete(foundEntry);
     }
 }
