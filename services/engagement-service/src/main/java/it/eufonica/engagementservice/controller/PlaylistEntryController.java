@@ -1,0 +1,26 @@
+package it.eufonica.engagementservice.controller;
+
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryCreateRequestDTO;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
+import it.eufonica.engagementservice.service.PlaylistEntryService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.UUID;
+
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
+@RestController @RequestMapping("/playlists/{playlistId}/entries")
+@RequiredArgsConstructor @Slf4j
+public class PlaylistEntryController {
+    private final PlaylistEntryService entryService;
+
+    @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
+    @ResponseStatus(HttpStatus.CREATED)
+    public PlaylistEntryShortResponseDTO addEntryToSong(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryCreateRequestDTO request) {
+        return entryService.addSongPlaylist(playlistId, request.getSongId());
+    }
+}
