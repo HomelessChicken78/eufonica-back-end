@@ -11,9 +11,11 @@ import it.eufonica.engagementservice.mapper.PlaylistEntryMapper;
 import it.eufonica.engagementservice.mapper.PlaylistMapper;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
+import it.eufonica.engagementservice.model.Song;
 import it.eufonica.engagementservice.model.VisibilityType;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
+import it.eufonica.engagementservice.repository.SongRepository;
 import it.eufonica.engagementservice.security.PlaylistOwnerAccessGuard;
 import it.eufonica.engagementservice.utility.StringUtils;
 import it.eufonica.exception.CommonErrorReason;
@@ -35,9 +37,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -48,6 +48,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     // Repository
     private final PlaylistRepository playlistRepository;
     private final PlaylistEntryRepository entryRepository;
+    private final SongRepository songRepository;
 
     // Utility & Mappers
     private final PlaylistEntryMapper entryMapper;
@@ -150,6 +151,30 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         return response;
     }
 
+    /**
+     * Adds song details ({@code title} and {@code artistOwnerName}) to the entry
+     *
+     * @param entries the list of entries to add song details to
+     *
+     * @return a list of flattened dto, each containing both the most essential
+     * data of the entry and the most essential data of the song
+     */
+    private List<PlaylistEntryResponseDTO> attachSongDetails(List<PlaylistEntry> entries) {
+        // Extract all the ids of the songs
+        List<UUID> songIds = entries.stream()
+                .map(PlaylistEntry::getSongId)
+                .toList();
+
+        // Fetch the songs. Use findAllById to prevent fetching twice the same song
+        Map<UUID, Song> entrySongs = new HashMap<>();
+        for (Song song : songRepository.findAllById(songIds))
+            entrySongs.put(song.getId(), song);
+
+        return entries.stream()
+                .map(e -> entryMapper.toFullResponse(e, entrySongs.get(e.getSongId())))
+                .toList();
+    }
+
     @Override
     public Playlist findOrElseThrow(UUID id) {
         Playlist found = playlistRepository.findById(id)
@@ -210,9 +235,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         );
         Page<PlaylistEntry> resultEntries = entryRepository.findByPlaylist(found, PageRequest.of(pageNumber - 1, pageSize, sortType));
 
-        List<PlaylistEntryResponseDTO> contentEntries = resultEntries.stream()
-                .map((entryMapper::toFullResponse))
-                .toList();
+        List<PlaylistEntryResponseDTO> contentEntries = attachSongDetails(resultEntries.getContent());
 
         PageResponseDTO<PlaylistEntryResponseDTO> pagedEntries = PageResponseDTO.<PlaylistEntryResponseDTO>builder()
                 .content(contentEntries)
