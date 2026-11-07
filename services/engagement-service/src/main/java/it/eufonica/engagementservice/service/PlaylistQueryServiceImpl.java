@@ -33,9 +33,10 @@ import java.util.UUID;
 @RequiredArgsConstructor @Slf4j
 public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     // Service
-    private final PlaylistRepository playlistRepository;
     private final PlaylistMapper playlistMapper;
+
     // Repository
+    private final PlaylistRepository playlistRepository;
 
     // Utility & Mappers
     private final CurrentCallerProvider callerProvider;
@@ -44,7 +45,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     private Integer maxPageSize;
 
     @Value("${PLAYLIST_DEFAULT_SORT_ORDER:LIKES_DESC}")
-    private PlaylistResponseSortOrder defaultSortOrder;
+    private PlaylistResponseSortOrder defaultPlaylistSortOrder;
 
     private void addRangePredicates(List<Predicate> predicates, Root<Playlist> root, CriteriaBuilder cb,
                                     String attributeName, Number min, Number max) {
@@ -99,7 +100,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     }
 
     private Sort toSorting(PlaylistResponseSortOrder sortOrder) {
-        if (sortOrder == null) sortOrder = defaultSortOrder;
+        if (sortOrder == null) sortOrder = defaultPlaylistSortOrder;
 
         return switch (sortOrder) {
             case NAME_ASC -> Sort.by(Sort.Direction.ASC, "name");
