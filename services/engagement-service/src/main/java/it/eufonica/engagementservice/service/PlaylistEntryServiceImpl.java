@@ -105,5 +105,8 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         accessGuard.requireOwner(foundPlaylist);
 
         entryRepository.delete(foundEntry);
+
+        foundPlaylist.setNumberOfEntries(foundPlaylist.getNumberOfEntries() - 1);
+        entryRepository.save(foundEntry);
     }
 }
