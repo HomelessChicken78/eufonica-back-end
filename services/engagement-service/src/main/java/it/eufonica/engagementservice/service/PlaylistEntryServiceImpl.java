@@ -107,6 +107,6 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         entryRepository.delete(foundEntry);
 
         foundPlaylist.setNumberOfEntries(foundPlaylist.getNumberOfEntries() - 1);
-        entryRepository.save(foundEntry);
+        playlistRepository.save(foundPlaylist);
     }
 }
