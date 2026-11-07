@@ -1,5 +1,6 @@
 package it.eufonica.engagementservice.controller;
 
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseSortOrder;
 import it.eufonica.engagementservice.dto.playlist.*;
 import it.eufonica.engagementservice.service.PlaylistCommandService;
 import it.eufonica.engagementservice.service.PlaylistQueryService;
@@ -60,6 +61,21 @@ public class PlaylistController {
     ) {
         PageResponseDTO<PlaylistShortResponseDTO> result = queryService.searchPlaylists(filters, sortOrder, pageNumber, pageSize);
         log.debug("Songs searched: found {} results (page {}/{}).", result.getTotalElements(), pageNumber, result.getTotalPages());
+        return result;
+    }
+
+    @GetMapping(path = "/{playlistId}", produces = APPLICATION_JSON_VALUE)
+    public PlaylistResponseDTO searchPlaylists(
+            @PathVariable UUID playlistId,
+            @RequestParam(required = false) PlaylistEntryResponseSortOrder sortOrder,
+            @RequestParam(defaultValue = "1") Integer pageNumber,
+            @RequestParam(defaultValue = "${PLAYLIST_ENTRY_PAGE_DEFAULT_SIZE:50}") Integer pageSize
+    ) {
+        PlaylistResponseDTO result = queryService.findPlaylist(playlistId, sortOrder, pageNumber, pageSize);
+        log.debug("Playlist found: id={}, name={}, numberOfEntries={} (entry page {}/{})",
+                playlistId, result.getName(), result.getPlaylistEntries().getTotalElements(),
+                pageNumber, pageSize
+        );
         return result;
     }
 }
