@@ -4,7 +4,7 @@ import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseDTO;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortOrder;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortingDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseDTO;
-import it.eufonica.engagementservice.dto.playlist.PlaylistResponseSortOrder;
+import it.eufonica.engagementservice.dto.playlist.PlaylistSortOrder;
 import it.eufonica.engagementservice.dto.playlist.PlaylistSearchFiltersDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistShortResponseDTO;
 import it.eufonica.engagementservice.mapper.PlaylistEntryMapper;
@@ -59,7 +59,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     private Integer maxPlaylistPageSize;
 
     @Value("${PLAYLIST_DEFAULT_SORT_ORDER:LIKES_DESC}")
-    private PlaylistResponseSortOrder defaultPlaylistSortOrder;
+    private PlaylistSortOrder defaultPlaylistSortOrder;
 
     @Value("${PLAYLIST_ENTRY_DEFAULT_SORT_ORDER:POSITION}")
     private PlaylistEntrySortOrder defaultEntrySortOrder;
@@ -119,7 +119,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         });
     }
 
-    private Sort toSorting(PlaylistResponseSortOrder sortOrder) {
+    private Sort toSorting(PlaylistSortOrder sortOrder) {
         if (sortOrder == null) sortOrder = defaultPlaylistSortOrder;
 
         return switch (sortOrder) {
@@ -188,7 +188,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
 
     @Override
     public PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(
-            PlaylistSearchFiltersDTO filters, PlaylistResponseSortOrder sortOrder,
+            PlaylistSearchFiltersDTO filters, PlaylistSortOrder sortOrder,
             Integer pageNumber, Integer pageSize
     ) {
         if (pageNumber == null || pageNumber < 1)

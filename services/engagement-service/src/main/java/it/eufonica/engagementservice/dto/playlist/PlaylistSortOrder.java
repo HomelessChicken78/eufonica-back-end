@@ -1,6 +1,6 @@
 package it.eufonica.engagementservice.dto.playlist;
 
-public enum PlaylistResponseSortOrder {
+public enum PlaylistSortOrder {
     NAME_ASC,
     NAME_DESC,
     LIKES_DESC,

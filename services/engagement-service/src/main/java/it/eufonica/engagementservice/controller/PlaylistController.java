@@ -55,7 +55,7 @@ public class PlaylistController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(
             @ModelAttribute @Valid PlaylistSearchFiltersDTO filters,
-            @RequestParam(required = false) PlaylistResponseSortOrder sortOrder,
+            @RequestParam(required = false) PlaylistSortOrder sortOrder,
             @RequestParam(defaultValue = "1") Integer pageNumber,
             @RequestParam(defaultValue = "${PLAYLIST_PAGE_DEFAULT_SIZE:50}") Integer pageSize
     ) {

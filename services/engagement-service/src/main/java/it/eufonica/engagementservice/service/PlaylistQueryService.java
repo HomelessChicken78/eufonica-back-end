@@ -2,7 +2,7 @@ package it.eufonica.engagementservice.service;
 
 import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortOrder;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseDTO;
-import it.eufonica.engagementservice.dto.playlist.PlaylistResponseSortOrder;
+import it.eufonica.engagementservice.dto.playlist.PlaylistSortOrder;
 import it.eufonica.engagementservice.dto.playlist.PlaylistSearchFiltersDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistShortResponseDTO;
 import it.eufonica.engagementservice.model.Playlist;
@@ -40,7 +40,7 @@ public interface PlaylistQueryService {
      * with {@code filters.showOnlyUnlisted = true}
      * @return the paginated search result
      */
-    PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(PlaylistSearchFiltersDTO filters, PlaylistResponseSortOrder sortOrder,
+    PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(PlaylistSearchFiltersDTO filters, PlaylistSortOrder sortOrder,
                                                               Integer pageNumber, Integer pageSize);
 
     PlaylistResponseDTO findPlaylist(UUID playlistId, PlaylistEntrySortOrder sortOrder,
