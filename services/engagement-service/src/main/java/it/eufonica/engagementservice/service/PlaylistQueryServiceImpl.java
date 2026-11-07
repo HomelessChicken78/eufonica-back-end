@@ -1,7 +1,7 @@
 package it.eufonica.engagementservice.service;
 
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseDTO;
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseSortOrder;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortOrder;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortingDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseSortOrder;
@@ -62,7 +62,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     private PlaylistResponseSortOrder defaultPlaylistSortOrder;
 
     @Value("${PLAYLIST_ENTRY_DEFAULT_SORT_ORDER:POSITION}")
-    private PlaylistEntryResponseSortOrder defaultEntrySortOrder;
+    private PlaylistEntrySortOrder defaultEntrySortOrder;
 
     @Value("${PLAYLIST_ENTRY_PAGE_MAX_SIZE:50}")
     private Integer maxEntryPageSize;
@@ -130,7 +130,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         };
     }
 
-    private PlaylistEntrySortingDTO toSorting(PlaylistEntryResponseSortOrder sortOrder) {
+    private PlaylistEntrySortingDTO toSorting(PlaylistEntrySortOrder sortOrder) {
         if (sortOrder == null) sortOrder = defaultEntrySortOrder;
 
         String sortName = sortOrder.name().toLowerCase();
@@ -215,7 +215,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
 
     @Override
     public PlaylistResponseDTO findPlaylist(
-            UUID playlistId, PlaylistEntryResponseSortOrder sortOrder,
+            UUID playlistId, PlaylistEntrySortOrder sortOrder,
             Integer pageNumber, Integer pageSize
     ) {
         if (pageNumber == null || pageNumber < 1)

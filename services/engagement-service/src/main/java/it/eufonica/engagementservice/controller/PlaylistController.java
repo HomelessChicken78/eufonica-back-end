@@ -1,6 +1,6 @@
 package it.eufonica.engagementservice.controller;
 
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseSortOrder;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortOrder;
 import it.eufonica.engagementservice.dto.playlist.*;
 import it.eufonica.engagementservice.service.PlaylistCommandService;
 import it.eufonica.engagementservice.service.PlaylistQueryService;
@@ -67,7 +67,7 @@ public class PlaylistController {
     @GetMapping(path = "/{playlistId}", produces = APPLICATION_JSON_VALUE)
     public PlaylistResponseDTO searchPlaylists(
             @PathVariable UUID playlistId,
-            @RequestParam(required = false) PlaylistEntryResponseSortOrder sortOrder,
+            @RequestParam(required = false) PlaylistEntrySortOrder sortOrder,
             @RequestParam(defaultValue = "1") Integer pageNumber,
             @RequestParam(defaultValue = "${PLAYLIST_ENTRY_PAGE_DEFAULT_SIZE:50}") Integer pageSize
     ) {

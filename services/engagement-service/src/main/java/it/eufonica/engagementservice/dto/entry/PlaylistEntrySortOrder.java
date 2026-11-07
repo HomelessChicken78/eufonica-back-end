@@ -9,7 +9,7 @@ package it.eufonica.engagementservice.dto.entry;
  * <li>{@code _asc} can be omitted.</li>
  * </ul>
  */
-public enum PlaylistEntryResponseSortOrder {
+public enum PlaylistEntrySortOrder {
     POSITION,
     SONG_TITLE_ASC,
     SONG_TITLE_DESC,

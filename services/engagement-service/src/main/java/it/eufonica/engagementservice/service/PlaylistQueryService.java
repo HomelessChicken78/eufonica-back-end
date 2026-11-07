@@ -1,6 +1,6 @@
 package it.eufonica.engagementservice.service;
 
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseSortOrder;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortOrder;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseDTO;
 import it.eufonica.engagementservice.dto.playlist.PlaylistResponseSortOrder;
 import it.eufonica.engagementservice.dto.playlist.PlaylistSearchFiltersDTO;
@@ -43,6 +43,6 @@ public interface PlaylistQueryService {
     PageResponseDTO<PlaylistShortResponseDTO> searchPlaylists(PlaylistSearchFiltersDTO filters, PlaylistResponseSortOrder sortOrder,
                                                               Integer pageNumber, Integer pageSize);
 
-    PlaylistResponseDTO findPlaylist(UUID playlistId, PlaylistEntryResponseSortOrder sortOrder,
+    PlaylistResponseDTO findPlaylist(UUID playlistId, PlaylistEntrySortOrder sortOrder,
                                      Integer pageNumber, Integer pageSize);
 }
