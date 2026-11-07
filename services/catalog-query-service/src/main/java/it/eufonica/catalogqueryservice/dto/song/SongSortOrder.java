@@ -1,6 +1,6 @@
 package it.eufonica.catalogqueryservice.dto.song;
 
-public enum SongResponseSortOrder {
+public enum SongSortOrder {
     TITLE_ASC,
     TITLE_DESC,
     PUBLISHED_DATE_ASC,

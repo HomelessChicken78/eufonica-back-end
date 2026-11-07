@@ -5,7 +5,7 @@ import it.eufonica.catalogqueryservice.dto.common.PresignedUrlResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
-import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
+import it.eufonica.catalogqueryservice.dto.song.SongSortOrder;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 
@@ -30,7 +30,7 @@ public interface SongQueryService {
      * @param pageSize the requested page size, with a maximum configured
      * @return the paginated search result
      */
-    PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder,
+    PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongSortOrder sortOrder,
                                                       Integer pageNumber, Integer pageSize);
 
     /**

@@ -7,7 +7,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.eufonica.web.dto.PageResponseDTO;
 import it.eufonica.catalogqueryservice.dto.common.PresignedUrlResponseDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongFullResponseDTO;
-import it.eufonica.catalogqueryservice.dto.song.SongResponseSortOrder;
+import it.eufonica.catalogqueryservice.dto.song.SongSortOrder;
 import it.eufonica.catalogqueryservice.dto.song.SongSearchFiltersDTO;
 import it.eufonica.catalogqueryservice.dto.song.SongShortResponseDTO;
 import it.eufonica.catalogqueryservice.service.SongQueryService;
@@ -47,7 +47,7 @@ public class SongController {
     @GetMapping(produces = APPLICATION_JSON_VALUE)
     public PageResponseDTO<SongShortResponseDTO> searchSongs(
             @ModelAttribute @Valid SongSearchFiltersDTO filters,
-            @RequestParam(required = false) SongResponseSortOrder sortOrder,
+            @RequestParam(required = false) SongSortOrder sortOrder,
             @RequestParam(defaultValue = "1") Integer pageNumber,
             @RequestParam(defaultValue = "${SONG_PAGE_DEFAULT_SIZE:10}") Integer pageSize
     ) {

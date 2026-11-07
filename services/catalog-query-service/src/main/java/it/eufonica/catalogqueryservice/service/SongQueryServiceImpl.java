@@ -49,7 +49,7 @@ public class SongQueryServiceImpl implements SongQueryService {
     private Integer maxPageSize;
 
     @Value("${SONG_DEFAULT_SORT_ORDER:AMOUNT_LISTENS_ASC}")
-    private SongResponseSortOrder defaultSortOrder;
+    private SongSortOrder defaultSortOrder;
 
     @Value("${AUDIO_PRESIGN_DURATION_MINS:5}")
     private Integer audioPresignDurationMins;
@@ -135,7 +135,7 @@ public class SongQueryServiceImpl implements SongQueryService {
         });
     }
 
-    private Sort toSorting(SongResponseSortOrder sortOrder) {
+    private Sort toSorting(SongSortOrder sortOrder) {
         if (sortOrder == null) sortOrder = defaultSortOrder;
 
         return switch (sortOrder) {
@@ -173,7 +173,7 @@ public class SongQueryServiceImpl implements SongQueryService {
 
     @Override
     @Cacheable(value = "song-search")
-    public PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongResponseSortOrder sortOrder,
+    public PageResponseDTO<SongShortResponseDTO> searchSongs(SongSearchFiltersDTO filters, SongSortOrder sortOrder,
                                                              Integer pageNumber, Integer pageSize
     ) {
         if (pageNumber == null || pageNumber < 1)
