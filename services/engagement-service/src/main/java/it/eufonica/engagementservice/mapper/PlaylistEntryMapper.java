@@ -1,5 +1,6 @@
 package it.eufonica.engagementservice.mapper;
 
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryResponseDTO;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
 import it.eufonica.engagementservice.model.PlaylistEntry;
 import org.mapstruct.Mapper;
@@ -9,4 +10,6 @@ import org.mapstruct.Mapping;
 public interface PlaylistEntryMapper {
     @Mapping(target = "createdEntryId", source = "id")
     PlaylistEntryShortResponseDTO toShortResponse(PlaylistEntry entity);
+
+    PlaylistEntryResponseDTO toFullResponse(PlaylistEntry entity);
 }
