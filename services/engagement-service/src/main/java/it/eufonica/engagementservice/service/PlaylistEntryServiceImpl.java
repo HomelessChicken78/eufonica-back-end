@@ -62,7 +62,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         return entryRepository.findByIdAndPlaylist(entryId, playlist)
                 .orElseThrow(
                         () -> new NotFoundException(
-                                "Entry not found with id: " + entryId + " inside playlist with id: " + playlist + ".",
+                                "Entry not found with id: " + entryId + " inside playlist with id: " + playlist.getId() + ".",
                                 CommonErrorReason.RESOURCE_NOT_FOUND
                         )
                 );
