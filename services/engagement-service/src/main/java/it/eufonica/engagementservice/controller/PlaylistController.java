@@ -57,7 +57,7 @@ public class PlaylistController {
             @ModelAttribute @Valid PlaylistSearchFiltersDTO filters,
             @RequestParam(required = false) PlaylistResponseSortOrder sortOrder,
             @RequestParam(defaultValue = "1") Integer pageNumber,
-            @RequestParam(defaultValue = "${SONG_PAGE_DEFAULT_SIZE:50}") Integer pageSize
+            @RequestParam(defaultValue = "${PLAYLIST_PAGE_DEFAULT_SIZE:50}") Integer pageSize
     ) {
         PageResponseDTO<PlaylistShortResponseDTO> result = queryService.searchPlaylists(filters, sortOrder, pageNumber, pageSize);
         log.debug("Songs searched: found {} results (page {}/{}).", result.getTotalElements(), pageNumber, result.getTotalPages());
