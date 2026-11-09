@@ -11,7 +11,8 @@ import java.util.UUID;
         uniqueConstraints = @UniqueConstraint(
                 name = "uk_playlist_position",
                 columnNames = {"playlist_id", "position"}
-        )
+        ),
+        indexes = @Index(name = "idx_playlist_entry_playlist_position", columnList = "playlist_id, position")
 )
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
