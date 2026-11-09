@@ -1,5 +1,6 @@
 package it.eufonica.engagementservice.dto.playlist;
 
+import it.eufonica.engagementservice.model.VisibilityType;
 import lombok.*;
 
 import java.util.UUID;
@@ -11,6 +12,8 @@ public class PlaylistShortResponseDTO {
     private UUID id;
 
     private String name;
+
+    private VisibilityType visibility;
 
     private Integer amountLikes;
 
