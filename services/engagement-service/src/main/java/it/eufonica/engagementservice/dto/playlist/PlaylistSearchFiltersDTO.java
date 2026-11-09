@@ -29,6 +29,11 @@ public class PlaylistSearchFiltersDTO {
     @Builder.Default
     private Boolean showOnlyUnlisted = false;
 
+    /**
+     * Indicates the playlist's creator. Can either be a UUID or the keyword "me" to search own playlists
+     */
+    private String creator;
+
     @AssertTrue(message = "The maximum number of likes can't be lower than the minimum.")
     public boolean isLikesRangeValid() {
         // Always return true if the max likes is set to null (equivalent to infinity)

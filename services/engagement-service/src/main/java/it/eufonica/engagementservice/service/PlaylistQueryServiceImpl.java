@@ -16,6 +16,7 @@ import it.eufonica.engagementservice.model.VisibilityType;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
+import it.eufonica.engagementservice.security.CurrentUserResolver;
 import it.eufonica.engagementservice.security.PlaylistOwnerAccessGuard;
 import it.eufonica.engagementservice.utility.StringUtils;
 import it.eufonica.exception.CommonErrorReason;
@@ -52,6 +53,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
 
     // Utility & Mappers
     private final PlaylistEntryMapper entryMapper;
+    private final CurrentUserResolver currentUser;
     private final CurrentCallerProvider callerProvider;
     private final PlaylistOwnerAccessGuard accessGuard;
 
@@ -100,20 +102,43 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
                 log.trace("Added filter name LIKE %{}%.", escapedName);
             }
 
-            // Change the predicate depending on if the filter's attributes are false, true or null
-            // Visibility
-            VisibilityType targetVisibility;
-            if (filters.getShowOnlyUnlisted() == null || !filters.getShowOnlyUnlisted())
-                targetVisibility = VisibilityType.PUBLIC;
-            else {
-                callerProvider.requireAdmin();
-                targetVisibility = VisibilityType.UNLISTED;
+            // Creator
+            UUID creatorId = null;
+            if (filters.getCreator() != null && !filters.getCreator().isEmpty()) {
+                if ("me".equalsIgnoreCase(filters.getCreator()))
+                    creatorId = currentUser.getCurrentUser().getId();
+                else
+                    try {
+                        creatorId = UUID.fromString(filters.getCreator());
+                    } catch (IllegalArgumentException e) {
+                        throw new BadRequestException("Invalid UUID: " + filters.getCreator() + ".", CommonErrorReason.MALFORMED_REQUEST, e);
+                    }
+
+                predicates.add(criteriaBuilder.equal(root.get("creator").get("id"), creatorId));
+                log.trace("Added filter creator.id = {}", creatorId);
             }
 
-            predicates.add(
-                    criteriaBuilder.equal(root.get("visibility"), targetVisibility)
-            );
-            log.trace("Added filter visibility = '{}'", targetVisibility);
+            // Change the predicate depending on if the filter's attributes are false, true or null
+            // Visibility
+            boolean isOwnPlaylists = creatorId != null && currentUser.getCurrentUser().getId().equals(creatorId);
+
+            // Show only unlisted playlists - can only be done by the owner toward their own playlists
+            // or by a user with an ADMIN role
+            if (filters.getShowOnlyUnlisted() != null && filters.getShowOnlyUnlisted()) {
+                // Admin is required only if the user is not checking their own playlists
+                if (!isOwnPlaylists)
+                    callerProvider.requireAdmin();
+
+                predicates.add(criteriaBuilder.equal(root.get("visibility"), VisibilityType.UNLISTED));
+                log.trace("Added filter visibility = '{}'", VisibilityType.UNLISTED);
+            }
+
+            // Show only unlisted is false/null. Show all the playlists if the user is the owner of the playlists,
+            // or, if not, show only PUBLIC playlists
+            else if (!isOwnPlaylists) {
+                predicates.add(criteriaBuilder.equal(root.get("visibility"), VisibilityType.PUBLIC));
+                log.trace("Added filter visibility = '{}'", VisibilityType.PUBLIC);
+            }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
         });
