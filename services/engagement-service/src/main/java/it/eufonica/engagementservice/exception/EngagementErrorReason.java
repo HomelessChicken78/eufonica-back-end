@@ -4,6 +4,9 @@ import it.eufonica.exception.ErrorReason;
 
 public enum EngagementErrorReason implements ErrorReason {
     // 4XX
+    // 400 Equivalent
+    INVALID_RANK_ORDER,
+
     // 403 Equivalent
     NOT_PLAYLIST_OWNER,
 

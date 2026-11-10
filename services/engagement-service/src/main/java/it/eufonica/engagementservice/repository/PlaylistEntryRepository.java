@@ -3,8 +3,8 @@ package it.eufonica.engagementservice.repository;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -30,4 +30,8 @@ public interface PlaylistEntryRepository extends JpaRepository<PlaylistEntry, UU
     void deleteByPlaylistId(UUID playlistId);
 
     Optional<PlaylistEntry> findByIdAndPlaylist(UUID entryId, Playlist playlist);
+
+    Optional<PlaylistEntry> findFirstByPlaylistOrderByPosition(Playlist playlist, PageRequest page);
+
+    List<PlaylistEntry> findAllByPlaylist(Playlist playlist);
 }

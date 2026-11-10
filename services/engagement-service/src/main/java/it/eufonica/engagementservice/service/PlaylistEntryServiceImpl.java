@@ -1,6 +1,9 @@
 package it.eufonica.engagementservice.service;
 
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionRequestDTO;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionResponseDTO;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
+import it.eufonica.engagementservice.exception.EngagementErrorReason;
 import it.eufonica.engagementservice.mapper.PlaylistEntryMapper;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
@@ -9,13 +12,17 @@ import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
 import it.eufonica.engagementservice.security.PlaylistOwnerAccessGuard;
 import it.eufonica.exception.CommonErrorReason;
+import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service @Transactional
@@ -68,6 +75,40 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
                 );
     }
 
+    /**
+     * Rebalance the position gap of all entries within the same playlist and repositions
+     * the provided {@code repositionedEntry} in the requested {@code newRankOrder}.
+     *
+     * <p>The position gap from an entry to the next is equal to {@code positionGap}.
+     *
+     * <p>The method should be called when two entries would end up sharing the same
+     * position in the same playlist
+     *
+     * @param entries the entries of a playlist that should be rebalanced
+     * @param repositionedEntry the entry of which the rank order must be changed
+     * @param newRankOrder the new rank order of {@code repositionedEntry}
+     */
+    private void rebalancePositions(List<PlaylistEntry> entries, PlaylistEntry repositionedEntry, int newRankOrder) {
+        int index = 1;
+
+        for (PlaylistEntry entry : entries) {
+            if (index == newRankOrder) {
+                repositionedEntry.setPosition(index * positionGap);
+                log.trace("Repositioned entry in rank {}. entryId={}, position={}.", newRankOrder, entry.getId(), index * positionGap);
+                index++;
+            }
+            if (repositionedEntry.getId().equals(entry.getId()))
+                continue;
+
+            entry.setPosition(index * positionGap);
+            log.trace("New position for entry. entryId={}, position={}, rank={}.", entry.getId(), index * positionGap, index);
+            index++;
+        }
+
+        log.trace("New entry positions={}.", entries);
+        entryRepository.saveAll(entries);
+    }
+
     @Override
     public PlaylistEntry addEntry(Playlist playlist, UUID songId) {
         existSongByIdOrThrow(songId);
@@ -108,5 +149,49 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
         foundPlaylist.setNumberOfEntries(foundPlaylist.getNumberOfEntries() - 1);
         playlistRepository.save(foundPlaylist);
+    }
+
+    @Override
+    public PlaylistEntryRepositionResponseDTO reposition(UUID playlistId, UUID entryId, PlaylistEntryRepositionRequestDTO request) {
+        Playlist playlist = queryService.findOrElseThrow(playlistId);
+        PlaylistEntry entry = findEntryInPlaylist(playlist, entryId);
+
+        if (request.getNewRankOrder() < 1)
+            throw new BadRequestException("The new rank order cannot be less than 1.", EngagementErrorReason.INVALID_RANK_ORDER);
+        if (request.getNewRankOrder() > playlist.getNumberOfEntries() + 1)
+            throw new BadRequestException("The new rank order cannot be greater than the number of entries in the same playlist + 1.", EngagementErrorReason.INVALID_RANK_ORDER);
+
+        final int oneToZeroBasedOffset = 1;
+        final int previousOffset = 1;
+
+        final int previousEntryOffset = request.getNewRankOrder() - oneToZeroBasedOffset - previousOffset;
+        final int nextEntryOffset = request.getNewRankOrder() - oneToZeroBasedOffset;
+
+        Long previousEntryPosition = request.getNewRankOrder() > 1 ?
+        entryRepository.findFirstByPlaylistOrderByPosition(
+                playlist, PageRequest.of(previousEntryOffset, 1)
+        )
+        .map(PlaylistEntry::getPosition).orElse(0L)
+        : 0;
+
+        Optional<PlaylistEntry> nextEntry = entryRepository.findFirstByPlaylistOrderByPosition(
+                playlist, PageRequest.of(nextEntryOffset, 1)
+        );
+
+        long newPosition = nextEntry
+                .map(playlistEntry -> (previousEntryPosition + playlistEntry.getPosition()) / 2)
+                .orElseGet(() -> previousEntryPosition + positionGap);
+
+        log.trace("New potential position for entry calculated: {}. This might change if it overlaps with other positions.", newPosition);
+
+        if (newPosition <= previousEntryPosition) {
+            rebalancePositions(entryRepository.findAllByPlaylist(playlist), entry, request.getNewRankOrder());
+            log.info("Positions in playlists collapsed and got rebalanced.");
+        } else {
+            entry.setPosition(newPosition);
+            entryRepository.save(entry);
+            log.debug("New position for entry in playlist. playlistId={}, entryId={}, position={}", playlistId, entryId, newPosition);
+        }
+        return null;
     }
 }

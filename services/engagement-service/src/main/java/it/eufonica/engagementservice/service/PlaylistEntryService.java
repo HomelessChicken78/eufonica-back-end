@@ -1,5 +1,7 @@
 package it.eufonica.engagementservice.service;
 
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionRequestDTO;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionResponseDTO;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
@@ -60,4 +62,6 @@ public interface PlaylistEntryService {
      * no bypass for this operation) and the playlist is not {@code PRIVATE}
      */
     void deletePlaylistEntry(UUID playlistId, UUID entryId);
+
+    PlaylistEntryRepositionResponseDTO reposition(UUID playlistId, UUID entryId, PlaylistEntryRepositionRequestDTO request);
 }
