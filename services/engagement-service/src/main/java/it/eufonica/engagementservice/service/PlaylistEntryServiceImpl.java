@@ -21,6 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -87,13 +88,19 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
      * @param entries the entries of a playlist that should be rebalanced
      * @param repositionedEntry the entry of which the rank order must be changed
      * @param newRankOrder the new rank order of {@code repositionedEntry}
+     *
+     * @return a list of dto containing each entry id and their respective new rank order
      */
-    private void rebalancePositions(List<PlaylistEntry> entries, PlaylistEntry repositionedEntry, int newRankOrder) {
+    private List<PlaylistEntryRepositionResponseDTO.CascadeReposition> rebalancePositions(
+            List<PlaylistEntry> entries, PlaylistEntry repositionedEntry, int newRankOrder
+    ) {
         int index = 1;
+        List<PlaylistEntryRepositionResponseDTO.CascadeReposition> result = new ArrayList<>();
 
         for (PlaylistEntry entry : entries) {
             if (index == newRankOrder) {
                 repositionedEntry.setPosition(index * positionGap);
+                result.add(new PlaylistEntryRepositionResponseDTO.CascadeReposition(entry.getId(), index));
                 log.trace("Repositioned entry in rank {}. entryId={}, position={}.", newRankOrder, entry.getId(), index * positionGap);
                 index++;
             }
@@ -101,12 +108,15 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
                 continue;
 
             entry.setPosition(index * positionGap);
+            result.add(new PlaylistEntryRepositionResponseDTO.CascadeReposition(entry.getId(), index));
             log.trace("New position for entry. entryId={}, position={}, rank={}.", entry.getId(), index * positionGap, index);
             index++;
         }
 
         log.trace("New entry positions={}.", entries);
         entryRepository.saveAll(entries);
+
+        return result;
     }
 
     @Override
@@ -188,10 +198,12 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
         log.trace("New potential position for entry calculated: {}. This might change if it overlaps with other positions.", newPosition);
 
+        List<PlaylistEntryRepositionResponseDTO.CascadeReposition> cascadeRepositions = new ArrayList<>();
+
         if (entry.getPosition() < previousEntryPosition || entry.getPosition() > nextEntryPosition) {
 
             if (newPosition <= previousEntryPosition) {
-                rebalancePositions(entryRepository.findAllByPlaylist(playlist), entry, request.getNewRankOrder());
+                cascadeRepositions = rebalancePositions(entryRepository.findAllByPlaylist(playlist), entry, request.getNewRankOrder());
                 log.info("Positions in playlists collapsed and got rebalanced.");
             } else {
                 entry.setPosition(newPosition);
@@ -201,6 +213,6 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
         } else log.debug("Position not changed, entry is already in the requested position. entryId={}", entryId);
 
-        return null;
+        return new PlaylistEntryRepositionResponseDTO(entryId, request.getNewRankOrder(), cascadeRepositions);
     }
 }

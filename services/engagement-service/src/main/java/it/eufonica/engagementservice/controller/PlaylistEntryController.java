@@ -2,6 +2,7 @@ package it.eufonica.engagementservice.controller;
 
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryCreateRequestDTO;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionRequestDTO;
+import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionResponseDTO;
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
 import it.eufonica.engagementservice.service.PlaylistEntryService;
 import jakarta.validation.Valid;
@@ -33,7 +34,9 @@ public class PlaylistEntryController {
     }
 
     @PatchMapping(path = "/{entryId}/rank")
-    public void repositionEntry(@PathVariable UUID playlistId, @PathVariable UUID entryId, @RequestBody @Valid PlaylistEntryRepositionRequestDTO request) {
-        entryService.reposition(playlistId, entryId, request);
+    public PlaylistEntryRepositionResponseDTO repositionEntry(
+            @PathVariable UUID playlistId, @PathVariable UUID entryId, @RequestBody @Valid PlaylistEntryRepositionRequestDTO request
+    ) {
+        return entryService.reposition(playlistId, entryId, request);
     }
 }
