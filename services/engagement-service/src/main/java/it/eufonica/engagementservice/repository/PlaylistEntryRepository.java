@@ -31,7 +31,7 @@ public interface PlaylistEntryRepository extends JpaRepository<PlaylistEntry, UU
 
     Optional<PlaylistEntry> findByIdAndPlaylist(UUID entryId, Playlist playlist);
 
-    Optional<PlaylistEntry> findFirstByPlaylistOrderByPosition(Playlist playlist, PageRequest page);
+    Optional<PlaylistEntry> findFirstByPlaylistAndIdNotOrderByPosition(Playlist playlist, UUID entryId, PageRequest page);
 
     List<PlaylistEntry> findAllByPlaylist(Playlist playlist);
 }

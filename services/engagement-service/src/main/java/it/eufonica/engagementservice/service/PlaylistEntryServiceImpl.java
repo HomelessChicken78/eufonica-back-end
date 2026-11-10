@@ -168,7 +168,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
         if (request.getNewRankOrder() < 1)
             throw new BadRequestException("The new rank order cannot be less than 1.", EngagementErrorReason.INVALID_RANK_ORDER);
-        if (request.getNewRankOrder() > playlist.getNumberOfEntries() + 1)
+        if (request.getNewRankOrder() > playlist.getNumberOfEntries())
             throw new BadRequestException("The new rank order cannot be greater than the number of entries in the same playlist + 1.", EngagementErrorReason.INVALID_RANK_ORDER);
 
         final int oneToZeroBasedOffset = 1;
@@ -178,14 +178,14 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         final int nextEntryOffset = request.getNewRankOrder() - oneToZeroBasedOffset;
 
         Long previousEntryPosition = request.getNewRankOrder() > 1 ?
-        entryRepository.findFirstByPlaylistOrderByPosition(
-                playlist, PageRequest.of(previousEntryOffset, 1)
+        entryRepository.findFirstByPlaylistAndIdNotOrderByPosition(
+                playlist, entryId, PageRequest.of(previousEntryOffset, 1)
         )
         .map(PlaylistEntry::getPosition).orElse(0L)
         : 0;
 
-        Optional<PlaylistEntry> nextEntry = entryRepository.findFirstByPlaylistOrderByPosition(
-                playlist, PageRequest.of(nextEntryOffset, 1)
+        Optional<PlaylistEntry> nextEntry = entryRepository.findFirstByPlaylistAndIdNotOrderByPosition(
+                playlist, entryId, PageRequest.of(nextEntryOffset, 1)
         );
 
         long nextEntryPosition = nextEntry
