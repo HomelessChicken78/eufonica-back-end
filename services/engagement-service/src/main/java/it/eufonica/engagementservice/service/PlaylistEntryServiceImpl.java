@@ -145,7 +145,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         PlaylistEntry savedEntry = addEntry(found, songId);
         playlistRepository.save(found);
 
-        return entryMapper.toShortResponse(savedEntry);
+        return entryMapper.toShortResponse(savedEntry, found.getNumberOfEntries());
     }
 
     @Override

@@ -10,5 +10,5 @@ import java.util.UUID;
 public class PlaylistEntryShortResponseDTO {
     @EqualsAndHashCode.Include private UUID createdEntryId;
 
-    private Long position;
+    private int rankOrder;
 }

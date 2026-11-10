@@ -14,8 +14,9 @@ import java.util.UUID;
 
 @Mapper(componentModel = "spring")
 public interface PlaylistEntryMapper {
-    @Mapping(target = "createdEntryId", source = "id")
-    PlaylistEntryShortResponseDTO toShortResponse(PlaylistEntry entity);
+    @Mapping(target = "rankOrder", source = "rankOrder")
+    @Mapping(target = "createdEntryId", source = "entity.id")
+    PlaylistEntryShortResponseDTO toShortResponse(PlaylistEntry entity, int rankOrder);
 
     @Mapping(target = "rankOrder", ignore = true)
     @Mapping(target = "id", source = "entity.id")
