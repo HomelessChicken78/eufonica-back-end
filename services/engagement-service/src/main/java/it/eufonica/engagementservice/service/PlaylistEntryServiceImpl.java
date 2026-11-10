@@ -178,20 +178,29 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
                 playlist, PageRequest.of(nextEntryOffset, 1)
         );
 
-        long newPosition = nextEntry
-                .map(playlistEntry -> (previousEntryPosition + playlistEntry.getPosition()) / 2)
+        long nextEntryPosition = nextEntry
+                .map(PlaylistEntry::getPosition)
                 .orElseGet(() -> previousEntryPosition + positionGap);
+
+        long newPosition = nextEntry.isPresent()
+                ? (previousEntryPosition + nextEntryPosition) / 2
+                : nextEntryPosition;
 
         log.trace("New potential position for entry calculated: {}. This might change if it overlaps with other positions.", newPosition);
 
-        if (newPosition <= previousEntryPosition) {
-            rebalancePositions(entryRepository.findAllByPlaylist(playlist), entry, request.getNewRankOrder());
-            log.info("Positions in playlists collapsed and got rebalanced.");
-        } else {
-            entry.setPosition(newPosition);
-            entryRepository.save(entry);
-            log.debug("New position for entry in playlist. playlistId={}, entryId={}, position={}", playlistId, entryId, newPosition);
-        }
+        if (entry.getPosition() < previousEntryPosition || entry.getPosition() > nextEntryPosition) {
+
+            if (newPosition <= previousEntryPosition) {
+                rebalancePositions(entryRepository.findAllByPlaylist(playlist), entry, request.getNewRankOrder());
+                log.info("Positions in playlists collapsed and got rebalanced.");
+            } else {
+                entry.setPosition(newPosition);
+                entryRepository.save(entry);
+                log.debug("New position for entry in playlist. playlistId={}, entryId={}, position={}", playlistId, entryId, newPosition);
+            }
+
+        } else log.debug("Position not changed, entry is already in the requested position. entryId={}", entryId);
+
         return null;
     }
 }
