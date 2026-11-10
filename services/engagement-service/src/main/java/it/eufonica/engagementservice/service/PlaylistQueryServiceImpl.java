@@ -177,14 +177,18 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
     }
 
     /**
-     * Adds song details ({@code title} and {@code artistOwnerName}) to the entry
+     * Adds song details ({@code title} and {@code artistOwnerName}) to each entry and
+     * calculates their {@code rankOrder}, relative to the absolute position within
+     * the playlist (not just within the given page).
      *
      * @param entries the list of entries to add song details to
+     * @param pageOffset the offset of the first entry in {@code entries} relative to
+     * the full ordered playlist (0 if {@code entries} is the unpaginated/first page)
      *
-     * @return a list of flattened dto, each containing both the most essential
-     * data of the entry and the most essential data of the song
+     * @return a list of flattened dto, each containing, the most essential data of the
+     * entry, the most essential data of the song and the {@code rankOrder}
      */
-    private List<PlaylistEntryResponseDTO> attachSongDetails(List<PlaylistEntry> entries) {
+    private List<PlaylistEntryResponseDTO> attachSongDetails(List<PlaylistEntry> entries, int pageOffset) {
         // Extract all the ids of the songs
         List<UUID> songIds = entries.stream()
                 .map(PlaylistEntry::getSongId)
@@ -195,9 +199,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         for (Song song : songRepository.findAllById(songIds))
             entrySongs.put(song.getId(), song);
 
-        return entries.stream()
-                .map(e -> entryMapper.toFullResponse(e, entrySongs.get(e.getSongId())))
-                .toList();
+        return entryMapper.toFullResponsesWithOrder(entries, entrySongs, pageOffset);
     }
 
     @Override
@@ -260,7 +262,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
         );
         Page<PlaylistEntry> resultEntries = entryRepository.findByPlaylist(found, PageRequest.of(pageNumber - 1, pageSize, sortType));
 
-        List<PlaylistEntryResponseDTO> contentEntries = attachSongDetails(resultEntries.getContent());
+        List<PlaylistEntryResponseDTO> contentEntries = attachSongDetails(resultEntries.getContent(), (pageNumber - 1) * pageSize);
 
         PageResponseDTO<PlaylistEntryResponseDTO> pagedEntries = PageResponseDTO.<PlaylistEntryResponseDTO>builder()
                 .content(contentEntries)

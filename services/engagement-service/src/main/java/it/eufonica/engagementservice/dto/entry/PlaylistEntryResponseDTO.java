@@ -6,11 +6,10 @@ import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter @Builder
-
 public class PlaylistEntryResponseDTO {
     private UUID id;
     
-    private Long position;
+    private Integer rankOrder;
 
     /**
      * Represent the id of the song the entry is tied to. Null when it references a song that doesn't exist
