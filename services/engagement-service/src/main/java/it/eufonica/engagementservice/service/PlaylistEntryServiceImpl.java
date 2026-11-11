@@ -164,6 +164,9 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     @Override
     public PlaylistEntryRepositionResponseDTO reposition(UUID playlistId, UUID entryId, PlaylistEntryRepositionRequestDTO request) {
         Playlist playlist = queryService.findOrElseThrow(playlistId);
+
+        accessGuard.requireOwner(playlist);
+
         PlaylistEntry entry = findEntryInPlaylist(playlist, entryId);
 
         if (request.getNewRankOrder() < 1)

@@ -76,13 +76,16 @@ public interface PlaylistEntryService {
      * @param playlistId the id of the playlist from where search the entry
      * @param entryId the id of the entry to move inside the given playlist
      * @param request a request dto containing the requested new rank for the entry
-     * 
+     *
      * @return a dto including the moved entry's id, its new rank order, and, if a rebalance is
      * performed, the cascade repositions (id of each moved entry + its new rank order).
      * @throws BadRequestException if the requested new rank order is less than 1 or higher than
      * the number of entries inside the given playlist
-     * @throws NotFoundException if either the playlist does not exist, or the entry does not
-     * exist inside the playlist
+     * @throws NotFoundException if either the playlist does not exist, the entry does not
+     * exist inside the playlist, or the caller is not the playlist owner and the playlist
+     * is {@code PRIVATE}
+     * @throws ForbiddenException if the caller is not the playlist owner (ADMIN included,
+     * no bypass for this operation) and the playlist is not {@code PRIVATE}
      */
     PlaylistEntryRepositionResponseDTO reposition(UUID playlistId, UUID entryId, PlaylistEntryRepositionRequestDTO request);
 }
