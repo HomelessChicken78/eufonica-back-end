@@ -11,6 +11,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -22,8 +23,8 @@ public class PlaylistEntryController {
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public PlaylistEntryShortResponseDTO addEntryToSong(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryCreateRequestDTO request) {
-        return entryService.addSongPlaylist(playlistId, request.getSongId());
+    public List<PlaylistEntryShortResponseDTO> addEntryToSong(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryCreateRequestDTO request) {
+        return entryService.addSongsToPlaylist(playlistId, request.getSongIds());
     }
 
     @DeleteMapping(path = "/{entryId}")

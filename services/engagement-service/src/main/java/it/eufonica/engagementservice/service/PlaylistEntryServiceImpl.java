@@ -137,15 +137,20 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     }
 
     @Override
-    public PlaylistEntryShortResponseDTO addSongPlaylist(UUID playlistId, UUID songId) {
+    public List<PlaylistEntryShortResponseDTO> addSongsToPlaylist(UUID playlistId, List<UUID> songIds) {
         Playlist found = queryService.findOrElseThrow(playlistId);
 
         accessGuard.requireOwner(found);
 
-        PlaylistEntry savedEntry = addEntry(found, songId);
+        List<PlaylistEntryShortResponseDTO> addedEntries = new ArrayList<>();
+        for (UUID songId : songIds) {
+            PlaylistEntry entry = addEntry(found, songId);
+            addedEntries.add(entryMapper.toShortResponse(entry, found.getNumberOfEntries()));
+        }
+
         playlistRepository.save(found);
 
-        return entryMapper.toShortResponse(savedEntry, found.getNumberOfEntries());
+        return addedEntries;
     }
 
     @Override
