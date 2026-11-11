@@ -5,6 +5,7 @@ import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionResponseDT
 import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
+import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 
@@ -63,5 +64,25 @@ public interface PlaylistEntryService {
      */
     void deletePlaylistEntry(UUID playlistId, UUID entryId);
 
+    /**
+     * Change the {@code rankOder} and, thereby, the {@code position} of the entry with the
+     * given {@code entryId} inside of the given {@code playlistId}.
+     *
+     * <p>If the entry is already in the requested {@code newRankOrder}, the method is a no-op.
+     *
+     * <p>If the {@code position} of two entry collapses into the same value, performs a
+     * rebalance, with each entry having a consistent positional gap.
+     *
+     * @param playlistId the id of the playlist from where search the entry
+     * @param entryId the id of the entry to move inside the given playlist
+     * @param request a request dto containing the requested new rank for the entry
+     * 
+     * @return a dto including the moved entry's id, its new rank order, and, if a rebalance is
+     * performed, the cascade repositions (id of each moved entry + its new rank order).
+     * @throws BadRequestException if the requested new rank order is less than 1 or higher than
+     * the number of entries inside the given playlist
+     * @throws NotFoundException if either the playlist does not exist, or the entry does not
+     * exist inside the playlist
+     */
     PlaylistEntryRepositionResponseDTO reposition(UUID playlistId, UUID entryId, PlaylistEntryRepositionRequestDTO request);
 }
