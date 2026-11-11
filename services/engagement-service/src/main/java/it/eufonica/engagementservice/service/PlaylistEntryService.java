@@ -66,6 +66,19 @@ public interface PlaylistEntryService {
      */
     void deletePlaylistEntry(UUID playlistId, UUID entryId);
 
+    /**
+     * Delete multiple entries from a specific playlist
+     *
+     * <p>Can only be performed by the owner
+     *
+     * @param playlistId the id of the playlist to delete the entries from
+     * @param entryIds the ids of the entries to remove from the playlist
+     *
+     * @throws NotFoundException if any entry or the playlist with the given id does not exist,
+     * or the caller is not the playlist's owner and the playlist is {@code PRIVATE}
+     * @throws ForbiddenException if the playlist is not {@code PRIVATE} and the caller is not
+     * the playlist's owner
+     */
     void bulkDeleteEntries(UUID playlistId, Set<UUID> entryIds);
 
     /**
