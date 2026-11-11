@@ -21,10 +21,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -163,6 +160,21 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         entryRepository.delete(foundEntry);
 
         foundPlaylist.setNumberOfEntries(foundPlaylist.getNumberOfEntries() - 1);
+        playlistRepository.save(foundPlaylist);
+    }
+
+    @Override
+    public void bulkDeleteEntries(UUID playlistId, Set<UUID> entryIds) {
+        Playlist foundPlaylist = queryService.findOrElseThrow(playlistId);
+
+        accessGuard.requireOwner(foundPlaylist);
+
+        for (UUID entryId : entryIds) {
+            PlaylistEntry entry = findEntryInPlaylist(foundPlaylist, entryId);
+            entryRepository.delete(entry);
+        }
+
+        foundPlaylist.setNumberOfEntries(foundPlaylist.getNumberOfEntries() - entryIds.size());
         playlistRepository.save(foundPlaylist);
     }
 

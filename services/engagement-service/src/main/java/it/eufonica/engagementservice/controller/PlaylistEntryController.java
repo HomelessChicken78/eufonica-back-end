@@ -1,9 +1,6 @@
 package it.eufonica.engagementservice.controller;
 
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryCreateRequestDTO;
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionRequestDTO;
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryRepositionResponseDTO;
-import it.eufonica.engagementservice.dto.entry.PlaylistEntryShortResponseDTO;
+import it.eufonica.engagementservice.dto.entry.*;
 import it.eufonica.engagementservice.service.PlaylistEntryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +29,13 @@ public class PlaylistEntryController {
     public void deleteEntry(@PathVariable UUID playlistId, @PathVariable UUID entryId) {
         entryService.deletePlaylistEntry(playlistId, entryId);
         log.info("Removed entry from playlist. (songId={}, playlistId={})", entryId, playlistId);
+    }
+
+    @DeleteMapping
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void bulkDeleteEntries(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryBulkDeleteRequestDTO request) {
+        entryService.bulkDeleteEntries(playlistId, request.getEntryIds());
+        log.info("Removed entry from playlist. (deleted {} entries, playlistId={})", request.getEntryIds().size(), playlistId);
     }
 
     @PatchMapping(path = "/{entryId}/rank")

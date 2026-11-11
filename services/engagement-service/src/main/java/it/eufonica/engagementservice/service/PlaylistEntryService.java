@@ -10,6 +10,7 @@ import it.eufonica.exception.client.ForbiddenException;
 import it.eufonica.exception.client.NotFoundException;
 
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 
 public interface PlaylistEntryService {
@@ -64,6 +65,8 @@ public interface PlaylistEntryService {
      * no bypass for this operation) and the playlist is not {@code PRIVATE}
      */
     void deletePlaylistEntry(UUID playlistId, UUID entryId);
+
+    void bulkDeleteEntries(UUID playlistId, Set<UUID> entryIds);
 
     /**
      * Change the {@code rankOder} and, thereby, the {@code position} of the entry with the
