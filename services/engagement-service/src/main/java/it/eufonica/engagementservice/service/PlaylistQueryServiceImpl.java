@@ -253,7 +253,7 @@ public class PlaylistQueryServiceImpl implements PlaylistQueryService {
 
         Playlist found = findOrElseThrow(playlistId);
 
-        accessGuard.requireOwner(found);
+        accessGuard.requireViewable(found);
 
         PlaylistEntrySortingDTO sortingDTO = toSorting(sortOrder);
         Sort sortType = JpaSort.unsafe(

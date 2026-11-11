@@ -56,8 +56,6 @@ public interface PlaylistQueryService {
      * @throws BadRequestException if either the pageNumber or the pageSize are less than 1
      * @throws NotFoundException if either the playlist does not exist, or the caller is not
      * the playlist owner and the playlist is {@code PRIVATE}
-     * @throws ForbiddenException if the caller is not the playlist owner (ADMIN included,
-     * no bypass for this operation) and the playlist is not {@code PRIVATE}
      */
     PlaylistResponseDTO findPlaylist(UUID playlistId, PlaylistEntrySortOrder sortOrder,
                                      Integer pageNumber, Integer pageSize);

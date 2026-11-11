@@ -48,6 +48,18 @@ public class PlaylistOwnerAccessGuard {
     }
 
     /**
+     * Checks whether the playlist is not {@code PRIVATE} or, if {@code PRIVATE}, checks
+     * if the caller is the playlist's owner
+     *
+     * @throws IllegalArgumentException if playlist is {@code null}
+     * @throws NotFoundException if the caller's local AppUser projection hasn't been
+     * synced yet, or if the playlist is {@code PRIVATE} and the caller is not the owner
+     */
+    public void requireViewable(Playlist playlist) {
+        isOwnerOrThrowIfHidden(playlist);
+    }
+
+    /**
      * Ensures the caller is authenticated and identified with the id corresponding
      * to the playlist's owner ({@code playlist.creator.id}).
      *
