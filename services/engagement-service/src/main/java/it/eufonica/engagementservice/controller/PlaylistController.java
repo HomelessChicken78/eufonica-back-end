@@ -2,6 +2,7 @@ package it.eufonica.engagementservice.controller;
 
 import it.eufonica.engagementservice.dto.entry.PlaylistEntrySortOrder;
 import it.eufonica.engagementservice.dto.playlist.*;
+import it.eufonica.engagementservice.service.LikeService;
 import it.eufonica.engagementservice.service.PlaylistCommandService;
 import it.eufonica.engagementservice.service.PlaylistQueryService;
 import it.eufonica.web.dto.PageResponseDTO;
@@ -20,6 +21,7 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 public class PlaylistController {
     private final PlaylistCommandService commandService;
     private final PlaylistQueryService queryService;
+    private final LikeService likeService;
 
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
@@ -77,5 +79,12 @@ public class PlaylistController {
                 pageNumber, pageSize
         );
         return result;
+    }
+
+    @PutMapping(path = "/{playlistId}/like")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void like(@PathVariable UUID playlistId) {
+        likeService.likePlaylist(playlistId);
+        log.debug("Liking playlist with id={}.", playlistId);
     }
 }
