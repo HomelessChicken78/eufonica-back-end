@@ -10,7 +10,7 @@ public interface LikeService {
      *
      * <p>If the playlist is already liked by the user, the operation is a no-op.
      *
-     * <p>Create a {@code PlaylistLike} between the plaulist and the user.
+     * <p>Create a {@code PlaylistLike} between the playlist and the user.
      *
      * @param playlistId the id of the playlist to like
      *
@@ -19,5 +19,14 @@ public interface LikeService {
      */
     void likePlaylist(UUID playlistId);
 
+    /**
+     * Removes the caller's like from the given playlist, if present.
+     *
+     * <p>If the caller has not liked the playlist, this is a no-op.
+     *
+     * @param playlistId the id of the playlist to unlike
+     * @throws NotFoundException if either the playlist does not exist, or the caller is not
+     * the playlist owner and the playlist is {@code PRIVATE}
+     */
     void unlikePlaylist(UUID playlistId);
 }
