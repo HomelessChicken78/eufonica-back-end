@@ -14,4 +14,6 @@ public interface PlaylistLikeRepository extends JpaRepository<PlaylistLike, UUID
     void deleteByPlaylistId(UUID playlistId);
 
     boolean existsByUserAndPlaylist(AppUser user, Playlist playlist);
+
+    void deleteByUserAndPlaylist(AppUser appUser, Playlist found);
 }

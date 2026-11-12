@@ -47,4 +47,23 @@ public class LikeServiceImpl implements LikeService {
         found.setAmountLikes(found.getAmountLikes() + 1);
         playlistRepository.save(found);
     }
+
+    @Override
+    public void unlikePlaylist(UUID playlistId) {
+        Playlist found =  playlistService.findOrElseThrow(playlistId);
+
+        playlistAccessGuard.requireViewable(found);
+
+        AppUser appUser = currentUser.getCurrentUser();
+
+        if (!playlistLikeRepository.existsByUserAndPlaylist(appUser, found)) {
+            log.debug("Playlist is not liked. playlistId={}, userId={}", playlistId, appUser.getId());
+            return;
+        }
+
+        playlistLikeRepository.deleteByUserAndPlaylist(appUser, found);
+
+        found.setAmountLikes(found.getAmountLikes() - 1);
+        playlistRepository.save(found);
+    }
 }

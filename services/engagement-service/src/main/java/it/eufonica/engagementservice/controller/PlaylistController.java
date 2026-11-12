@@ -87,4 +87,11 @@ public class PlaylistController {
         likeService.likePlaylist(playlistId);
         log.debug("Liking playlist with id={}.", playlistId);
     }
+
+    @DeleteMapping(path = "{playlistId}/like")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unlike(@PathVariable UUID playlistId) {
+        likeService.unlikePlaylist(playlistId);
+        log.debug("Unliking playlist with id={}.", playlistId);
+    }
 }
