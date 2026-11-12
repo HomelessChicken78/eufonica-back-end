@@ -71,8 +71,8 @@ public class ArtistEventConsumer {
      * than the artist's current version, perform an upsertion.</p>
      * <p>If the version is lower than or equal to the artist's current version, ignore it.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleArtistCreation(UUID eventId, ArtistCreatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "ArtistCreatedEvent", event.getId().toString())) return;
@@ -106,8 +106,8 @@ public class ArtistEventConsumer {
      * <p>If event's version is lower than or equal to the artist's current
      * version, ignore the event.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleArtistUpdating(UUID eventId, ArtistUpdatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "ArtistUpdatedEvent", event.getId().toString())) return;

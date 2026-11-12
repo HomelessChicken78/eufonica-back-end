@@ -78,8 +78,8 @@ public class AlbumEventConsumer {
      * than the album's current version, perform an upsertion.</p>
      * <p>If the version is lower than or equal to the album's current version, ignore it.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleAlbumCreation(UUID eventId, AlbumCreatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "AlbumCreatedEvent", event.getId().toString())) return;
@@ -131,8 +131,8 @@ public class AlbumEventConsumer {
      * assumes a mistakes is done and leaves the responsibility to manage
      * that event to the rest of the flow.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleAlbumSongAdded(UUID eventId, AlbumSongAddedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "AlbumSongAddedEvent", event.getSongId().toString())) return;
@@ -165,8 +165,8 @@ public class AlbumEventConsumer {
      * assumes a mistakes is done and leaves the responsibility to manage
      * that event to the rest of the flow.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleAlbumSongRemoved(UUID eventId, AlbumSongRemovedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "AlbumSongRemovedEvent", event.getSongId().toString())) return;
@@ -192,8 +192,8 @@ public class AlbumEventConsumer {
      * <p>If event's version is lower than or equal to the album's current
      * version, ignore the event.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleAlbumUpdatedEvent(UUID eventId, AlbumUpdatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "AlbumUpdatedEvent", event.getId().toString())) return;
@@ -240,8 +240,8 @@ public class AlbumEventConsumer {
      * <p>If the album doesn't exist, this does nothing aside from a
      * debug log, since deletion is idempotent by nature.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleAlbumDeletion(UUID eventId, AlbumDeletedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "AlbumDeletedEvent", event.getId().toString())) return;

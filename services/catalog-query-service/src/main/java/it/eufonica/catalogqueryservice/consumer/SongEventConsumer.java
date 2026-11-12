@@ -80,8 +80,8 @@ public class SongEventConsumer {
      * than the song's current version, perform an upsertion.</p>
      * <p>If the version is lower than or equal to the song's current version, ignore it.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleSongCreation(UUID eventId, SongCreatedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "SongCreatedEvent", event.getId().toString())) return;
@@ -122,8 +122,8 @@ public class SongEventConsumer {
      * <p>If the song doesn't exist, this does nothing aside from a
      * debug log, since deletion is idempotent by nature.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleSongDeletion(UUID eventId, SongDeletedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "SongDeletedEvent", event.getId().toString())) return;
@@ -153,8 +153,8 @@ public class SongEventConsumer {
      * assumes a mistakes is done and leaves the responsibility to manage
      * that event to the rest of the flow.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleCreditedArtistAdded(UUID eventId, CreditedArtistAddedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistAddedEvent", event.getSongId().toString())) return;
@@ -183,8 +183,8 @@ public class SongEventConsumer {
      * assumes a mistakes is done and leaves the responsibility to manage
      * that event to the rest of the flow.</p>
      *
-     * @param eventId The id of the event to compare against processed events
-     * @param event The deserialized event's payload
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
      */
     public void handleCreditedArtistRemoved(UUID eventId, CreditedArtistRemovedEvent event) {
         if (!processingService.saveOrIgnore(eventId, "CreditedArtistRemovedEvent", event.getSongId().toString())) return;
