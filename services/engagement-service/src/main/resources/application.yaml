@@ -30,5 +30,6 @@ logging:
   level:
     root: ${ROOT_LOG_LEVEL:INFO}
     it.eufonica.engagementservice.service: ${SERVICE_LOG_LEVEL:INFO}
+    if.eufonica.engagementservice.controller: ${CONTROLLER_LOG_LEVEL:INFO}
     it.eufonica.engagementservice.consumer: ${CONSUMER_LOG_LEVEL:INFO}
     it.eufonica.event.processing: ${EVENT_PROCESSING_LOG_LEVEL:INFO}
