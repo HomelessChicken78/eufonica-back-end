@@ -9,15 +9,18 @@ import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
         "it.eufonica.engagementservice",
         "it.eufonica.exception",
         "it.eufonica.security",
-        "it.eufonica.event.processing"
+        "it.eufonica.event.processing",
+        "it.eufonica.event.outbox"
 })
 @EntityScan(basePackages = {
         "it.eufonica.engagementservice",
-        "it.eufonica.event.processing"
+        "it.eufonica.event.processing",
+        "it.eufonica.event.outbox"
 })
 @EnableJpaRepositories(basePackages = {
         "it.eufonica.engagementservice",
-        "it.eufonica.event.processing"
+        "it.eufonica.event.processing",
+        "it.eufonica.event.outbox"
 })
 public class EngagementServiceApplication {
 
