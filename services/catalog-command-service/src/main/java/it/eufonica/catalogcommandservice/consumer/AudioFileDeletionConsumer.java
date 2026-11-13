@@ -8,9 +8,10 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.messaging.handler.annotation.Header;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 import tools.jackson.databind.ObjectMapper;
 
-@Component
+@Component @Transactional
 @RequiredArgsConstructor @Slf4j
 public class AudioFileDeletionConsumer {
     // Utility & Mappers
