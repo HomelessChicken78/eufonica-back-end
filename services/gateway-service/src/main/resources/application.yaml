@@ -48,6 +48,17 @@ spring:
                 - Path=/api/albums/**
                 - Method=GET
 
+            # Engagement Service Routes
+            - id: engagement-service-playlists
+              uri: ${ENGAGEMENT_SERVICE}
+              predicates:
+                - Path=/api/playlists/**
+
+            - id: engagement-service-songs
+              uri: ${ENGAGEMENT_SERVICE}
+              predicates:
+                - Path=/api/songs/*/like,/api/songs/*/listens
+
             # Command Service Routes - use the POST, PUT, PATCH, DELETE methods
             - id: catalog-command-songs
               uri: ${CATALOG_COMMAND_SERVICE}
@@ -66,12 +77,6 @@ spring:
               predicates:
                 - Path=/api/albums/**
                 - Method=POST,PUT,PATCH,DELETE
-
-            # Engagement Service Routes
-            - id: engagement-service-playlists
-              uri: ${ENGAGEMENT_SERVICE}
-              predicates:
-                - Path=/api/playlists/**
 
             # Internal endpoints not exposed to the public
 
