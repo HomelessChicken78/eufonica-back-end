@@ -81,14 +81,14 @@ public class PlaylistController {
         return result;
     }
 
-    @PutMapping(path = "/{playlistId}/like")
+    @PutMapping(path = "/{playlistId}/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void like(@PathVariable UUID playlistId) {
         likeService.likePlaylist(playlistId);
         log.debug("Liking playlist with id={}.", playlistId);
     }
 
-    @DeleteMapping(path = "{playlistId}/like")
+    @DeleteMapping(path = "{playlistId}/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void unlike(@PathVariable UUID playlistId) {
         likeService.unlikePlaylist(playlistId);

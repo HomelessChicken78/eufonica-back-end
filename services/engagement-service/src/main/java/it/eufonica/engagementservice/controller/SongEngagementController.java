@@ -13,7 +13,7 @@ import java.util.UUID;
 public class SongEngagementController {
     private final LikeService likeService;
 
-    @PutMapping(path = "/like")
+    @PutMapping(path = "/likes")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void like(@PathVariable UUID songId) {
         likeService.likeSong(songId);
