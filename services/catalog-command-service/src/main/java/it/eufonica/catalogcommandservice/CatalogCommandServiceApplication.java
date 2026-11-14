@@ -10,15 +10,18 @@ import org.springframework.scheduling.annotation.EnableScheduling;
         "it.eufonica.catalogcommandservice",
         "it.eufonica.exception",
         "it.eufonica.security",
-        "it.eufonica.event.outbox"
+        "it.eufonica.event.outbox",
+        "it.eufonica.event.processing"
 })
 @EntityScan(basePackages = {
         "it.eufonica.catalogcommandservice",
-        "it.eufonica.event.outbox"
+        "it.eufonica.event.outbox",
+        "it.eufonica.event.processing"
 })
 @EnableJpaRepositories(basePackages = {
         "it.eufonica.catalogcommandservice",
-        "it.eufonica.event.outbox"
+        "it.eufonica.event.outbox",
+        "it.eufonica.event.processing"
 })
 @EnableScheduling
 public class CatalogCommandServiceApplication {

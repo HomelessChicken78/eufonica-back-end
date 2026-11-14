@@ -29,4 +29,6 @@ public interface LikeService {
      * the playlist owner and the playlist is {@code PRIVATE}
      */
     void unlikePlaylist(UUID playlistId);
+
+    void likeSong(UUID songId);
 }
