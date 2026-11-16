@@ -11,5 +11,8 @@ public enum EngagementErrorReason implements ErrorReason {
     NOT_PLAYLIST_OWNER,
 
     // 404 Equivalent
-    USER_NOT_YET_SYNCED
+    USER_NOT_YET_SYNCED,
+
+    // 409 Equivalent
+    INVALID_SEC_PLAYED
 }
