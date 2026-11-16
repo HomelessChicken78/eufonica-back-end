@@ -9,6 +9,15 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Entity
+@Table(
+        name = "listen",
+        indexes = {
+                @Index(
+                        name = "idx_listen_user_song_timestamp",
+                        columnList = "user_id, song_id, timestamp DESC"
+                )
+        }
+)
 @AllArgsConstructor @NoArgsConstructor @Builder
 @Getter @Setter
 @EqualsAndHashCode(onlyExplicitlyIncluded = true) @ToString
@@ -25,7 +34,7 @@ public class Listen {
     private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(nullable = false)
+    @JoinColumn(name = "song_id", nullable = false)
     private Song song;
 
     @Column(nullable = false)
