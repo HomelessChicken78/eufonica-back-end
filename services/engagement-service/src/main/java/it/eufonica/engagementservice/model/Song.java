@@ -15,4 +15,5 @@ public class Song {
     private String title;
     private UUID artistOwnerId;
     private String artistOwnerName;
+    private Integer durationSec;
 }
