@@ -42,5 +42,13 @@ public interface LikeService {
      */
     void likeSong(UUID songId);
 
+    /**
+     * Removes the caller's like from  the given song, if present.
+     *
+     * <p>If the caller has not liked the song, this is a no-op.
+     *
+     * @param songId the id of the song to unlike
+     * @throws NotFoundException if the song doesn't exist
+     */
     void unlikeSong(UUID songId);
 }
