@@ -41,4 +41,6 @@ public interface LikeService {
      * @throws NotFoundException if the song doesn't exist
      */
     void likeSong(UUID songId);
+
+    void unlikeSong(UUID songId);
 }

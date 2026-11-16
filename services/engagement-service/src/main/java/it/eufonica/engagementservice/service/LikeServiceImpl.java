@@ -9,6 +9,7 @@ import it.eufonica.engagementservice.security.CurrentUserResolver;
 import it.eufonica.engagementservice.security.PlaylistOwnerAccessGuard;
 import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.event.song.SongLikedEvent;
+import it.eufonica.event.song.SongUnlikedEvent;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -111,6 +112,27 @@ public class LikeServiceImpl implements LikeService {
                 "SongLikedEvent",
                 songEngagementTopicName,
                 new SongLikedEvent(songId)
+        );
+    }
+
+    @Override
+    public void unlikeSong(UUID songId) {
+        Song song = findSongOrElseThrow(songId);
+
+        AppUser appUser = currentUser.getCurrentUser();
+
+        if (!songLikeRepository.existsBySongAndUser(song, appUser)) {
+            log.debug("Song is not liked. songId={}, userId={}", songId, appUser.getId());
+            return;
+        }
+
+        songLikeRepository.deleteByUserAndSong(appUser, song);
+
+        eventPublisher.publish(
+                songId.toString(),
+                "SongUnlikedEvent",
+                songEngagementTopicName,
+                new SongUnlikedEvent(songId)
         );
     }
 }

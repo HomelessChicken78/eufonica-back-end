@@ -19,4 +19,11 @@ public class SongEngagementController {
         likeService.likeSong(songId);
         log.debug("Liking song with id={}.", songId);
     }
+
+    @DeleteMapping(path = "/likes")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void unlike(@PathVariable UUID songId) {
+        likeService.unlikeSong(songId);
+        log.debug("Unliking song with id={}.", songId);
+    }
 }

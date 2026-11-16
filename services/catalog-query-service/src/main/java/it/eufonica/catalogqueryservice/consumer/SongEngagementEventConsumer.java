@@ -4,6 +4,7 @@ import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
 import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.event.song.SongLikedEvent;
+import it.eufonica.event.song.SongUnlikedEvent;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,6 +56,7 @@ public class SongEngagementEventConsumer {
         // Perform the correct action depending on the type of event
         switch (eventType) {
             case "SongLikedEvent" -> handleSongLike(eventId, objectMapper.readValue(payload, SongLikedEvent.class));
+            case "SongUnlikedEvent" -> handleSongUnlike(eventId, objectMapper.readValue(payload, SongUnlikedEvent.class));
             default -> log.warn("Unknown event received. eventType: {}", eventType);
         }
     }
@@ -81,5 +83,29 @@ public class SongEngagementEventConsumer {
 
         songRepository.save(song);
         evictSongCache(eventId);
+    }
+
+    /*
+     * We don't need to check for the order since all the events for the same aggregate end up in the same partition.
+     */
+    /**
+     * Handles unlike of a song after SongUnlikedEvent is received.
+     *
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
+     */
+    public void handleSongUnlike(UUID eventId, SongUnlikedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "SongUnlikedEvent", event.getSongId().toString())) return;
+
+        SongRead song = songRepository
+                .findById(event.getSongId())
+                .orElseThrow(
+                        () -> new NotFoundException("No song found with id: " + event.getSongId() + ".")
+                );
+
+        song.setAmountLikes(song.getAmountLikes() - 1);
+
+        songRepository.save(song);
+        evictSongCache(event.getSongId());
     }
 }

@@ -11,4 +11,6 @@ public interface SongLikeRepository extends JpaRepository<SongLike, UUID> {
     void deleteBySongId(UUID songId);
 
     boolean existsBySongAndUser(Song song, AppUser appUser);
+
+    void deleteByUserAndSong(AppUser user, Song song);
 }
