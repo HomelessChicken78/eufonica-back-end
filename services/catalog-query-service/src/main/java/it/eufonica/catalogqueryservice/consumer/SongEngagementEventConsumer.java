@@ -82,7 +82,7 @@ public class SongEngagementEventConsumer {
         song.setAmountLikes(song.getAmountLikes() + 1);
 
         songRepository.save(song);
-        evictSongCache(eventId);
+        evictSongCache(event.getSongId());
     }
 
     /*
