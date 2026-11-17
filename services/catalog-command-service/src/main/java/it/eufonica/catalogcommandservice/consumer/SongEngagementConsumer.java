@@ -5,6 +5,7 @@ import it.eufonica.catalogcommandservice.repository.SongRepository;
 import it.eufonica.catalogcommandservice.service.core.SongCommandService;
 import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.event.song.SongLikedEvent;
+import it.eufonica.event.song.SongListenedEvent;
 import it.eufonica.event.song.SongUnlikedEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -39,6 +40,7 @@ public class SongEngagementConsumer {
         switch (eventType) {
             case "SongLikedEvent" -> handleSongLike(eventId, objectMapper.readValue(payload, SongLikedEvent.class));
             case "SongUnlikedEvent" -> handleSongUnlike(eventId, objectMapper.readValue(payload, SongUnlikedEvent.class));
+            case "SongListenedEvent" -> handleSongListened(eventId, objectMapper.readValue(payload, SongListenedEvent.class));
             default -> log.warn("Unknown event received. eventType: {}", eventType);
         }
     }
@@ -77,6 +79,25 @@ public class SongEngagementConsumer {
         Song song = songService.findByIdOrElseThrow(event.getSongId());
 
         song.setAmountLikes(song.getAmountLikes() - 1);
+
+        songRepository.save(song);
+    }
+
+    /*
+     * We don't need to check for the order since all the events for the same aggregate end up in the same partition.
+     */
+    /**
+     * Handles listening of a song after SongListenedEvent is received
+     *
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
+     */
+    public void handleSongListened(UUID eventId, SongListenedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "SongListenedEvent", event.getSongId().toString())) return;
+
+        Song song = songService.findByIdOrElseThrow(event.getSongId());
+
+        song.setAmountListens(song.getAmountListens() + 1);
 
         songRepository.save(song);
     }

@@ -4,6 +4,7 @@ import it.eufonica.catalogqueryservice.model.SongRead;
 import it.eufonica.catalogqueryservice.repository.SongRepository;
 import it.eufonica.event.processing.EventProcessingService;
 import it.eufonica.event.song.SongLikedEvent;
+import it.eufonica.event.song.SongListenedEvent;
 import it.eufonica.event.song.SongUnlikedEvent;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -57,6 +58,7 @@ public class SongEngagementEventConsumer {
         switch (eventType) {
             case "SongLikedEvent" -> handleSongLike(eventId, objectMapper.readValue(payload, SongLikedEvent.class));
             case "SongUnlikedEvent" -> handleSongUnlike(eventId, objectMapper.readValue(payload, SongUnlikedEvent.class));
+            case "SongListenedEvent" -> handleSongListened(eventId, objectMapper.readValue(payload, SongListenedEvent.class));
             default -> log.warn("Unknown event received. eventType: {}", eventType);
         }
     }
@@ -107,5 +109,28 @@ public class SongEngagementEventConsumer {
 
         songRepository.save(song);
         evictSongCache(event.getSongId());
+    }
+
+    /*
+     * We don't need to check for the order since all the events for the same aggregate end up in the same partition.
+     */
+    /**
+     * Handles listening of a song after SongListenedEvent is received
+     *
+     * @param eventId the id of the event to compare against processed events
+     * @param event the deserialized event's payload
+     */
+    public void handleSongListened(UUID eventId, SongListenedEvent event) {
+        if (!processingService.saveOrIgnore(eventId, "SongListenedEvent", event.getSongId().toString())) return;
+
+        SongRead song = songRepository
+                .findById(event.getSongId())
+                .orElseThrow(
+                        () -> new NotFoundException("No song found with id: " + event.getSongId() + ".")
+                );
+
+        song.setAmountListens(song.getAmountListens() + 1);
+
+        songRepository.save(song);
     }
 }

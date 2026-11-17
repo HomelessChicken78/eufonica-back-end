@@ -7,6 +7,8 @@ import it.eufonica.engagementservice.model.Song;
 import it.eufonica.engagementservice.repository.ListenRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
 import it.eufonica.engagementservice.security.CurrentUserResolver;
+import it.eufonica.event.outbox.OutboxEventPublisherService;
+import it.eufonica.event.song.SongListenedEvent;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -22,6 +24,7 @@ import java.util.UUID;
 @RequiredArgsConstructor @Slf4j
 public class ListenServiceImpl implements ListenService {
     // Service
+    private final OutboxEventPublisherService eventPublisher;
 
     // Repository
     private final SongRepository songRepository;
@@ -38,6 +41,9 @@ public class ListenServiceImpl implements ListenService {
 
     @Value("${LISTEN_COOLDOWN_SECONDS:60}")
     private int cooldownSeconds;
+
+    @Value("${SONG_ENGAGEMENT_TOPIC_NAME:song-engagement.events}")
+    private String songEngagementTopicName;
 
     /**
      * Finds a song by its id.
@@ -135,6 +141,11 @@ public class ListenServiceImpl implements ListenService {
         listenRepository.save(listen);
         log.debug("Created new Listen. songId={}, userId={}.", songId, appUser.getId());
 
-        // TODO send event on kafka
+        eventPublisher.publish(
+                songId.toString(),
+                "SongListenedEvent",
+                songEngagementTopicName,
+                new SongListenedEvent(songId)
+        );
     }
 }
