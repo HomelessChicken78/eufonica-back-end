@@ -57,7 +57,7 @@ spring:
             - id: engagement-service-songs
               uri: ${ENGAGEMENT_SERVICE}
               predicates:
-                - Path=/api/songs/*/likes,/api/songs/*/listens
+                - Path=/api/songs/*/likes,/api/songs/*/listens,/api/listens/**
 
             # Command Service Routes - use the POST, PUT, PATCH, DELETE methods
             - id: catalog-command-songs
