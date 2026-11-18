@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.UUID;
 
+import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
+
 @RestController @RequestMapping("/songs/{songId}")
 @RequiredArgsConstructor @Slf4j
 public class SongEngagementController {
@@ -31,7 +33,7 @@ public class SongEngagementController {
         log.debug("Unliking song with id={}.", songId);
     }
 
-    @PostMapping(path = "listens")
+    @PostMapping(path = "listens", consumes = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void listen(@PathVariable UUID songId, @RequestBody @Valid ListenCreateRequestDTO request) {
         listenService.listen(songId, request.getSecPlayed());
