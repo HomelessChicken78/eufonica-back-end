@@ -1,11 +1,14 @@
 package it.eufonica.engagementservice.service;
 
+import it.eufonica.engagementservice.dto.listen.ListenResponseDTO;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;
+import it.eufonica.web.dto.PageResponseDTO;
 
 import java.util.UUID;
 
 public interface ListenService {
+    PageResponseDTO<ListenResponseDTO> getListenHistory(Integer pageNumber, Integer pageSize);
 
     /**
      * Registers a listen of the given song by the current user.

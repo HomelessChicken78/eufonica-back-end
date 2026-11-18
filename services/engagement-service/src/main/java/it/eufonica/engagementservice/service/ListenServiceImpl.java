@@ -1,6 +1,8 @@
 package it.eufonica.engagementservice.service;
 
+import it.eufonica.engagementservice.dto.listen.ListenResponseDTO;
 import it.eufonica.engagementservice.exception.EngagementErrorReason;
+import it.eufonica.engagementservice.mapper.ListenMapper;
 import it.eufonica.engagementservice.model.AppUser;
 import it.eufonica.engagementservice.model.Listen;
 import it.eufonica.engagementservice.model.Song;
@@ -9,16 +11,20 @@ import it.eufonica.engagementservice.repository.SongRepository;
 import it.eufonica.engagementservice.security.CurrentUserResolver;
 import it.eufonica.event.outbox.OutboxEventPublisherService;
 import it.eufonica.event.song.SongListenedEvent;
+import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.NotFoundException;
+import it.eufonica.web.dto.PageResponseDTO;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
-import java.util.UUID;
+import java.util.*;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -31,6 +37,7 @@ public class ListenServiceImpl implements ListenService {
     private final ListenRepository listenRepository;
 
     // Utility & Mappers
+    private final ListenMapper listenMapper;
     private final CurrentUserResolver currentUser;
 
     @Value("${LISTEN_MIN_SEC_PLAYED_CAP:3}")
@@ -44,6 +51,9 @@ public class ListenServiceImpl implements ListenService {
 
     @Value("${SONG_ENGAGEMENT_TOPIC_NAME:song-engagement.events}")
     private String songEngagementTopicName;
+
+    @Value("${LISTEN_PAGE_MAX_SIZE:50}")
+    private Integer maxListenPageSize;
 
     /**
      * Finds a song by its id.
@@ -115,6 +125,45 @@ public class ListenServiceImpl implements ListenService {
                 song.getId(), appUser.getId(), latestListen.getId(), cooldownEnd, isRecent);
 
         return isRecent;
+    }
+
+    /**
+     * Adds song details ({@code title} and {@code artistOwnerName}) to each listen
+     *
+     * @param listens the list of listens to add song details to
+     *
+     * @return a list of flattened dto, each containing, the most essential data of the
+     * listen and the song
+     */
+    private List<ListenResponseDTO> attachSongDetails(List<Listen> listens) {
+        List<ListenResponseDTO> result = new ArrayList<>();
+
+        for (Listen listen : listens)
+            result.add(listenMapper.toResponse(listen, listen.getSong()));
+
+        return result;
+    }
+
+    @Override
+    public PageResponseDTO<ListenResponseDTO> getListenHistory(Integer pageNumber, Integer pageSize) {
+        if (pageNumber == null || pageNumber < 1)
+            throw new BadRequestException("pageNumber must be greater than or equal to 1.", CommonErrorReason.INVALID_PAGINATION_PARAMETER);
+        if (pageSize == null || pageSize < 1)
+            throw new BadRequestException("pageSize must be greater than or equal to 1.", CommonErrorReason.INVALID_PAGINATION_PARAMETER);
+        pageSize = pageSize > maxListenPageSize ? maxListenPageSize : pageSize;
+
+        AppUser appUser = currentUser.getCurrentUser();
+        Page<Listen> results = listenRepository.findHistory(appUser, PageRequest.of(pageNumber - 1, pageSize));
+
+        List<ListenResponseDTO> listenHistory = attachSongDetails(results.getContent());
+
+        return PageResponseDTO.<ListenResponseDTO>builder()
+                .content(listenHistory)
+                .currentPage(pageNumber)
+                .totalPages(results.getTotalPages())
+                .totalElements(results.getTotalElements())
+                .pageSize(pageSize)
+                .build();
     }
 
     @Override
