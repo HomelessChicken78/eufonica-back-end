@@ -8,6 +8,16 @@ import it.eufonica.web.dto.PageResponseDTO;
 import java.util.UUID;
 
 public interface ListenService {
+    /**
+     * Retrieves the listen performed by the caller, sorted by
+     * {@code timestamp}.
+     *
+     * @param pageNumber the page number to get (starts from 1)
+     * @param pageSize the requested page size, with a maximum configured
+     *
+     * @return a paginated list of flattened dto, each containing the most
+     * essential information of the {@code Listen} and the {@code Song}
+     */
     PageResponseDTO<ListenResponseDTO> getListenHistory(Integer pageNumber, Integer pageSize);
 
     /**
