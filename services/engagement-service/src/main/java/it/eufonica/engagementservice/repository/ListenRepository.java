@@ -22,7 +22,7 @@ public interface ListenRepository extends JpaRepository<Listen, UUID> {
     SELECT l
     FROM Listen l
     WHERE l.user = :user
-    ORDER BY l.timestamp ASC
+    ORDER BY l.timestamp DESC
     """)
     Page<Listen> findHistory(@Param("user") AppUser user, Pageable page);
 }
