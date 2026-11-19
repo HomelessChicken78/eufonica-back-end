@@ -15,6 +15,10 @@ import java.util.UUID;
                 @Index(
                         name = "idx_listen_user_song_timestamp",
                         columnList = "user_id, song_id, timestamp DESC"
+                ),
+                @Index(
+                        name = "idx_listen_user_timestamp",
+                        columnList = "user_id, timestamp DESC"
                 )
         }
 )
