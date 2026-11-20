@@ -129,7 +129,7 @@ public class PlaylistController {
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(path = "/{playlistId}", produces = APPLICATION_JSON_VALUE)
-    public PlaylistResponseDTO searchPlaylists(
+    public PlaylistResponseDTO findPlaylist(
             @PathVariable UUID playlistId,
             @RequestParam(required = false) PlaylistEntrySortOrder sortOrder,
             @RequestParam(defaultValue = "1") Integer pageNumber,
