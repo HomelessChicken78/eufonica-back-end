@@ -37,7 +37,7 @@ public class PlaylistEntryController {
     })
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
     @ResponseStatus(HttpStatus.CREATED)
-    public List<PlaylistEntryShortResponseDTO> addEntryToSong(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryCreateRequestDTO request) {
+    public List<PlaylistEntryShortResponseDTO> addEntriesToSong(@PathVariable UUID playlistId, @RequestBody @Valid PlaylistEntryCreateRequestDTO request) {
         return entryService.addSongsToPlaylist(playlistId, request.getSongIds());
     }
 
