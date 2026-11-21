@@ -16,7 +16,7 @@ public class PlaylistResponseDTO {
 
     private String name;
 
-    private Instant creationDate;
+    private Instant creationTimestamp;
 
     private VisibilityType visibility;
 

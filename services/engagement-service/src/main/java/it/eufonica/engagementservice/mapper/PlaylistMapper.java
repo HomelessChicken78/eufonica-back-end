@@ -16,7 +16,7 @@ public interface PlaylistMapper {
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "creator", ignore = true)
-    @Mapping(target = "creationDate", ignore = true)
+    @Mapping(target = "creationTimestamp", ignore = true)
     @Mapping(target = "amountLikes", constant = "0")
     Playlist toEntity(PlaylistCreateRequestDTO request);
 

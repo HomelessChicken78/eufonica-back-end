@@ -24,7 +24,7 @@ public class Playlist {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private Instant creationDate;
+    private Instant creationTimestamp;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
