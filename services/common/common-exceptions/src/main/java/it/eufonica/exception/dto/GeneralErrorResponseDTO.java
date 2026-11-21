@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 
 @Data
@@ -15,7 +16,7 @@ public class GeneralErrorResponseDTO {
     private String message;
 
     @EqualsAndHashCode.Exclude
-    private final LocalDateTime timestamp = LocalDateTime.now();
+    private final Instant timestamp = Instant.now();
 
     private int status = 400;
 

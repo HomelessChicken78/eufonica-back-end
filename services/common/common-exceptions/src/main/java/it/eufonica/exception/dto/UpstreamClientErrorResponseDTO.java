@@ -3,7 +3,7 @@ package it.eufonica.exception.dto;
 import it.eufonica.exception.CommonErrorReason;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.EnumSet;
 
 @Getter @Setter(value = AccessLevel.PRIVATE)
@@ -18,7 +18,7 @@ public class UpstreamClientErrorResponseDTO {
     private String message;
 
     @EqualsAndHashCode.Exclude
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 
     private int status = 400;
 
@@ -60,7 +60,7 @@ public class UpstreamClientErrorResponseDTO {
         UpstreamClientErrorResponseDTO unknownError = new UpstreamClientErrorResponseDTO();
 
         unknownError.setMessage(DEFAULT_MESSAGE);
-        unknownError.setTimestamp(LocalDateTime.now());
+        unknownError.setTimestamp(Instant.now());
         unknownError.setStatus(status);
         unknownError.setReason(DEFAULT_REASON);
 
