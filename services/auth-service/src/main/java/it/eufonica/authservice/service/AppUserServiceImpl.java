@@ -22,6 +22,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.UUID;
 import java.util.List;
@@ -33,6 +35,9 @@ public class AppUserServiceImpl implements AppUserService {
     private final AppUserMapper userMapper;
     private final CurrentCallerProvider currentCaller;
     private final CurrentUserResolver currentUser;
+
+    @Value("${TIMEZONE:Europe/Rome}")
+    private String timezone;
 
     @Value("${USER_REQUEST_MAX_PAGE_SIZE:200}")
     private int maxPageSize;
@@ -69,9 +74,9 @@ public class AppUserServiceImpl implements AppUserService {
 
             // Registered since
             if (filters.getRegisteredSince() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("registrationTimestamp"),
-                        filters.getRegisteredSince().atStartOfDay()));
-                log.trace("Added filter registrationTimestamp >= {}.", filters.getRegisteredSince().atStartOfDay());
+                Instant registeredSince = filters.getRegisteredSince().atStartOfDay(ZoneId.of(timezone)).toInstant();
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("registrationTimestamp"), registeredSince));
+                log.trace("Added filter registrationTimestamp >= {}.", registeredSince);
             }
 
             return criteriaBuilder.and(predicates.toArray(new Predicate[0]));
