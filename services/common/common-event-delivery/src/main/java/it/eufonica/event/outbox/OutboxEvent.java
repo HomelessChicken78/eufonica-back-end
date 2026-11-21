@@ -6,7 +6,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.type.SqlTypes;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -33,9 +33,9 @@ public class OutboxEvent {
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
-    private LocalDateTime createdAt;
+    private Instant createdAt;
 
-    private LocalDateTime publishedAt; // null means not yet published
+    private Instant publishedAt; // null means not yet published
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -48,11 +48,11 @@ public class OutboxEvent {
 
     private String lastError;
 
-    private LocalDateTime processingStartedAt;
+    private Instant processingStartedAt;
 
     @Column(nullable = false)
     @Builder.Default
-    private LocalDateTime nextAttemptAt = LocalDateTime.now();
+    private Instant nextAttemptAt = Instant.now();
 
     public enum OutboxStatus {
         PENDING, PROCESSING,

@@ -9,10 +9,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 
-import static java.time.LocalDateTime.now;
+import static java.time.Instant.now;
 
 @Component
 @RequiredArgsConstructor @Slf4j
@@ -28,7 +28,7 @@ public class OutboxProcessor {
         log.trace("Outbox processing started.");
 
         List<OutboxEvent> events = outboxService.findEventsReadyForProcessing(now(), now().minus(outboxProcessingTimeout));
-        LocalDateTime start = now();
+        Instant start = now();
         int successfulEvents = 0;
         int failedEvents = 0;
 

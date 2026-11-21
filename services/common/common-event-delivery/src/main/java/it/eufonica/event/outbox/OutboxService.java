@@ -1,12 +1,13 @@
 package it.eufonica.event.outbox;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OutboxService {
     OutboxEvent save(OutboxEvent event);
 
-    List<OutboxEvent> findEventsReadyForProcessing(LocalDateTime instant, LocalDateTime processingTimeout);
+    List<OutboxEvent> findEventsReadyForProcessing(Instant instant, Instant processingTimeout);
 
     void markAsProcessing(OutboxEvent event);
 

@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
+import java.time.Instant;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-import static java.time.LocalDateTime.now;
+import static java.time.Instant.now;
 
 @Service @Transactional
 @RequiredArgsConstructor @Slf4j
@@ -33,7 +32,7 @@ public class OutboxServiceImpl implements OutboxService {
     @Value("${OUTBOX_RETRY_JITTER_INTENSITY_PERCENTAGE:0.2}")
     private double jitterIntensity;
 
-    private LocalDateTime calculateNextAttemptAt(int retryCount) {
+    private Instant calculateNextAttemptAt(int retryCount) {
         double exponentialDelay = initialDelay * Math.pow(backoffMultiplier, retryCount);
 
         // Cap the exponential backoff
@@ -48,7 +47,7 @@ public class OutboxServiceImpl implements OutboxService {
         // Don't let jitter bypass maximum
         finalDelayMs = Math.min(finalDelayMs, maxDelay);
 
-        return now().plus(finalDelayMs, ChronoUnit.MILLIS);
+        return now().plusMillis(finalDelayMs);
     }
 
     @Override
@@ -63,7 +62,7 @@ public class OutboxServiceImpl implements OutboxService {
     }
 
     @Override
-    public List<OutboxEvent> findEventsReadyForProcessing(LocalDateTime instant, LocalDateTime processingTimeout) {
+    public List<OutboxEvent> findEventsReadyForProcessing(Instant instant, Instant processingTimeout) {
         log.trace("Finding outbox events ready for processing at instant: {}", instant);
 
         return outboxEventRepository.findEventsReadyForProcessing(instant, processingTimeout);
@@ -88,7 +87,7 @@ public class OutboxServiceImpl implements OutboxService {
 
     @Override
     public void markAsPublished(OutboxEvent event) {
-        LocalDateTime publishedAt = now();
+        Instant publishedAt = now();
         log.trace("Marking outbox events as PUBLISHED. eventId={}, publishedAt={}", event.getId(), publishedAt);
 
         event.setStatus(OutboxEvent.OutboxStatus.PUBLISHED);
@@ -111,7 +110,7 @@ public class OutboxServiceImpl implements OutboxService {
         else {
             event.setStatus(OutboxEvent.OutboxStatus.PENDING);
 
-            LocalDateTime nextAttemptAt = calculateNextAttemptAt(updatedRetryCount);
+            Instant nextAttemptAt = calculateNextAttemptAt(updatedRetryCount);
             event.setNextAttemptAt(nextAttemptAt);
 
             log.warn("Outbox event processing failed. eventId={}, attempts={}, nextAttemptAt={}",
