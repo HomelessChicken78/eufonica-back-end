@@ -39,7 +39,8 @@ public class AppUserController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The caller's own user profile."),
-            @ApiResponse(responseCode = "401", description = "No authenticated subject could be identified (reason: UNAUTHENTICATED).",
+            @ApiResponse(responseCode = "401", description = "No authenticated subject could be identified (reason: UNAUTHENTICATED), " +
+                    "or the authenticated subject has no associated access method (reason: IDENTITY_NOT_RECOGNIZED).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @GetMapping(value = "/me", produces =  APPLICATION_JSON_VALUE)

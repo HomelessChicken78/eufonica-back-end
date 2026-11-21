@@ -27,6 +27,9 @@ public class ArtistRequestController {
             @ApiResponse(responseCode = "200", description = "New-artist request created."),
             @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing requested name or foundation date).",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "No authenticated subject could be identified (reason: UNAUTHENTICATED), " +
+                    "or the authenticated subject has no associated access method (reason: IDENTITY_NOT_RECOGNIZED).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "409", description = "Caller is already an artist (reason: ALREADY_AN_ARTIST) or already has a pending request (reason: ARTIST_REQUEST_ALREADY_PENDING).",
@@ -44,6 +47,9 @@ public class ArtistRequestController {
             @ApiResponse(responseCode = "200", description = "Existing-artist request created."),
             @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. missing artist id).",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "No authenticated subject could be identified (reason: UNAUTHENTICATED), " +
+                    "or the authenticated subject has no associated access method (reason: IDENTITY_NOT_RECOGNIZED).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The referenced artist does not exist (reason: RESOURCE_NOT_FOUND).",
@@ -63,6 +69,9 @@ public class ArtistRequestController {
             @ApiResponse(responseCode = "200", description = "Request evaluated."),
             @ApiResponse(responseCode = "400", description = "Request validation failed (missing accepted flag), or catalog-command-service rejected the artist creation as invalid.",
                     content = @Content(schema = @Schema(oneOf = {ValidationErrorResponseDTO.class, GeneralErrorResponseDTO.class}))),
+            @ApiResponse(responseCode = "401", description = "No authenticated subject could be identified (reason: UNAUTHENTICATED), " +
+                    "or the authenticated subject has no associated access method (reason: IDENTITY_NOT_RECOGNIZED).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Caller is not an admin (reason: NOT_AN_ADMIN).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The request does not exist (reason: RESOURCE_NOT_FOUND).",
@@ -101,6 +110,9 @@ public class ArtistRequestController {
             @ApiResponse(responseCode = "200", description = "The caller's own requests matching the given filters, paginated."),
             @ApiResponse(responseCode = "400", description = "pageNumber or pageSize is less than 1 (reason: INVALID_PAGINATION_PARAMETER).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "401", description = "No authenticated subject could be identified (reason: UNAUTHENTICATED), " +
+                    "or the authenticated subject has no associated access method (reason: IDENTITY_NOT_RECOGNIZED).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
@@ -115,6 +127,8 @@ public class ArtistRequestController {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Request found."),
+            @ApiResponse(responseCode = "401", description = "The authenticated subject has no associated access method (reason: IDENTITY_NOT_RECOGNIZED).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The request does not exist, or the caller is neither its owner nor an admin (reason: RESOURCE_NOT_FOUND).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
