@@ -3,7 +3,7 @@ package it.eufonica.authservice.dto.appuser;
 import it.eufonica.authservice.dto.artist.ArtistSummaryDTO;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor
@@ -21,7 +21,7 @@ public class AppUserFullResponseDTO {
 
     private String lastName;
 
-    private LocalDateTime registrationTimestamp;
+    private Instant registrationTimestamp;
 
     private ArtistSummaryDTO affiliatedArtist; // null if not affiliated
 }

@@ -5,7 +5,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -48,7 +48,7 @@ public class AppUser {
 
     @Column(nullable = false, updatable = false)
     @CreationTimestamp
-    private LocalDateTime registrationTimestamp;
+    private Instant registrationTimestamp;
 
     @ManyToOne
     @JoinColumn(name = "artist_id")
