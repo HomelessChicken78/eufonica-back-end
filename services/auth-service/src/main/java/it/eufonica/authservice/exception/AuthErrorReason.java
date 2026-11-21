@@ -4,6 +4,9 @@ import it.eufonica.exception.ErrorReason;
 
 public enum AuthErrorReason implements ErrorReason {
     // 4XX
+    // 401 Equivalent
+    IDENTITY_NOT_RECOGNIZED,
+
     // 409 Equivalent
     // Signup
     RESERVED_DISPLAY_NAME,

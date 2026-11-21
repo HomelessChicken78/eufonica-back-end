@@ -1,8 +1,10 @@
 package it.eufonica.authservice.security;
 
+import it.eufonica.authservice.exception.AuthErrorReason;
 import it.eufonica.authservice.model.AccessMethod;
 import it.eufonica.authservice.model.AppUser;
 import it.eufonica.authservice.repository.AccessMethodRepository;
+import it.eufonica.exception.client.UnauthorizedException;
 import it.eufonica.security.CurrentCallerProvider;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,14 +27,16 @@ public class CurrentUserResolver {
      * The lookup is performed using the configured identity provider name and the user's token subject.
      *
      * @return the {@link AccessMethod} corresponding to the current user and identity provider
-     * @throws IllegalStateException if the access method in the jwt doesn't exist
+     * @throws UnauthorizedException if the access method in the jwt doesn't exist
      */
     public AccessMethod getAccessMethod() {
-        // This shouldn't normally happen: a valid JWT with populated group claims
-        // implies signup already completed, which always creates an AccessMethod.
+        // If the JWT has a valid sub, but the sub can't be brought back to a user, either of the following happened:
+        // 1. The user logged in Cognito-side, but not application side - most common scenario
+        // 2. The caller did log in previously (both Cognito and application side), but their user was removed
         AccessMethod accessMethod = accessMethodRepository.findByProviderNameAndProviderUserId(providerName, currentCaller.getSub())
-                .orElseThrow(() -> new IllegalStateException(
-                        "Authenticated user with sub " + currentCaller.getSub() + " has no associated access method."));
+                .orElseThrow(() -> new UnauthorizedException(
+                        "Authenticated user with sub " + currentCaller.getSub() + " has no associated access method.",
+                        AuthErrorReason.IDENTITY_NOT_RECOGNIZED));
 
         log.debug("Retrieved access method from the current security context. accessMethod={}", accessMethod);
 
