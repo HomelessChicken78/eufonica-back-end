@@ -4,7 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity
@@ -24,5 +24,5 @@ public class ProcessedEvent {
     @Column(nullable = false)
     @CreationTimestamp
     @Builder.Default
-    private LocalDateTime processedAt = LocalDateTime.now();
+    private Instant processedAt = Instant.now();
 }
