@@ -29,7 +29,7 @@ public interface ArtistRequestMapper {
     @Mapping(target = "requestedFoundationDate", ignore = true)
     @Mapping(target = "requestedArtist", ignore = true)
     @Mapping(target = "id", ignore = true)
-    ArtistRequest toEntity(SendExistingArtistRequestDTO request);
+    ArtistRequest toEntity(SendExistingArtistRequestDTO dto);
 
     @Mapping(source = "requestingUser.id", target = "requestingUserId")
     @Mapping(source = "requestedArtist.id", target = "requestedArtistId")
@@ -37,7 +37,7 @@ public interface ArtistRequestMapper {
 
     @Mapping(target = "name", source = "requestedName")
     @Mapping(target = "foundationDate", source = "requestedFoundationDate")
-    ArtistCreationRequestDTO toArtistCreationRequest(ArtistRequest artistRequest);
+    ArtistCreationRequestDTO toArtistCreationRequest(ArtistRequest entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "requestedName", ignore = true)
