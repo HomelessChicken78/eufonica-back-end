@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity
@@ -37,7 +37,7 @@ public class ArtistRequest {
     // Guarantees [V.ArtistRequest.richiesta_dopo_registrazione_ut] holds without a
     // runtime check anywhere an ArtistRequest is created: this value is always set
     // strictly after the requesting user must already exist to make the call.
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 
     @Column(name = "req_foundation_date")
     private LocalDate requestedFoundationDate;

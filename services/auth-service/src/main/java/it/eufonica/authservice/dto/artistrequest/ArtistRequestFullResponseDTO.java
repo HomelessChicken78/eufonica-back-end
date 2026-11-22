@@ -3,8 +3,8 @@ package it.eufonica.authservice.dto.artistrequest;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor
@@ -16,7 +16,7 @@ public class ArtistRequestFullResponseDTO {
     @Builder.Default
     private RequestStatus status = RequestStatus.PENDING;
 
-    private LocalDateTime timestamp;
+    private Instant timestamp;
 
     @JsonInclude(JsonInclude.Include.NON_NULL) // null if it's an existing-artist request
     private String requestedName;

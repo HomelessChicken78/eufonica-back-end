@@ -38,7 +38,9 @@ import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -67,6 +69,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
     // Messaging
     private final RestClient catalogCommandRestClient;
+
+    @Value("${TIMEZONE:Europe/Rome}")
+    private String timezone;
 
     @Value("${ARTIST_CREATION_URI}")
     private String artistCreationUri;
@@ -131,8 +136,9 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
 
             // Since
             if (commonFilters.getSince() != null) {
-                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timestamp"), commonFilters.getSince().atStartOfDay()));
-                log.trace("Added filter timestamp >= {}.", commonFilters.getSince().atStartOfDay());
+                Instant since = commonFilters.getSince().atStartOfDay(ZoneId.of(timezone)).toInstant();
+                predicates.add(criteriaBuilder.greaterThanOrEqualTo(root.get("timestamp"), since));
+                log.trace("Added filter timestamp >= {}.", since);
             }
 
             // Requesting user
