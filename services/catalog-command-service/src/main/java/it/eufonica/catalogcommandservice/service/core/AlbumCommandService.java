@@ -33,7 +33,8 @@ public interface AlbumCommandService {
      * @return a summary of the newly created album
      * @throws NotFoundException if any referenced artist or song does not
      * exist
-     * @throws ConflictException if an artist's dates don't fit the album's
+     * @throws ConflictException if the album's original date ends up being
+     * after the publication date, if an artist's dates don't fit the album's
      * dates, or if the album would have no artist credited on all its songs
      */
     AlbumSummaryResponseDTO createAlbum(AlbumCreationRequestDTO request);

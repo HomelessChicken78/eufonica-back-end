@@ -10,13 +10,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
-@Table(
-        name = "album",
-        check = @CheckConstraint(
-                name = "chk_album_release_before_pub",
-                constraint = "original_release_date <= pub_date"
-        )
-)
 @AllArgsConstructor @NoArgsConstructor
 @Getter @Setter
 public class Album {

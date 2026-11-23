@@ -35,7 +35,7 @@ public class AlbumController {
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "A featured artist or a song referenced in the request does not exist (reason: RESOURCE_NOT_FOUND).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
-            @ApiResponse(responseCode = "409", description = "An artist/album temporal constraint is violated (reason: ARTIST_FOUNDED_AFTER_ALBUM_RELEASE, ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION or ARTIST_FOUNDED_AFTER_ALBUM_PUBLICATION) or no credited artist is common to every song in the album (reason: ALBUM_MISSING_COMMON_CREDITED_ARTIST).",
+            @ApiResponse(responseCode = "409", description = "An artist/album temporal constraint is violated (reason: ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE, ARTIST_FOUNDED_AFTER_ALBUM_RELEASE, ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION or ARTIST_FOUNDED_AFTER_ALBUM_PUBLICATION) or no credited artist is common to every song in the album (reason: ALBUM_MISSING_COMMON_CREDITED_ARTIST).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PostMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)

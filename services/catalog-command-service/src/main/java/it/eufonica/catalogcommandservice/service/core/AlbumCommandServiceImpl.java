@@ -63,6 +63,25 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     }
 
     /**
+     * Validates the constraints of the Album's temporal attributes.
+     *
+     * <p>The album's {@code originalReleaseDate} has to be before (or at the same time to)
+     * the {@code pubDate}.
+     *
+     * @param album the album to check the temporal constraints of
+     * @param pubDate the publication date of the album
+     *
+     * @throws ConflictException if the {@code originalReleaseDate} is after {@code pubDate}
+     */
+    private void validateAlbumTemporalConstraints(Album album, LocalDateTime pubDate) {
+        // [V.Album.rilascio_originale_prima_di_pubblicazione]
+        // album.original_release_date <= album.pub_date
+        if (album.getOriginalReleaseDate().isAfter(pubDate.toLocalDate()))
+            throw new ConflictException("Album's original release date must be before or equal to its publication date.",
+                    CatalogErrorReason.ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE);
+    }
+
+    /**
      * Validates the temporal constraints between an artist and an album.
      *
      * <p>The following constraints are enforced:
@@ -213,6 +232,8 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         Album album = albumMapper.toEntity(request);
 
+        validateAlbumTemporalConstraints(album, LocalDateTime.now());
+
         for (UUID artId : artistIds)
             mapArtistToAlbum(artId, album, LocalDateTime.now());
 
@@ -231,11 +252,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     public AlbumSummaryResponseDTO updateAlbum(UUID albumId, AlbumUpdateRequestDTO request) {
         Album album = requireCreditedAlbum(albumId);
 
-        // [V.Album.rilascio_originale_prima_di_pubblicazione]
-        // album.original_release_date <= album.pub_date
-        if (request.getOriginalReleaseDate().isAfter(album.getPubDate().toLocalDate()))
-            throw new ConflictException("Album's original release date must be before or equal to its publication date.",
-                    CatalogErrorReason.ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE);
+        validateAlbumTemporalConstraints(album, album.getPubDate());
 
         // Update the album with the new information
         // Keep album.id and album.pubDate intact
