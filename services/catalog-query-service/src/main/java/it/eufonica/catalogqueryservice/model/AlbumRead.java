@@ -3,8 +3,8 @@ package it.eufonica.catalogqueryservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Entity @Table(name = "album")
@@ -19,7 +19,7 @@ public class AlbumRead {
 
     private String name;
 
-    private LocalDateTime pubDate;
+    private Instant pubDate;
 
     private LocalDate originalReleaseDate;
 }

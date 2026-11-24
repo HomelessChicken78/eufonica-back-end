@@ -2,8 +2,8 @@ package it.eufonica.catalogqueryservice.dto.album;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -17,7 +17,7 @@ public class AlbumFullResponseDTO {
 
     private String name;
 
-    private LocalDateTime pubDate;
+    private Instant pubDate;
 
     private LocalDate originalReleaseDate;
 

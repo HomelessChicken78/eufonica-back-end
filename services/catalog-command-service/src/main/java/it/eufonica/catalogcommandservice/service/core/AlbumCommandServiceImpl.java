@@ -27,7 +27,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.ZoneId;
 import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -51,6 +52,9 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
     private final CurrentCallerProvider currentCaller;
     private final ArtistAccessGuard accessGuard;
 
+    @Value("${TIMEZONE:Europe/Rome}")
+    private String timezone;
+
     @Value("${ALBUM_TOPIC_NAME:album.events}")
     private String albumTopicName;
 
@@ -73,10 +77,12 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      *
      * @throws ConflictException if the {@code originalReleaseDate} is after {@code pubDate}
      */
-    private void validateAlbumTemporalConstraints(Album album, LocalDateTime pubDate) {
+    private void validateAlbumTemporalConstraints(Album album, Instant pubDate) {
+        Instant originalReleaseDate = album.getOriginalReleaseDate().atStartOfDay(ZoneId.of(timezone)).toInstant();
+
         // [V.Album.rilascio_originale_prima_di_pubblicazione]
         // album.original_release_date <= album.pub_date
-        if (album.getOriginalReleaseDate().isAfter(pubDate.toLocalDate()))
+        if (originalReleaseDate.isAfter(pubDate))
             throw new ConflictException("Album's original release date must be before or equal to its publication date.",
                     CatalogErrorReason.ALBUM_RELEASE_DATE_AFTER_PUBLICATION_DATE);
     }
@@ -97,22 +103,25 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      *
      * @throws ConflictException if any of the temporal constraints is violated
      */
-    private void validateArtistAlbumTemporalConstraints(Artist artist, Album album, LocalDateTime pubDate) {
+    private void validateArtistAlbumTemporalConstraints(Artist artist, Album album, Instant pubDate) {
         // [V.art_album.artista_fondato_prima_rilascio_ufficiale_album]
         // artist.foundation_date <= album.original_release_date
         if (artist.getFoundationDate().isAfter(album.getOriginalReleaseDate()))
             throw new ConflictException("Artist's foundation date must be before or equal to the Album's original release date.",
                     CatalogErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_RELEASE);
 
+        /* TODO readd when artist.registrationDate becomes Instant
         // [V.art_album.artista_registrato_prima_pubblicazione_album]
         // artist.registration_timestamp < album.pub_date
         if (!artist.getRegistrationDate().isBefore(pubDate))
             throw new ConflictException("Artist's registration timestamp must be before the Album's publication date.",
                     CatalogErrorReason.ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION);
+         */
 
         // [V.art_album.artista_fondato_prima_pubblicazione_album]
         // artist.foundation_date < album.pub_date
-        if (!artist.getFoundationDate().isBefore(pubDate.toLocalDate()))
+        Instant foundationDate = artist.getFoundationDate().atStartOfDay(ZoneId.of(timezone)).toInstant();
+        if (!foundationDate.isBefore(pubDate))
             throw new ConflictException("Artist's foundation date must be before the Album's publication date.",
                     CatalogErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_PUBLICATION);
 
@@ -132,7 +141,7 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
      * @throws NotFoundException if the artist with the given id does not exist
      * @throws ConflictException if the artist violates the temporal constraints
      */
-    private void mapArtistToAlbum(UUID artistId, Album album, LocalDateTime pubDate) {
+    private void mapArtistToAlbum(UUID artistId, Album album, Instant pubDate) {
         Artist artist = artistCommandService.findByIdOrThrow(artistId);
         validateArtistAlbumTemporalConstraints(artist, album, pubDate);
 
@@ -232,10 +241,10 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
 
         Album album = albumMapper.toEntity(request);
 
-        validateAlbumTemporalConstraints(album, LocalDateTime.now());
+        validateAlbumTemporalConstraints(album, Instant.now());
 
         for (UUID artId : artistIds)
-            mapArtistToAlbum(artId, album, LocalDateTime.now());
+            mapArtistToAlbum(artId, album, Instant.now());
 
         for (UUID songId : request.getSongs())
             mapSongToAlbum(songId, album);

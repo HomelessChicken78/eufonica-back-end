@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotEmpty;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.*;
 
 @Entity
@@ -23,7 +23,7 @@ public class Album {
 
     @CreationTimestamp
     @Column(nullable = false, updatable = false)
-    private LocalDateTime pubDate;
+    private Instant pubDate;
 
     private LocalDate originalReleaseDate;
 
