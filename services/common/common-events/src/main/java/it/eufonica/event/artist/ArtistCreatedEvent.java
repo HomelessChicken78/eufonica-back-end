@@ -2,8 +2,8 @@ package it.eufonica.event.artist;
 
 import lombok.*;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @AllArgsConstructor @NoArgsConstructor
@@ -15,7 +15,7 @@ public class ArtistCreatedEvent {
 
     private String name;
 
-    private LocalDateTime registrationDate;
+    private Instant registrationTimestamp;
 
     private LocalDate foundationDate;
 }

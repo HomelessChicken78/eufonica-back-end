@@ -3,7 +3,7 @@ package it.eufonica.authservice.model;
 import jakarta.persistence.*;
 import lombok.*;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Entity @Table(name = "artist")
@@ -14,7 +14,7 @@ public class ArtistAuthProjection {
     @EqualsAndHashCode.Include @Id private UUID id;
 
     @Column(nullable = false)
-    private LocalDateTime registrationDate;
+    private Instant registrationTimestamp;
 
     @Column(nullable = false)
     private String name;

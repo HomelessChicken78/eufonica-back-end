@@ -39,7 +39,6 @@ import org.springframework.web.client.HttpStatusCodeException;
 import org.springframework.web.client.RestClient;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -197,7 +196,7 @@ public class ArtistRequestServiceImpl implements ArtistRequestService {
                 );
 
         // [V.ArtistRequest.richiesta_dopo_registrazione_art]
-        if (!artist.getRegistrationDate().isBefore(LocalDateTime.now()))
+        if (!artist.getRegistrationTimestamp().isBefore(Instant.now()))
             throw new ConflictException(
                     "A request cannot concern an artist who registered after the request itself.", AuthErrorReason.ARTIST_REGISTERED_AFTER_REQUEST);
 

@@ -110,13 +110,11 @@ public class AlbumCommandServiceImpl implements AlbumCommandService {
             throw new ConflictException("Artist's foundation date must be before or equal to the Album's original release date.",
                     CatalogErrorReason.ARTIST_FOUNDED_AFTER_ALBUM_RELEASE);
 
-        /* TODO readd when artist.registrationDate becomes Instant
         // [V.art_album.artista_registrato_prima_pubblicazione_album]
         // artist.registration_timestamp < album.pub_date
-        if (!artist.getRegistrationDate().isBefore(pubDate))
+        if (!artist.getRegistrationTimestamp().isBefore(pubDate))
             throw new ConflictException("Artist's registration timestamp must be before the Album's publication date.",
                     CatalogErrorReason.ARTIST_REGISTERED_AFTER_ALBUM_PUBLICATION);
-         */
 
         // [V.art_album.artista_fondato_prima_pubblicazione_album]
         // artist.foundation_date < album.pub_date

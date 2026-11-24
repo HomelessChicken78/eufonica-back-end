@@ -19,8 +19,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service @Transactional
@@ -72,7 +72,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
             throw new ConflictException("Artist with name " + creationRequestDTO.getName() + " already exists.", CatalogErrorReason.ARTIST_NAME_ALREADY_EXISTS);
 
         Artist artist = artistMapper.toEntity(creationRequestDTO);
-        artist.setRegistrationDate(LocalDateTime.now());
+        artist.setRegistrationTimestamp(Instant.now());
 
         Artist savedArtist = artistRepository.save(artist);
 

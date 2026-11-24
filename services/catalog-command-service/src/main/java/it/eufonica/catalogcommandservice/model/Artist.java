@@ -4,8 +4,8 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -24,7 +24,7 @@ public class Artist {
 
     @CreationTimestamp
     @Column(updatable = false, nullable = false)
-    private LocalDateTime registrationDate;
+    private Instant registrationTimestamp;
 
     @Column(nullable = false)
     private LocalDate foundationDate;

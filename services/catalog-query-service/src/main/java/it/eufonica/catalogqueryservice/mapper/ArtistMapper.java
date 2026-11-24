@@ -15,7 +15,7 @@ public interface ArtistMapper {
 
     ArtistRead toEntity(ArtistCreatedEvent event);
 
-    @Mapping(target = "registrationDate", ignore = true)
+    @Mapping(target = "registrationTimestamp", ignore = true)
     ArtistRead toEntity(ArtistUpdatedEvent event);
 
     ArtistFullResponseDTO toFullResponse(ArtistRead found);
