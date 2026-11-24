@@ -9,7 +9,6 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
-import java.time.Instant;
 import java.util.List;
 
 import static java.time.Instant.now;
@@ -28,31 +27,28 @@ public class OutboxProcessor {
         log.trace("Outbox processing started.");
 
         List<OutboxEvent> events = outboxService.findEventsReadyForProcessing(now(), now().minus(outboxProcessingTimeout));
-        Instant start = now();
-        int successfulEvents = 0;
-        int failedEvents = 0;
 
         for (OutboxEvent event : events) {
-            try {
-                outboxService.markAsProcessing(event);
+            outboxService.markAsProcessing(event);
 
-                ProducerRecord<String, String> record = new ProducerRecord<>(
-                        event.getTopic(), event.getAggregateId(), event.getPayload());
-                record.headers().add("eventId", event.getId().toString().getBytes()); // Add the event id to the headers
-                record.headers().add("eventType", event.getEventType().getBytes());
-                kafkaTemplate.send(record).get();
+            ProducerRecord<String, String> record = new ProducerRecord<>(
+                    event.getTopic(), event.getAggregateId(), event.getPayload());
+            record.headers().add("eventId", event.getId().toString().getBytes()); // Add the event id to the headers
+            record.headers().add("eventType", event.getEventType().getBytes());
 
-                outboxService.markAsPublished(event);
-                successfulEvents++;
-            } catch (Exception e) {
-                failedEvents++;
-                outboxService.handleFailure(event, e);
-            }
+            kafkaTemplate.send(record)
+                    .whenComplete((res, t) -> {
+                        if (t == null) {
+                            outboxService.markAsPublished(event);
+                            log.debug("Event successfully published. eventId={}, eventType={}", event.getId(), event.getEventType());
+                        } else if (t instanceof Exception exc) {
+                            outboxService.handleFailure(event, exc);
+                            log.debug("Event publishing unsuccessful. eventId={}, eventType={}", event.getId(), event.getEventType(), exc);
+                        } else log.error("Error while sending event.", t);
+                    });
         }
 
-        if (successfulEvents + failedEvents > 0)
-            log.debug("Outbox scheduled job completed in {}ms. successfulEvents={} failedEvents={}", Duration.between(start, now()).toMillis(), successfulEvents, failedEvents);
-        else
+        if (events.isEmpty())
             log.trace("Outbox scheduled job completed. No event sent.");
     }
 }
