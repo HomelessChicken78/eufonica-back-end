@@ -18,9 +18,9 @@ public interface AlbumMapper {
 
     @Mapping(target = "songIds", ignore = true)
     @Mapping(target = "artistIds", ignore = true)
-    AlbumFullResponseDTO toFullResponse(AlbumRead found);
+    AlbumFullResponseDTO toFullResponse(AlbumRead entity);
 
-    AlbumShortResponseDTO toShortResponse(AlbumRead albumRead);
+    AlbumShortResponseDTO toShortResponse(AlbumRead entity);
 
     @Mapping(target = "pubDate", ignore = true)
     void updateEntityFromUpdateEvent(AlbumUpdatedEvent event, @MappingTarget AlbumRead album);}
