@@ -1,7 +1,6 @@
 package it.eufonica.event.outbox;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
 import java.util.List;
 
 public interface OutboxService {
