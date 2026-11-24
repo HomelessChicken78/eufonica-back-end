@@ -37,9 +37,9 @@ public interface AlbumMapper {
         dto.setNumberOfSongs(entity.getSongs().size());
     }
 
-    AlbumCreatedEvent toCreatedEvent(Album album);
+    AlbumCreatedEvent toCreatedEvent(Album entity);
 
-    AlbumUpdatedEvent toUpdatedEvent(Album album);
+    AlbumUpdatedEvent toUpdatedEvent(Album entity);
 
     AlbumCreatedEvent.Artist toAlbumArtist(Artist artist);
 
