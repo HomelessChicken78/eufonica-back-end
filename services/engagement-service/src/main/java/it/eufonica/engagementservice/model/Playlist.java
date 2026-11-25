@@ -43,4 +43,9 @@ public class Playlist {
     @Column(nullable = false)
     @Builder.Default
     private Integer numberOfEntries = 0;
+
+    @PositiveOrZero(message = "playlist.totalDurationSec should always be >= 0")
+    @Column(nullable = false)
+    @Builder.Default
+    private Long totalDurationSec = 0L;
 }
