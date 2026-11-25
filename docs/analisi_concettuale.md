@@ -37,6 +37,7 @@
       + [Specifica della classe Song](#specifica-della-classe-song-1)
       + [Specifica della classe Playlist](#specifica-della-classe-playlist-1)
       + [Implementazione dei Vincoli](#implementazione-dei-vincoli)
+         - [Eccezioni Esplicite](#eccezioni-vincoli)
 
 <!-- TOC end -->
 
@@ -483,3 +484,11 @@ Nel passaggio al design con Spring JPA e database relazionale, l'integrità del 
 * Vincoli di dominio: saranno controllati nell'applicazione usando le annotazioni di Bean Validation (es. @Positive, @Pattern) nelle classi @Entity.
 * Vincoli strutturali: saranno controllati dal database tramite Foreign Key e vincoli UNIQUE.
 * Vincoli complessi inter-classe e temporali: saranno controllati con regole più complesse, tramite la logica dei metodi dello strato @Service prima di salvare i dati nel database.
+
+<!-- TOC --><a name="eccezioni-vincoli" id="eccezioni-vincoli"></a>
+#### Eccezioni Esplicite
+La coppia _(`PlaylistEntry.position`, `playlist_contains`)_  dovrebbe avere un vincolo `UNIQUE`. Questo vincolo è stato omesso a livello di database.
+
+Le posizioni usano valori `Long` con ampi gap tra loro, per permettere inserimenti senza riscrivere le altre entry. Quando i gap si esauriscono, viene eseguito un ribilanciamento che può temporaneamente assegnare la stessa posizione a due entry diverse, violando un vincolo `UNIQUE` immediato.
+
+Un `DEFERRABLE` risolverebbe il problema, ma non è esprimibile con annotazioni JPQL, rinunciando a portabilità e indipendenza dal DBMS. La correttezza del vincolo è quindi garantita dalla logica applicativa dell'algoritmo di gestione dei gap, nello strato Service e non al livello del database.
