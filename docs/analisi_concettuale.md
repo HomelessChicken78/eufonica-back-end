@@ -64,7 +64,7 @@ Per ogni _a:Artist_ deve essere vero che a.foundation_date <= a.registration_tim
 <!-- TOC --><a id="song_creditpubblicazione_dopo_fondazione"></a>
 ### [V.song_credit.pubblicazione_dopo_fondazione] Un Artista non può pubblicare una Canzone se non è stato fondato
 
-Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.pub_date
+Per ogni _a:Artist_ e _s:Song_, tali che _(a, s):song_credit_, deve essere vero che a.foundation_date <= s.published_date
 
 <!-- TOC --><a id="albumrilascio_originale_prima_di_pubblicazione"></a>
 ### [V.Album.rilascio_originale_prima_di_pubblicazione] Un Album può essere pubblicato sulla piattaforma solo durante o dopo il suo rilascio
@@ -98,7 +98,7 @@ Per ogni _al:Album_ e _art:Artist_, tali che _(al, art):art_album_, deve essere 
 ### [V.Listen.data_di_ascolto_valida] Un Ascolto deve esser fatto dopo la registrazione di un Utente e dopo la pubblicazione di una Canzone
 
 Per ogni _u:AppUser_, _l:Listen_ e _s:Song_, tali che _(u, l):user_listens_ e che _(s, l):song_listened_, devono essere vere entrambe le condizioni:
-- s.pub_date <= l.timestamp
+- s.published_date <= l.timestamp
 - u.registration_timestamp <= l.timestamp
 
 <!-- TOC --><a id="listennon_ascolta_piu_della_durata"></a>
@@ -238,7 +238,7 @@ Pre:
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:Playlist_, con valori res.name = **name**, res.creation_date = Oggi e res.visibility = **vis**
+- Viene creato e restituito un nuovo oggetto _res:Playlist_, con valori res.name = **name**, res.creation_timestamp = Oggi in questo momento e res.visibility = **vis**
 - Viene creato il link _(**ut**, res):playlist_creator_
 
 <p style="margin-top: 20px">
@@ -319,7 +319,7 @@ Pre:
 Post:
 </p>
 
-- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.title = **song_title**, res.duration_sec = **duration**, res.audio = **audio_url** e res.pub_date = Oggi
+- Viene creato e restituito un nuovo oggetto _res:Song_, con valori res.title = **song_title**, res.duration_sec = **duration**, res.audio = **audio_url** e res.published_date = Oggi
 - Per ogni _art:Artist_ in **art_credits**, vengono creati i link _(art, res):song_credit_
    - Tra questi, il link _(**art_owner**, res)_ viene specializzato come istanza anche dell'associazione _song_ownership_
 
