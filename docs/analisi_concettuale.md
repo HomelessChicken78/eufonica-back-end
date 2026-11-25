@@ -477,6 +477,11 @@ Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregat
 * **Playlist.number_of_entries**: Facilita il calcolo del numero di `PlaylistEntry` presenti nella playlist senza dover interrogare il database. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della classe `PlaylistEntry`
 * **Playlist.tot_duration_sec**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della classe `PlaylistEntry`
 
+### Specifica della classe PlaylistEntry
+Nel passaggio all'implementazione relazionale, è stato introdotto un attributo a ridondanza controllata non presente nell'analisi concettuale:
+
+* **PlaylistEntry.song_duration_sec**: Denormalizza `Song.duration_sec` associata all'entry. Serve per calcolare `Playlist.tot_duration_sec`. Una `PlaylistEntry` può restare anche dopo che la `Song` collegata è stata rimossa dal catalogo. In quel caso, senza questa copia la durata non sarebbe più recuperabile.
+
 <!-- TOC --><a name="implementazione-dei-vincoli"></a>
 ### Implementazione dei Vincoli
 Nel passaggio al design con Spring JPA e database relazionale, l'integrità del modello sarà garantita su più livelli:
