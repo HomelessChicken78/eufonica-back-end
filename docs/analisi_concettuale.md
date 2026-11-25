@@ -472,7 +472,9 @@ Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregat
 
 Nel passaggio all'implementazione relazionale, le operazioni di calcolo aggregato sono state sostituite da attributi a ridondanza controllata per ottimizzare le prestazioni in lettura del database:
 
-**Playlist.amount_likes**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della relazione `playlist_like`
+* **Playlist.amount_likes**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della relazione `playlist_like`
+* **Playlist.number_of_entries**: Facilita il calcolo del numero di `PlaylistEntry` presenti nella playlist senza dover interrogare il database. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della classe `PlaylistEntry`
+* **Playlist.tot_duration_sec**: Sostituisce l'operazione correlata dell'analisi concettuale. Questo campo verrà aggiornati dinamicamente dall'applicazione ad ogni nuovo inserimento o rimozione della classe `PlaylistEntry`
 
 <!-- TOC --><a name="implementazione-dei-vincoli"></a>
 ### Implementazione dei Vincoli
