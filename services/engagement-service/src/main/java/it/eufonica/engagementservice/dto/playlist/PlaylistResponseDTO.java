@@ -24,5 +24,7 @@ public class PlaylistResponseDTO {
 
     private UUID creatorId;
 
+    private Long totalDurationSec;
+
     private PageResponseDTO<PlaylistEntryResponseDTO> playlistEntries;
 }
