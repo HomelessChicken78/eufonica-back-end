@@ -12,6 +12,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public interface PlaylistMapper {
+    @Mapping(target = "totalDurationSec", ignore = true)
     @Mapping(target = "numberOfEntries", ignore = true)
     @Mapping(target = "version", ignore = true)
     @Mapping(target = "id", ignore = true)
