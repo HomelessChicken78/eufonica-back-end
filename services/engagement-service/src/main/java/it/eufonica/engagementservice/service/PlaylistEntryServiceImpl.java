@@ -127,7 +127,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         long posMax = entryRepository.findLastPosition(playlist).orElse(0L);
         long nextPosition = posMax + positionGap;
 
-        PlaylistEntry entry = new PlaylistEntry(null, nextPosition, playlist, songId);
+        PlaylistEntry entry = new PlaylistEntry(null, nextPosition, playlist, songId, song.getDurationSec());
         log.debug("Created new SongEntry. (songId={}, playlistId={}, position={})", songId, playlist.getId(), nextPosition);
 
         playlist.setNumberOfEntries(playlist.getNumberOfEntries() + 1);

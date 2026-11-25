@@ -1,6 +1,7 @@
 package it.eufonica.engagementservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.util.UUID;
@@ -29,4 +30,8 @@ public class PlaylistEntry {
     // This way, if a song gets removed, the entries keep existing
     @Column(nullable = false)
     private UUID songId;
+
+    @PositiveOrZero(message = "playlistEntry.songDurationSec should always be >= 0")
+    @Column(nullable = false)
+    private Integer songDurationSec = 0;
 }
