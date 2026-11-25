@@ -1,6 +1,7 @@
 package it.eufonica.engagementservice.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
@@ -31,7 +32,7 @@ public class PlaylistEntry {
     @Column(nullable = false)
     private UUID songId;
 
-    @PositiveOrZero(message = "playlistEntry.songDurationSec should always be >= 0")
+    @Positive(message = "Value for \"songDurationSec\" must be strictly positive.")
     @Column(nullable = false)
     private Integer songDurationSec = 0;
 }
