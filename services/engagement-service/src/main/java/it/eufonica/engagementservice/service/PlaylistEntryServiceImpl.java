@@ -7,6 +7,7 @@ import it.eufonica.engagementservice.exception.EngagementErrorReason;
 import it.eufonica.engagementservice.mapper.PlaylistEntryMapper;
 import it.eufonica.engagementservice.model.Playlist;
 import it.eufonica.engagementservice.model.PlaylistEntry;
+import it.eufonica.engagementservice.model.Song;
 import it.eufonica.engagementservice.repository.PlaylistEntryRepository;
 import it.eufonica.engagementservice.repository.PlaylistRepository;
 import it.eufonica.engagementservice.repository.SongRepository;
@@ -42,15 +43,18 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
     private Long positionGap;
 
     /**
-     * Search whether a song exists with the given id.
+     * Finds a song by its id.
      *
      * @param id the unique id of the song
      *
+     * @return the song associated with the given id
      * @throws NotFoundException if no song exists with the given id
      */
-    private void existSongByIdOrThrow(UUID id) {
-        if (!songRepository.existsById(id))
-            throw new NotFoundException("Song not found with id: " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND);
+    private Song findSongOrElseThrow(UUID id) {
+        return songRepository.findById(id)
+                .orElseThrow(
+                        () -> new NotFoundException("Song not found with id: " + id + ".", CommonErrorReason.RESOURCE_NOT_FOUND)
+                );
     }
 
     /**
@@ -118,7 +122,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
     @Override
     public PlaylistEntry addEntry(Playlist playlist, UUID songId) {
-        existSongByIdOrThrow(songId);
+        Song song = findSongOrElseThrow(songId);
 
         long posMax = entryRepository.findLastPosition(playlist).orElse(0L);
         long nextPosition = posMax + positionGap;
