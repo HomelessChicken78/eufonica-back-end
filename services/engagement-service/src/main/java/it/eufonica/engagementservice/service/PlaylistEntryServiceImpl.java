@@ -131,6 +131,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         log.debug("Created new SongEntry. (songId={}, playlistId={}, position={})", songId, playlist.getId(), nextPosition);
 
         playlist.setNumberOfEntries(playlist.getNumberOfEntries() + 1);
+        playlist.setTotalDurationSec(playlist.getTotalDurationSec() + song.getDurationSec());
         entryRepository.save(entry);
         log.info("Added song to playlist. (songId={}, playlistId={}, playlistName={})", songId, playlist.getId(), playlist.getName());
 
@@ -164,6 +165,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
         entryRepository.delete(foundEntry);
 
         foundPlaylist.setNumberOfEntries(foundPlaylist.getNumberOfEntries() - 1);
+        foundPlaylist.setTotalDurationSec(foundPlaylist.getTotalDurationSec() - foundEntry.getSongDurationSec());
         playlistRepository.save(foundPlaylist);
     }
 
@@ -175,6 +177,7 @@ public class PlaylistEntryServiceImpl implements PlaylistEntryService {
 
         for (UUID entryId : entryIds) {
             PlaylistEntry entry = findEntryInPlaylist(foundPlaylist, entryId);
+            foundPlaylist.setTotalDurationSec(foundPlaylist.getTotalDurationSec() - entry.getSongDurationSec());
             entryRepository.delete(entry);
         }
 
