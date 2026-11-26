@@ -43,12 +43,12 @@ public class ArtistRequest {
     private LocalDate requestedFoundationDate;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artist_request_user"), name = "user_id", nullable = false)
     @ToString.Exclude
     private AppUser requestingUser;
 
     @ManyToOne
-    @JoinColumn(name = "req_artist_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_artist_request_artist"), name = "req_artist_id")
     @ToString.Exclude
     private ArtistAuthProjection requestedArtist;
 

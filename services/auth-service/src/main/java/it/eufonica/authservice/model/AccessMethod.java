@@ -23,7 +23,7 @@ public class AccessMethod {
     private String providerUserId;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_access_method_user"), name = "user_id", nullable = false)
     @ToString.Exclude
     private AppUser user;
 }

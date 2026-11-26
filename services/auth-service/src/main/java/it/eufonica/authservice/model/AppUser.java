@@ -51,7 +51,7 @@ public class AppUser {
     private Instant registrationTimestamp;
 
     @ManyToOne
-    @JoinColumn(name = "artist_id")
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_app_user_artist"), name = "artist_id")
     @ToString.Exclude
     private ArtistAuthProjection affiliatedArtist;
 }
