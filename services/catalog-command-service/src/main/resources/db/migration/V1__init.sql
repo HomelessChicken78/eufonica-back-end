@@ -1,0 +1,15 @@
+create table album (original_release_date date, version integer not null, pub_date timestamp(6) with time zone not null, id uuid not null, name varchar(255) not null, primary key (id));
+create table album_contains (album_id uuid not null, song_id uuid not null, primary key (album_id, song_id));
+create table art_album (album_id uuid not null, artist_id uuid not null, primary key (album_id, artist_id));
+create table artist (foundation_date date not null, version integer not null, registration_timestamp timestamp(6) with time zone not null, id uuid not null, name varchar(255) not null unique, primary key (id));
+create table outbox_event (retry_count integer not null, created_at timestamp(6) with time zone not null, next_attempt_at timestamp(6) with time zone not null, processing_started_at timestamp(6) with time zone, published_at timestamp(6) with time zone, id uuid not null, aggregate_id varchar(255) not null, event_type varchar(255) not null, last_error varchar(255), status varchar(255) not null check ((status in ('PENDING','PROCESSING','PUBLISHED','FAILED'))), topic varchar(255) not null, payload jsonb not null, primary key (id));
+create table processed_event (processed_at timestamp(6) with time zone not null, id uuid not null, aggregate_id varchar(255) not null, event_type varchar(255) not null, primary key (id));
+create table song (amount_likes integer not null, amount_listens integer not null, duration_sec integer not null, published_date date, version integer not null, artist_owner_id uuid not null, id uuid not null, audio varchar(255), title varchar(255) not null, primary key (id), unique (title, artist_owner_id));
+create table song_credit (artist_id uuid not null, song_id uuid not null, primary key (artist_id, song_id));
+alter table if exists album_contains add constraint fk_album_contains_song foreign key (song_id) references song;
+alter table if exists album_contains add constraint fk_album_contains_album foreign key (album_id) references album;
+alter table if exists art_album add constraint fk_art_album_artist foreign key (artist_id) references artist;
+alter table if exists art_album add constraint fk_art_album_album foreign key (album_id) references album;
+alter table if exists song add constraint fk_song_artist_owner foreign key (artist_owner_id) references artist;
+alter table if exists song_credit add constraint fk_song_credit_artist foreign key (artist_id) references artist;
+alter table if exists song_credit add constraint fk_song_credit_song foreign key (song_id) references song;
