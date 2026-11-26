@@ -2,7 +2,6 @@ package it.eufonica.engagementservice.model;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Positive;
-import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
 import java.util.UUID;
@@ -23,7 +22,7 @@ public class PlaylistEntry {
     private Long position;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "playlist_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_playlist_entry_playlist"), name = "playlist_id", nullable = false)
     @ToString.Exclude
     private Playlist playlist;
 

@@ -34,11 +34,11 @@ public class Listen {
     private Instant timestamp;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_listen_user"), name = "user_id", nullable = false)
     private AppUser user;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "song_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_listen_song"), name = "song_id", nullable = false)
     private Song song;
 
     @Column(nullable = false)

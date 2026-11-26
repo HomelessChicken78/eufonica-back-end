@@ -21,10 +21,10 @@ public class SongLike {
     @EqualsAndHashCode.Include private UUID id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "song_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_song_like_song"), name = "song_id", nullable = false)
     private Song song;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_song_like_user"), name = "user_id", nullable = false)
     private AppUser user;
 }

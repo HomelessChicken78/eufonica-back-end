@@ -36,7 +36,7 @@ public class Playlist {
     private Integer amountLikes = 0;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "creator_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_playlist_creator"), name = "creator_id", nullable = false)
     private AppUser creator;
 
     @PositiveOrZero(message = "playlist.numberOfEntries should always be >= 0.")
