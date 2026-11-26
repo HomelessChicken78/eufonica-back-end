@@ -51,13 +51,15 @@ public class Song {
     private Integer amountLikes = 0;
 
     @ManyToOne(optional = false)
-    @JoinColumn(name = "artist_owner_id", nullable = false)
+    @JoinColumn(foreignKey = @ForeignKey(name = "fk_song_artist_owner"), name = "artist_owner_id", nullable = false)
     private Artist artistOwner;
 
     @ManyToMany
     @JoinTable(
             name = "song_credit",
+            foreignKey = @ForeignKey(name = "fk_song_credit_song"),
             joinColumns = @JoinColumn(name = "song_id"),
+            inverseForeignKey = @ForeignKey(name = "fk_song_credit_artist"),
             inverseJoinColumns = @JoinColumn(name = "artist_id")
     )
     @NotEmpty

@@ -30,7 +30,9 @@ public class Album {
     @ManyToMany
     @JoinTable(
             name = "art_album",
+            foreignKey = @ForeignKey(name = "fk_art_album_album"),
             joinColumns = @JoinColumn(name = "album_id"),
+            inverseForeignKey = @ForeignKey(name = "fk_art_album_artist"),
             inverseJoinColumns = @JoinColumn(name = "artist_id")
     )
     @NotEmpty(message = "An Album should have at least one Artist.")
@@ -39,7 +41,9 @@ public class Album {
     @ManyToMany
     @JoinTable(
             name = "album_contains",
+            foreignKey = @ForeignKey(name = "fk_album_contains_album"),
             joinColumns = @JoinColumn(name = "album_id"),
+            inverseForeignKey = @ForeignKey(name = "fk_album_contains_song"),
             inverseJoinColumns = @JoinColumn(name = "song_id")
     )
     @NotEmpty(message = "An album should have at least one song.")
