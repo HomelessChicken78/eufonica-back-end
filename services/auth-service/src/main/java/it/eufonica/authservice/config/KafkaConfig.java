@@ -14,7 +14,7 @@ public class KafkaConfig {
     @Value("${APP_USER_TOPIC_PARTITIONS:2}")
     private int appUserTopicPartitions;
 
-    @Value("${APP_USER_TOPIC_REPLICAS:2}")
+    @Value("${APP_USER_TOPIC_REPLICAS:1}")
     private int appUserTopicReplicas;
 
     @Bean
