@@ -1,0 +1,64 @@
+services:
+  postgres:
+    image: postgres:17
+    container_name: eufonica_postgres
+    volumes:
+      - eufonica_postgres_data:/var/lib/postgresql/data
+      - ./db-init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=${DB_USER}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_AUTH_NAME:-auth}
+    healthcheck:
+      test: [
+          "CMD-SHELL",
+          "pg_isready -U ${DB_USER} -d ${DB_AUTH_NAME:-auth}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eufonica-backend
+  
+  kafka-broker:
+    image: confluentinc/cp-kafka:7.7.0
+    container_name: eufonica_kafka
+    volumes:
+      - eufonica_kafka_data:/var/lib/kafka/data
+    environment:
+      - KAFKA_NODE_ID=${KAFKA_NODE_ID:-0}
+      - KAFKA_PROCESS_ROLES=${KAFKA_PROCESS_ROLES:-broker,controller}
+      - KAFKA_LISTENERS=${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}://0.0.0.0:${KAFKA_PORT:-9092},${KAFKA_CONTROLLER_LISTENER_NAMES:-CONTROLLER}://0.0.0.0:${KAFKA_CONTROLLER_LISTENER_PORT:-9093}
+      - KAFKA_ADVERTISED_LISTENERS=${KAFKA_SECURITY_PROTOCOL:-PLAINTEXT}://kafka-broker:${KAFKA_PORT:-9092}
+      - KAFKA_CONTROLLER_LISTENER_NAMES=${KAFKA_CONTROLLER_LISTENER_NAMES:-CONTROLLER}
+      - KAFKA_CONTROLLER_QUORUM_VOTERS=${KAFKA_NODE_ID:-0}@kafka-broker:${KAFKA_CONTROLLER_LISTENER_PORT:-9093}
+      - CLUSTER_ID=${KAFKA_CLUSTER_ID}
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=false
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "kafka-broker-api-versions --bootstrap-server localhost:9092"
+        ]
+      interval: 10s
+      timeout: 10s
+      retries: 5
+      start_period: 30s
+    networks:
+      - eufonica-backend
+
+  kafka-init:
+    image: confluentinc/cp-kafka:7.7.0
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+    command: kafka-topics --bootstrap-server kafka-broker:9092 --create --if-not-exists --topic __consumer_offsets --partitions 50 --replication-factor 1 --config cleanup.policy=compact
+    networks:
+      - eufonica-backend
+
+networks:
+  eufonica-backend:
+
+volumes:
+  eufonica_postgres_data:
+  eufonica_kafka_data:
