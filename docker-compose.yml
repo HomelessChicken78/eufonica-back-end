@@ -146,6 +146,44 @@ services:
       retries: 5
     networks:
       - eufonica-backend
+  
+  catalog-query:
+    build: ./services/catalog-query-service
+    container_name: eufonica_catalog_query
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_CATALOG_QUERY_NAME:-catalog_query}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DDL_AUTO=validate
+      - SERVER_PORT=8080
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker:${KAFKA_PORT:-9092}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - AUDIO_PRESIGN_DURATION_MINS=5
+      - REDIS_HOST=redis
+      - REDIST_PORT=6379
+      - BASE_TTL_DURATION_SECONDS=1800
+      - SEARCH_TTL_DURATION_SECONDS=120
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl", "-f", "http://localhost:8080/api/actuator/health"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eufonica-backend
 
 networks:
   eufonica-backend:
