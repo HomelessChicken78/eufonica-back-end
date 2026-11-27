@@ -185,6 +185,33 @@ services:
     networks:
       - eufonica-backend
 
+  engagement:
+    build: ./services/engagement-service
+    container_name: eufonica_engagement
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_ENGAGEMENT_NAME:-engagement}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DDL_AUTO=validate
+      - SERVER_PORT=8080
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker:${KAFKA_PORT:-9092}
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "curl", "-f", "http://localhost:8080/api/actuator/health"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eufonica-backend
+
 networks:
   eufonica-backend:
 
