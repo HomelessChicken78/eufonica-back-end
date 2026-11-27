@@ -56,6 +56,78 @@ services:
     networks:
       - eufonica-backend
 
+  auth:
+    build: ./services/auth-service
+    container_name: eufonica_auth
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_AUTH_NAME:-auth}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DDL_AUTO=validate
+      - SERVER_PORT=8080
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker:${KAFKA_PORT:-9092}
+      - CATALOG_COMMAND_SERVICE_URL=http://catalog-command:8080
+      - ARTIST_CREATION_URI=/api/internal/artists
+      - AWS_REGION=${AWS_REGION}
+      - COGNITO_DOMAIN=${COGNITO_DOMAIN}
+      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+      - PROVIDER_NAME=cognito
+      - COGNITO_M2M_CLIENT_ID=${COGNITO_M2M_CLIENT_ID}
+      - COGNITO_M2M_CLIENT_SECRET=${COGNITO_M2M_CLIENT_SECRET}
+      - COGNITO_M2M_SCOPE=${COGNITO_M2M_SCOPE}
+      - TIMEZONE=${TIMEZONE:-Europe/Rome}
+    healthcheck:
+      test: [
+        "CMD",
+        "curl", "-f", "http://localhost:8080/api/actuator/health"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eufonica-backend
+
+  catalog-command:
+    build: ./services/catalog-command-service
+    container_name: eufonica_catalog_command
+    depends_on:
+      kafka-broker:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/${DB_CATALOG_COMMAND_NAME:-catalog_command}
+      - DB_USERNAME=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - DDL_AUTO=validate
+      - SERVER_PORT=8080
+      - MAX_AUDIO_SIZE=50MB
+      - MUSIC_FORMATS=audio/mpeg,audio/wav,audio/flac,audio/ogg,audio/aac
+      - OUTBOX_PROCESSOR_JOB_DELAY_MS=1000
+      - KAFKA_BOOTSTRAP_SERVERS=kafka-broker:${KAFKA_PORT:-9092}
+      - AWS_REGION=${AWS_REGION}
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - COGNITO_USER_POOL_ID=${COGNITO_USER_POOL_ID}
+      - COGNITO_M2M_SCOPE=${COGNITO_M2M_SCOPE}
+      - TIMEZONE=${TIMEZONE:-Europe/Rome}
+    healthcheck:
+      test: [
+        "CMD",
+        "curl", "-f", "http://localhost:8080/api/actuator/health"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - eufonica-backend
+
 networks:
   eufonica-backend:
 
