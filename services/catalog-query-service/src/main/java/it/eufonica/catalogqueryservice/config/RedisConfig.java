@@ -16,7 +16,7 @@ import java.time.Duration;
 @Configuration
 @EnableCaching
 public class RedisConfig {
-    @Value("${REDIS_BASE_TTL_DURATION_SECONDS:1800}")
+    @Value("${BASE_TTL_DURATION_SECONDS:1800}")
     private Long ttlDuration;
 
     @Value("${SEARCH_TTL_DURATION_SECONDS:300}")
