@@ -3,6 +3,7 @@ package it.eufonica.catalogcommandservice.service.core;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistCreationRequestDTO;
 import it.eufonica.catalogcommandservice.dto.artist.ArtistSummaryResponseDTO;
 import it.eufonica.catalogcommandservice.exception.CatalogErrorReason;
+import it.eufonica.catalogcommandservice.repository.SongRepository;
 import it.eufonica.exception.CommonErrorReason;
 import it.eufonica.exception.client.BadRequestException;
 import it.eufonica.exception.client.ConflictException;
@@ -31,6 +32,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
 
     // Repository
     private final ArtistRepository artistRepository;
+    private final SongRepository songRepository;
 
     // Utility & Mappers
     private final ArtistMapper artistMapper;
@@ -91,6 +93,18 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         validateArtistRequest(creationRequestDTO);
 
         Artist artist = findByIdOrThrow(artistId);
+
+        if (creationRequestDTO.getFoundationDate().isAfter(artist.getFoundationDate())) {
+            // Only in this case there is a risk. Check whether there is at least one song
+            // with publishedDate before the new foundationDate
+            boolean hasConflict = songRepository.existsByCreditedArtistsContainingAndPublishedDateBeforeAndPublishedDateIsNotNull(artist, creationRequestDTO.getFoundationDate());
+
+            if (hasConflict)
+                throw new ConflictException(
+                        "New foundation date invalid: there is at least one song with published date after the requested new foundation date.",
+                CatalogErrorReason.INVALID_CREDITED_ARTIST_FOUNDATION_DATE
+            );
+        }
 
         artist.setName(creationRequestDTO.getName());
         artist.setFoundationDate(creationRequestDTO.getFoundationDate());
