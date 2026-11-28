@@ -79,7 +79,8 @@ public class CognitoUserServiceImpl implements CognitoUserService {
         } catch (CognitoIdentityProviderException | SdkClientException e) {
             throw new InternalServerErrorException(
                     "Cognito adminAddUserToGroup failed. sub=" + sub + ", group=" + userGroupName,
-                    CommonErrorReason.INTERNAL_ERROR);
+                    CommonErrorReason.INTERNAL_ERROR,
+                    e);
         }
     }
 }
