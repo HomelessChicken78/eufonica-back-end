@@ -103,6 +103,9 @@ public class SongCommandServiceImpl implements SongCommandService {
         if (songRepository.existsByTitleAndArtistOwner(request.getTitle(), owner))
             throw new ConflictException(String.format("Song %s for artist %s already exists.", request.getTitle(), owner.getName()), CatalogErrorReason.SONG_NAME_ALREADY_EXISTS_FOR_ARTIST);
 
+        // Avoid null pointer exceptions
+        if (request.getCreditedArtists() == null) request.setCreditedArtists(new HashSet<>());
+
         // Guarantees that the constraint [V.song_owner.IS_A_song_credit] is always satisfied
         request.getCreditedArtists().add(ownerId);
 
