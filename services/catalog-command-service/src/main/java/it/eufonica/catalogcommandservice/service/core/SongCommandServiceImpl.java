@@ -29,6 +29,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
@@ -88,6 +89,30 @@ public class SongCommandServiceImpl implements SongCommandService {
         artist.getCreditedSongs().remove(song);
     }
 
+    /**
+     * Check if the {@code artist.foundationDate} is before {@code songPublishedDate}
+     *
+     * @param creditedArtist the credited artist to check the foundation date against
+     * @param songPublishedDate the song published date
+     *
+     * @throws ConflictException if the {@code artist.foundationDate} is after {@code songPublishedDate}
+     */
+    private void validateCreditedArtistFoundationDate(Artist creditedArtist, LocalDate songPublishedDate) {
+        if (songPublishedDate != null && creditedArtist.getFoundationDate().isAfter(songPublishedDate)) {
+            log.warn(
+                    "Invalid song credit: artist foundation date (artistId={}, foundationDate={}) is after song published date ({}).",
+                    creditedArtist.getId(),
+                    creditedArtist.getFoundationDate(),
+                    songPublishedDate
+            );
+
+            throw new ConflictException(
+                    String.format("Credited Artist %s foundation date must be before or equal to Song published date.", creditedArtist.getId()),
+                    CatalogErrorReason.INVALID_CREDITED_ARTIST_FOUNDATION_DATE
+            );
+        }
+    }
+
     @Override
     public SongResponseDTO publishSong(PublishSongRequestDTO request, MultipartFile audioFile) {
         currentCaller.requireUser();
@@ -119,19 +144,7 @@ public class SongCommandServiceImpl implements SongCommandService {
             addCreditedArtist(song, creditedArtist);
 
             // [V.song_credit.pubblicazione_dopo_fondazione]
-            if (request.getPublishedDate() != null && creditedArtist.getFoundationDate().isAfter(request.getPublishedDate())) {
-                log.warn(
-                        "Invalid song credit: artist foundation date (artistId={}, foundationDate={}) is after song published date ({}).",
-                        artistId,
-                        creditedArtist.getFoundationDate(),
-                        request.getPublishedDate()
-                );
-
-                throw new ConflictException(
-                        String.format("Credited Artist %s foundation date must be before or equal to Song published date.", creditedArtist.getId()),
-                        CatalogErrorReason.INVALID_CREDITED_ARTIST_FOUNDATION_DATE
-                );
-            }
+            validateCreditedArtistFoundationDate(creditedArtist, request.getPublishedDate());
         }
 
         // Validate the audio file
