@@ -26,6 +26,8 @@ public class ArtistController {
             @ApiResponse(responseCode = "400", description = "Request validation failed (e.g. invalid name format, missing or future foundation date).",
                     content = @Content(schema = @Schema(implementation = ValidationErrorResponseDTO.class))),
             @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or has no artist affiliation (reason: NOT_AN_ARTIST).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Credited artist's foundation date is after one of the song's published date they are credited to (reason: INVALID_CREDITED_ARTIST_FOUNDATION_DATE).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PutMapping(consumes = APPLICATION_JSON_VALUE, produces = APPLICATION_JSON_VALUE)
