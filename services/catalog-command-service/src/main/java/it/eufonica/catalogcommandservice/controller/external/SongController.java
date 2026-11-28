@@ -76,6 +76,8 @@ public class SongController {
             @ApiResponse(responseCode = "403", description = "Caller is not a USER (reason: NOT_AN_USER) or is not the song's owning artist (reason: NOT_AN_ARTIST or ARTIST_OWNERSHIP_MISMATCH).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
             @ApiResponse(responseCode = "404", description = "The song does not exist or the artist does not exist (reason: RESOURCE_NOT_FOUND).",
+                    content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class))),
+            @ApiResponse(responseCode = "409", description = "Credited artist's foundation date is after the song's published date (reason: INVALID_CREDITED_ARTIST_FOUNDATION_DATE).",
                     content = @Content(schema = @Schema(implementation = GeneralErrorResponseDTO.class)))
     })
     @PutMapping(path = "/{idSong}/artists/{idArtist}", produces = APPLICATION_JSON_VALUE)
