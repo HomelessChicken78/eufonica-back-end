@@ -15,9 +15,7 @@ Il sistema possiede i seguenti microservizi:
 I microservizi comunicano tra loro in due modi:
 
 - **Comunicazione sincrona**: viene usato `RestClient` quando un servizio ha bisogno di ottenere dei dati subito da un altro microservizio.
-- **Comunicazione asincrona**:
-    - **Code Messaggi**: Servono per mettere in coda operazioni specifiche. Garantisce che il messaggio venga elaborato almeno una volta (at-least-once).
-    - **Publisher/Subscriber**: Usato nel pattern CQRS. Il Catalog Command Service pubblica eventi, come “Canzone Pubblicata”. Il Catalog Query Service li riceve e aggiorna il database di lettura, mantenendolo sincronizzato nel tempo (consistenza eventuale).
+- **Comunicazione asincrona** con **Publisher/Subscriber**: Usato nel pattern CQRS. Il Catalog Command Service pubblica eventi, come “Canzone Pubblicata”. Il Catalog Query Service li riceve e aggiorna il database di lettura, mantenendolo sincronizzato nel tempo (consistenza eventuale).
 
 ## Autenticazione e autorizzazione con AWS Cognito
 
@@ -41,8 +39,33 @@ Anche questo claim compare solo alla generazione del token successivo, quindi c'
 
 Il codice della Lambda è versionato nel repository (`services/auth-service/lambda/pre-token-generation`) e caricato manualmente su AWS.
 
+## Database e migrazione
+
+Il sistema usa **Postgres 17**, con 4 database separati (uno per ciascun microservizio: `auth`, `catalog_command`, `catalog_query`, `engagement`), tutti ospitati dalla stessa istanza Postgres ma logicamente isolati.
+
+Nella progettazione si è cercato di rimanere il più possibile technology-agnostic rispetto al database relazionale specifico: dove possibile si preferisce **JPQL** a query native, evitando costrutti o sintassi specifiche di Postgres. Questo rende più semplice, in linea di principio, sostituire il database relazionale con un altro senza riscrivere la logica di accesso ai dati.
+
+### Flyway
+
+Le migrazioni dello schema sono gestite con **Flyway**, un file di migrazione versionato per ciascun database. Questo sostituisce la generazione automatica dello schema (`ddl-auto`), che in fase di sviluppo veniva impostata temporaneamente su `create` per generare la prima migrazione a partire dalle entità JPA/Hibernate, per poi tornare permanentemente su `validate`: Hibernate verifica che lo schema (creato da Flyway) corrisponda alle entità, senza mai modificarlo direttamente.
+
 ## Ambiente Docker
 
 Tutti i servizi del sistema (microservizi di Spring, database, broker dei messaggi etc.) vengono lanciati tramite container Docker.
 
 Un `docker-compose.yml` permette di avviare tutti i servizi.
+
+### Avvio del sistema
+
+Prima del primo avvio, copiare `.env.example` in `.env` nella root del progetto e compilare i valori richiesti (credenziali database, cluster ID Kafka, credenziali AWS/Cognito).
+
+Per costruire e avviare tutto lo stack:
+
+```bash
+mvn clean install -DskipTests
+docker compose up --build -d
+```
+
+Il primo comando compila tutti i moduli e tutte le librerie, incluse quelle comuni (presenti in `<root>/services/common/`), per poter produrre i rispettivi jar. Il secondo costruisce le immagini Docker a partire da quei jar e avvia all'interno lo stack (Postgres, Kafka, Redis, i 4 microservizi applicativi e il Gateway).
+
+L'unico servizio mappato all'esterno (e dunque raggiungibile dalla macchina host) è il Gateway. Gli altri comunicano tramite rete Docker interna.
