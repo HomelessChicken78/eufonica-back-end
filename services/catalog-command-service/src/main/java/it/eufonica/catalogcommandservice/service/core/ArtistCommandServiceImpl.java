@@ -97,7 +97,7 @@ public class ArtistCommandServiceImpl implements ArtistCommandService {
         if (creationRequestDTO.getFoundationDate() != null && creationRequestDTO.getFoundationDate().isAfter(artist.getFoundationDate())) {
             // Only in this case there is a risk. Check whether there is at least one song
             // with publishedDate before the new foundationDate
-            boolean hasConflict = songRepository.existsByCreditedArtistsContainingAndPublishedDateBeforeAndPublishedDateIsNotNull(artist, creationRequestDTO.getFoundationDate());
+            boolean hasConflict = songRepository.existsSongConflictingWithFoundationDate(artist, creationRequestDTO.getFoundationDate());
 
             if (hasConflict)
                 throw new ConflictException(
