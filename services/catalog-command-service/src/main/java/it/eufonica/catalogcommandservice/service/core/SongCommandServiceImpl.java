@@ -241,6 +241,9 @@ public class SongCommandServiceImpl implements SongCommandService {
 
         Artist creditedArtist = artistService.findByIdOrThrow(idArtist);
 
+        // [V.song_credit.pubblicazione_dopo_fondazione]
+        validateCreditedArtistFoundationDate(creditedArtist, song.getPublishedDate());
+
         addCreditedArtist(song, creditedArtist);
 
         song.setVersion(song.getVersion() + 1);
